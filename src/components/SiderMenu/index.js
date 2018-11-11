@@ -1,6 +1,6 @@
-import React from "react";
-import { Drawer } from "antd";
-import SiderMenu from "./SiderMenu";
+import React from 'react';
+import { Drawer } from 'antd';
+import SiderMenu from './SiderMenu';
 
 /**
  * Recursively flatten the data
@@ -27,7 +27,7 @@ const SiderMenuWrapper = props => {
       onClose={() => onCollapse(true)}
       style={{
         padding: 0,
-        height: "100vh"
+        height: '100vh',
       }}
     >
       <SiderMenu

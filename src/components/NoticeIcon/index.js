@@ -1,9 +1,9 @@
-import React, { PureComponent } from "react";
-import ReactDOM from "react-dom";
-import { Popover, Icon, Tabs, Badge, Spin } from "antd";
-import classNames from "classnames";
-import List from "./NoticeList";
-import styles from "./index.less";
+import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
+import { Popover, Icon, Tabs, Badge, Spin } from 'antd';
+import classNames from 'classnames';
+import List from './NoticeList';
+import styles from './index.less';
 
 const { TabPane } = Tabs;
 
@@ -18,11 +18,10 @@ export default class NoticeIcon extends PureComponent {
     loading: false,
     clearClose: false,
     locale: {
-      emptyText: "No notifications",
-      clear: "Clear"
+      emptyText: 'No notifications',
+      clear: 'Clear',
     },
-    emptyImage:
-      "https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg"
+    emptyImage: 'https://gw.alipayobjects.com/zos/rmsportal/wAhyIChODzsoKIOBHcBk.svg',
   };
 
   onItemClick = (item, tabProps) => {
@@ -34,13 +33,13 @@ export default class NoticeIcon extends PureComponent {
     }
   };
 
-  onClear = name => {
+  onClear = (name) => {
     const { onClear, clearClose } = this.props;
-    onClear(name);
+    onClear(name)
     if (clearClose) {
       this.popover.click();
     }
-  };
+  }
 
   onTabChange = tabType => {
     const { onTabChange } = this.props;
@@ -80,24 +79,13 @@ export default class NoticeIcon extends PureComponent {
   }
 
   render() {
-    const {
-      className,
-      count,
-      popupAlign,
-      popupVisible,
-      onPopupVisibleChange,
-      bell
-    } = this.props;
+    const { className, count, popupAlign, popupVisible, onPopupVisibleChange, bell } = this.props;
     const noticeButtonClass = classNames(className, styles.noticeButton);
     const notificationBox = this.getNotificationBox();
     const NoticeBellIcon = bell || <Icon type="bell" className={styles.icon} />;
     const trigger = (
       <span className={noticeButtonClass}>
-        <Badge
-          count={count}
-          style={{ boxShadow: "none" }}
-          className={styles.badge}
-        >
+        <Badge count={count} style={{ boxShadow: 'none' }} className={styles.badge}>
           {NoticeBellIcon}
         </Badge>
       </span>
@@ -106,7 +94,7 @@ export default class NoticeIcon extends PureComponent {
       return trigger;
     }
     const popoverProps = {};
-    if ("popupVisible" in this.props) {
+    if ('popupVisible' in this.props) {
       popoverProps.visible = popupVisible;
     }
     return (
@@ -119,9 +107,7 @@ export default class NoticeIcon extends PureComponent {
         popupAlign={popupAlign}
         onVisibleChange={onPopupVisibleChange}
         {...popoverProps}
-        ref={node => {
-          this.popover = ReactDOM.findDOMNode(node);
-        }} // eslint-disable-line
+        ref={node => { this.popover = ReactDOM.findDOMNode(node)}} // eslint-disable-line
       >
         {trigger}
       </Popover>

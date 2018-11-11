@@ -1,7 +1,7 @@
-import React from "react";
-import { Avatar, List } from "antd";
-import classNames from "classnames";
-import styles from "./NoticeList.less";
+import React from 'react';
+import { Avatar, List } from 'antd';
+import classNames from 'classnames';
+import styles from './NoticeList.less';
 
 export default function NoticeList({
   data = [],
@@ -11,7 +11,7 @@ export default function NoticeList({
   locale,
   emptyText,
   emptyImage,
-  showClear = true
+  showClear = true,
 }) {
   if (data.length === 0) {
     return (
@@ -26,11 +26,11 @@ export default function NoticeList({
       <List className={styles.list}>
         {data.map((item, i) => {
           const itemCls = classNames(styles.item, {
-            [styles.read]: item.read
+            [styles.read]: item.read,
           });
           // eslint-disable-next-line no-nested-ternary
           const leftIcon = item.avatar ? (
-            typeof item.avatar === "string" ? (
+            typeof item.avatar === 'string' ? (
               <Avatar className={styles.avatar} src={item.avatar} />
             ) : (
               item.avatar
@@ -38,11 +38,7 @@ export default function NoticeList({
           ) : null;
 
           return (
-            <List.Item
-              className={itemCls}
-              key={item.key || i}
-              onClick={() => onClick(item)}
-            >
+            <List.Item className={itemCls} key={item.key || i} onClick={() => onClick(item)}>
               <List.Item.Meta
                 className={styles.meta}
                 avatar={<span className={styles.iconElement}>{leftIcon}</span>}
@@ -54,10 +50,7 @@ export default function NoticeList({
                 }
                 description={
                   <div>
-                    <div
-                      className={styles.description}
-                      title={item.description}
-                    >
+                    <div className={styles.description} title={item.description}>
                       {item.description}
                     </div>
                     <div className={styles.datetime}>{item.datetime}</div>

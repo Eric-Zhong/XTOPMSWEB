@@ -26,7 +26,7 @@ const links = [{
   blankTarget: true,
 }];
 
-const copyright = <div>Copyright <Icon type="copyright" /> 2018 北京钛谷诚泽网络通讯科技有限公司</div>;
+const copyright = <div>Copyright <Icon type="copyright" /> 2017 蚂蚁金服体验技术部出品</div>;
 
 ReactDOM.render(
   <div style={{ background: '#f5f5f5', overflow: 'hidden' }}>

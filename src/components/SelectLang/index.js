@@ -1,8 +1,8 @@
-import React, { PureComponent } from "react";
-import { formatMessage, setLocale, getLocale } from "umi/locale";
-import { Menu, Icon, Dropdown } from "antd";
-import classNames from "classnames";
-import styles from "./index.less";
+import React, { PureComponent } from 'react';
+import { formatMessage, setLocale, getLocale } from 'umi/locale';
+import { Menu, Icon, Dropdown } from 'antd';
+import classNames from 'classnames';
+import styles from './index.less';
 
 export default class SelectLang extends PureComponent {
   changLang = ({ key }) => {
@@ -13,33 +13,29 @@ export default class SelectLang extends PureComponent {
     const { className } = this.props;
     const selectedLang = getLocale();
     const langMenu = (
-      <Menu
-        className={styles.menu}
-        selectedKeys={[selectedLang]}
-        onClick={this.changLang}
-      >
+      <Menu className={styles.menu} selectedKeys={[selectedLang]} onClick={this.changLang}>
         <Menu.Item key="zh-CN">
           <span role="img" aria-label="简体中文">
             🇨🇳
-          </span>{" "}
+          </span>{' '}
           简体中文
         </Menu.Item>
         <Menu.Item key="zh-TW">
           <span role="img" aria-label="繁体中文">
             🇭🇰
-          </span>{" "}
+          </span>{' '}
           繁体中文
         </Menu.Item>
         <Menu.Item key="en-US">
           <span role="img" aria-label="English">
             🇬🇧
-          </span>{" "}
+          </span>{' '}
           English
         </Menu.Item>
         <Menu.Item key="pt-BR">
           <span role="img" aria-label="Português">
             🇵🇹
-          </span>{" "}
+          </span>{' '}
           Português
         </Menu.Item>
       </Menu>
@@ -49,7 +45,7 @@ export default class SelectLang extends PureComponent {
         <Icon
           type="global"
           className={classNames(styles.dropDown, className)}
-          title={formatMessage({ id: "navBar.lang" })}
+          title={formatMessage({ id: 'navBar.lang' })}
         />
       </Dropdown>
     );

@@ -1,21 +1,21 @@
-import React, { Component } from "react";
-import { connect } from "dva";
-import { formatMessage, FormattedMessage } from "umi/locale";
-import Link from "umi/link";
-import { Checkbox, Alert, Icon } from "antd";
-import Login from "@/components/Login";
-import styles from "./Login.less";
+import React, { Component } from 'react';
+import { connect } from 'dva';
+import { formatMessage, FormattedMessage } from 'umi/locale';
+import Link from 'umi/link';
+import { Checkbox, Alert, Icon } from 'antd';
+import Login from '@/components/Login';
+import styles from './Login.less';
 
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
 @connect(({ login, loading }) => ({
   login,
-  submitting: loading.effects["login/login"]
+  submitting: loading.effects['login/login'],
 }))
 class LoginPage extends Component {
   state = {
-    type: "account",
-    autoLogin: true
+    type: 'account',
+    autoLogin: true,
   };
 
   onTabChange = type => {
@@ -24,14 +24,14 @@ class LoginPage extends Component {
 
   onGetCaptcha = () =>
     new Promise((resolve, reject) => {
-      this.loginForm.validateFields(["mobile"], {}, (err, values) => {
+      this.loginForm.validateFields(['mobile'], {}, (err, values) => {
         if (err) {
           reject(err);
         } else {
           const { dispatch } = this.props;
           dispatch({
-            type: "login/getCaptcha",
-            payload: values.mobile
+            type: 'login/getCaptcha',
+            payload: values.mobile,
           })
             .then(resolve)
             .catch(reject);
@@ -44,28 +44,23 @@ class LoginPage extends Component {
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
-        type: "login/login",
+        type: 'login/login',
         payload: {
           ...values,
-          type
-        }
+          type,
+        },
       });
     }
   };
 
   changeAutoLogin = e => {
     this.setState({
-      autoLogin: e.target.checked
+      autoLogin: e.target.checked,
     });
   };
 
   renderMessage = content => (
-    <Alert
-      style={{ marginBottom: 24 }}
-      message={content}
-      type="error"
-      showIcon
-    />
+    <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
   );
 
   render() {
@@ -81,52 +76,33 @@ class LoginPage extends Component {
             this.loginForm = form;
           }}
         >
-          <Tab
-            key="account"
-            tab={formatMessage({ id: "app.login.tab-login-credentials" })}
-          >
-            {login.status === "error" &&
-              login.type === "account" &&
+          <Tab key="account" tab={formatMessage({ id: 'app.login.tab-login-credentials' })}>
+            {login.status === 'error' &&
+              login.type === 'account' &&
               !submitting &&
-              this.renderMessage(
-                formatMessage({ id: "app.login.message-invalid-credentials" })
-              )}
-            <UserName
-              name="userName"
-              placeholder="username: admin or user 用户名"
-            />
+              this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
+            <UserName name="userName" placeholder="username: admin or user" />
             <Password
               name="password"
-              placeholder="password: ant.design 密码"
-              onPressEnter={() =>
-                this.loginForm.validateFields(this.handleSubmit)
-              }
+              placeholder="password: ant.design"
+              onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
             />
           </Tab>
-          <Tab
-            key="mobile"
-            tab={formatMessage({ id: "app.login.tab-login-mobile" })}
-          >
-            {login.status === "error" &&
-              login.type === "mobile" &&
+          <Tab key="mobile" tab={formatMessage({ id: 'app.login.tab-login-mobile' })}>
+            {login.status === 'error' &&
+              login.type === 'mobile' &&
               !submitting &&
               this.renderMessage(
-                formatMessage({
-                  id: "app.login.message-invalid-verification-code"
-                })
+                formatMessage({ id: 'app.login.message-invalid-verification-code' })
               )}
             <Mobile name="mobile" />
-            <Captcha
-              name="captcha"
-              countDown={120}
-              onGetCaptcha={this.onGetCaptcha}
-            />
+            <Captcha name="captcha" countDown={120} onGetCaptcha={this.onGetCaptcha} />
           </Tab>
           <div>
             <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
               <FormattedMessage id="app.login.remember-me" />
             </Checkbox>
-            <a style={{ float: "right" }} href="">
+            <a style={{ float: 'right' }} href="">
               <FormattedMessage id="app.login.forgot-password" />
             </a>
           </div>
@@ -135,21 +111,9 @@ class LoginPage extends Component {
           </Submit>
           <div className={styles.other}>
             <FormattedMessage id="app.login.sign-in-with" />
-            <Icon
-              type="alipay-circle"
-              className={styles.icon}
-              theme="outlined"
-            />
-            <Icon
-              type="taobao-circle"
-              className={styles.icon}
-              theme="outlined"
-            />
-            <Icon
-              type="weibo-circle"
-              className={styles.icon}
-              theme="outlined"
-            />
+            <Icon type="alipay-circle" className={styles.icon} theme="outlined" />
+            <Icon type="taobao-circle" className={styles.icon} theme="outlined" />
+            <Icon type="weibo-circle" className={styles.icon} theme="outlined" />
             <Link className={styles.register} to="/user/register">
               <FormattedMessage id="app.login.signup" />
             </Link>

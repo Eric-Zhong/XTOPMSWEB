@@ -1,11 +1,11 @@
-import React, { Component, Fragment } from "react";
-import { connect } from "dva";
-import { Form, Card, Select, List, Tag, Icon, Row, Col, Button } from "antd";
+import React, { Component, Fragment } from 'react';
+import { connect } from 'dva';
+import { Form, Card, Select, List, Tag, Icon, Row, Col, Button } from 'antd';
 
-import TagSelect from "@/components/TagSelect";
-import StandardFormRow from "@/components/StandardFormRow";
-import ArticleListContent from "@/components/ArticleListContent";
-import styles from "./Articles.less";
+import TagSelect from '@/components/TagSelect';
+import StandardFormRow from '@/components/StandardFormRow';
+import ArticleListContent from '@/components/ArticleListContent';
+import styles from './Articles.less';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -14,7 +14,7 @@ const pageSize = 5;
 
 @connect(({ list, loading }) => ({
   list,
-  loading: loading.models.list
+  loading: loading.models.list,
 }))
 @Form.create({
   onValuesChange({ dispatch }, changedValues, allValues) {
@@ -23,38 +23,38 @@ const pageSize = 5;
     console.log(changedValues, allValues);
     // 模拟查询表单生效
     dispatch({
-      type: "list/fetch",
+      type: 'list/fetch',
       payload: {
-        count: 5
-      }
+        count: 5,
+      },
     });
-  }
+  },
 })
 class SearchList extends Component {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: "list/fetch",
+      type: 'list/fetch',
       payload: {
-        count: 5
-      }
+        count: 5,
+      },
     });
   }
 
   setOwner = () => {
     const { form } = this.props;
     form.setFieldsValue({
-      owner: ["wzj"]
+      owner: ['wzj'],
     });
   };
 
   fetchMore = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: "list/appendFetch",
+      type: 'list/appendFetch',
       payload: {
-        count: pageSize
-      }
+        count: pageSize,
+      },
     });
   };
 
@@ -62,31 +62,31 @@ class SearchList extends Component {
     const {
       form,
       list: { list },
-      loading
+      loading,
     } = this.props;
     const { getFieldDecorator } = form;
 
     const owners = [
       {
-        id: "wzj",
-        name: "我自己"
+        id: 'wzj',
+        name: '我自己',
       },
       {
-        id: "wjh",
-        name: "吴家豪"
+        id: 'wjh',
+        name: '吴家豪',
       },
       {
-        id: "zxx",
-        name: "周星星"
+        id: 'zxx',
+        name: '周星星',
       },
       {
-        id: "zly",
-        name: "赵丽颖"
+        id: 'zly',
+        name: '赵丽颖',
       },
       {
-        id: "ym",
-        name: "姚明"
-      }
+        id: 'ym',
+        name: '姚明',
+      },
     ];
 
     const IconText = ({ type, text }) => (
@@ -100,23 +100,20 @@ class SearchList extends Component {
       wrapperCol: {
         xs: { span: 24 },
         sm: { span: 24 },
-        md: { span: 12 }
-      }
+        md: { span: 12 },
+      },
     };
 
     const loadMore =
       list.length > 0 ? (
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <Button
-            onClick={this.fetchMore}
-            style={{ paddingLeft: 48, paddingRight: 48 }}
-          >
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Button onClick={this.fetchMore} style={{ paddingLeft: 48, paddingRight: 48 }}>
             {loading ? (
               <span>
                 <Icon type="loading" /> 加载中...
               </span>
             ) : (
-              "加载更多"
+              '加载更多'
             )}
           </Button>
         </div>
@@ -126,13 +123,9 @@ class SearchList extends Component {
       <Fragment>
         <Card bordered={false}>
           <Form layout="inline">
-            <StandardFormRow
-              title="所属类目"
-              block
-              style={{ paddingBottom: 11 }}
-            >
+            <StandardFormRow title="所属类目" block style={{ paddingBottom: 11 }}>
               <FormItem>
-                {getFieldDecorator("category")(
+                {getFieldDecorator('category')(
                   <TagSelect expandable>
                     <TagSelect.Option value="cat1">类目一</TagSelect.Option>
                     <TagSelect.Option value="cat2">类目二</TagSelect.Option>
@@ -154,12 +147,12 @@ class SearchList extends Component {
               <Row>
                 <Col lg={16} md={24} sm={24} xs={24}>
                   <FormItem>
-                    {getFieldDecorator("owner", {
-                      initialValue: ["wjh", "zxx"]
+                    {getFieldDecorator('owner', {
+                      initialValue: ['wjh', 'zxx'],
                     })(
                       <Select
                         mode="multiple"
-                        style={{ maxWidth: 286, width: "100%" }}
+                        style={{ maxWidth: 286, width: '100%' }}
                         placeholder="选择 owner"
                       >
                         {owners.map(owner => (
@@ -180,11 +173,8 @@ class SearchList extends Component {
               <Row gutter={16}>
                 <Col xl={8} lg={10} md={12} sm={24} xs={24}>
                   <FormItem {...formItemLayout} label="活跃用户">
-                    {getFieldDecorator("user", {})(
-                      <Select
-                        placeholder="不限"
-                        style={{ maxWidth: 200, width: "100%" }}
-                      >
+                    {getFieldDecorator('user', {})(
+                      <Select placeholder="不限" style={{ maxWidth: 200, width: '100%' }}>
                         <Option value="lisa">李三</Option>
                       </Select>
                     )}
@@ -192,11 +182,8 @@ class SearchList extends Component {
                 </Col>
                 <Col xl={8} lg={10} md={12} sm={24} xs={24}>
                   <FormItem {...formItemLayout} label="好评度">
-                    {getFieldDecorator("rate", {})(
-                      <Select
-                        placeholder="不限"
-                        style={{ maxWidth: 200, width: "100%" }}
-                      >
+                    {getFieldDecorator('rate', {})(
+                      <Select placeholder="不限" style={{ maxWidth: 200, width: '100%' }}>
                         <Option value="good">优秀</Option>
                       </Select>
                     )}
@@ -209,7 +196,7 @@ class SearchList extends Component {
         <Card
           style={{ marginTop: 24 }}
           bordered={false}
-          bodyStyle={{ padding: "8px 32px 32px 32px" }}
+          bodyStyle={{ padding: '8px 32px 32px 32px' }}
         >
           <List
             size="large"
@@ -224,7 +211,7 @@ class SearchList extends Component {
                 actions={[
                   <IconText type="star-o" text={item.star} />,
                   <IconText type="like-o" text={item.like} />,
-                  <IconText type="message" text={item.message} />
+                  <IconText type="message" text={item.message} />,
                 ]}
                 extra={<div className={styles.listItemExtra} />}
               >
