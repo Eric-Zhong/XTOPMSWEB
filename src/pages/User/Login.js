@@ -13,11 +13,14 @@ const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
   submitting: loading.effects['login/login'],
 }))
 class LoginPage extends Component {
+
+  // this.state 的默认值
   state = {
     type: 'account',
     autoLogin: true,
   };
 
+  // 切换Tab时
   onTabChange = type => {
     this.setState({ type });
   };
@@ -39,8 +42,11 @@ class LoginPage extends Component {
       });
     });
 
+  // 处理 Submit 提交事件
   handleSubmit = (err, values) => {
+    console.log('处理点击登录')
     const { type } = this.state;
+    console.log(type);
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
@@ -63,6 +69,7 @@ class LoginPage extends Component {
     <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
   );
 
+  // 输出页面HTML
   render() {
     const { login, submitting } = this.props;
     const { type, autoLogin } = this.state;
@@ -81,13 +88,31 @@ class LoginPage extends Component {
               login.type === 'account' &&
               !submitting &&
               this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
-            <UserName name="userName" placeholder="username: admin or user" />
+            <UserName name="userName" placeholder="username: admin or user 用户名" />
             <Password
               name="password"
-              placeholder="password: ant.design"
+              placeholder="password: ant.design 密码"
               onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
             />
           </Tab>
+          <div>
+            <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
+              <FormattedMessage id="app.login.remember-me" />
+            </Checkbox>
+          </div>
+          <Submit loading={submitting}>
+            <FormattedMessage id="app.login.login" />
+          </Submit>
+        </Login>
+      </div>
+    );
+  }
+}
+
+export default LoginPage;
+
+
+/* 从 上面的 Tab 中移除了 Mobile 登录方式
           <Tab key="mobile" tab={formatMessage({ id: 'app.login.tab-login-mobile' })}>
             {login.status === 'error' &&
               login.type === 'mobile' &&
@@ -98,17 +123,10 @@ class LoginPage extends Component {
             <Mobile name="mobile" />
             <Captcha name="captcha" countDown={120} onGetCaptcha={this.onGetCaptcha} />
           </Tab>
-          <div>
-            <Checkbox checked={autoLogin} onChange={this.changeAutoLogin}>
-              <FormattedMessage id="app.login.remember-me" />
-            </Checkbox>
-            <a style={{ float: 'right' }} href="">
-              <FormattedMessage id="app.login.forgot-password" />
-            </a>
-          </div>
-          <Submit loading={submitting}>
-            <FormattedMessage id="app.login.login" />
-          </Submit>
+
+*/
+
+/* 切换其它的登记方式
           <div className={styles.other}>
             <FormattedMessage id="app.login.sign-in-with" />
             <Icon type="alipay-circle" className={styles.icon} theme="outlined" />
@@ -118,10 +136,11 @@ class LoginPage extends Component {
               <FormattedMessage id="app.login.signup" />
             </Link>
           </div>
-        </Login>
-      </div>
-    );
-  }
-}
+*/
 
-export default LoginPage;
+
+/* 忘记密码
+            <a style={{ float: 'right' }} href="">
+              <FormattedMessage id="app.login.forgot-password" />
+            </a>
+*/

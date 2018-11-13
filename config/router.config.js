@@ -1,5 +1,6 @@
+/* 在这里配置菜单和权限 */
 export default [
-  // user
+  // user login & register
   {
     path: '/user',
     component: '../layouts/UserLayout',
@@ -15,10 +16,30 @@ export default [
     path: '/',
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
+    authority: ['admin', 'user'], // 在这里控制访问权限
     routes: [
-      // dashboard
+      // site default path to "/"
       { path: '/', redirect: '/dashboard/analysis' },
+      // XTOPMS User Management
+      {
+        path: '/system',
+        name: 'Organization',
+        icon: 'user',
+        authority: ['admin'], // 在这里控制访问权限
+        routes: [
+          {
+            path: '/system/organizations',
+            name: 'Organization',
+            component: './List/TableList',
+          },
+          {
+            path: '/system/users/',
+            name: 'User',
+            component: './System/UserList',
+          },
+        ]
+      },
+      // dashboard
       {
         path: '/dashboard',
         name: 'dashboard',
@@ -136,6 +157,7 @@ export default [
           },
         ],
       },
+      // profile
       {
         path: '/profile',
         name: 'profile',
@@ -155,6 +177,7 @@ export default [
           },
         ],
       },
+      // result
       {
         name: 'result',
         icon: 'check-circle-o',
@@ -169,6 +192,7 @@ export default [
           { path: '/result/fail', name: 'fail', component: './Result/Error' },
         ],
       },
+      // exception
       {
         name: 'exception',
         icon: 'warning',
@@ -198,6 +222,7 @@ export default [
           },
         ],
       },
+      // account
       {
         name: 'account',
         icon: 'user',
@@ -255,6 +280,7 @@ export default [
           },
         ],
       },
+      // component
       {
         component: '404',
       },

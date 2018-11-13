@@ -280,6 +280,8 @@ export default {
   'app.setting.weakmode': '色弱模式',
   'app.setting.copy': '拷贝设置',
   'app.setting.copyinfo': '拷贝成功，请到 src/defaultSettings.js 中替换默认配置',
-  'app.setting.production.hint':
-    '配置栏只在开发环境用于预览，生产环境不会展现，请拷贝后手动修改配置文件',
+  'app.setting.production.hint': '配置栏只在开发环境用于预览，生产环境不会展现，请拷贝后手动修改配置文件',
+  // XTOPMS 在这里进行多语言翻译
+  'menu.Organization': '组织架构',
+  'menu.Organization.User': '用户',
 };

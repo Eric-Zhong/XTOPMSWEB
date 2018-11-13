@@ -65,13 +65,20 @@ export default {
   externals: {
     '@antv/data-set': 'DataSet',
   },
-  // proxy: {
-  //   '/server/api/': {
-  //     target: 'https://preview.pro.ant.design/',
-  //     changeOrigin: true,
-  //     pathRewrite: { '^/server': '' },
-  //   },
-  // },
+  // 配置 Mock 的代理
+  // https://github.com/ant-design/ant-design-pro/issues/2373
+  proxy: {
+    '/server/api/': {
+      target: 'https://preview.pro.ant.design/',
+      changeOrigin: true,
+      pathRewrite: { '^/server': '' },
+    },
+    '/api': {
+      target: 'https://preview.pro.ant.design/',
+      changeOrigin: true,
+      // pathRewrite: { '^/server': '' },
+    },
+  },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
     javascriptEnabled: true,

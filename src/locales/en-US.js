@@ -7,8 +7,7 @@ export default {
   'validation.email.wrong-format': 'The email address is in the wrong format!',
   'validation.password.required': 'Please enter your password!',
   'validation.password.twice': 'The passwords entered twice do not match!',
-  'validation.password.strength.msg':
-    "Please enter at least 6 characters and don't use passwords that are easy to guess.",
+  'validation.password.strength.msg': "Please enter at least 6 characters and don't use passwords that are easy to guess.",
   'validation.password.strength.strong': 'Strength: strong',
   'validation.password.strength.medium': 'Strength: medium',
   'validation.password.strength.short': 'Strength: too short',
@@ -39,8 +38,7 @@ export default {
   'form.standard.placeholder': 'Please enter a metric',
   'form.client.label': 'Client',
   'form.client.label.tooltip': 'Target service object',
-  'form.client.placeholder':
-    'Please describe your customer service, internal customers directly @ Name / job number',
+  'form.client.placeholder': 'Please describe your customer service, internal customers directly @ Name / job number',
   'form.invites.label': 'Inviting critics',
   'form.invites.placeholder': 'Please direct @ Name / job number, you can invite up to 5 people',
   'form.weight.label': 'Weight',
@@ -117,8 +115,7 @@ export default {
   'app.register.get-verification-code': 'Get code',
   'app.register.sing-in': 'Already have an account?',
   'app.register-result.msg': 'Account：registered at {email}',
-  'app.register-result.activation-email':
-    'The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.',
+  'app.register-result.activation-email': 'The activation email has been sent to your email address and is valid for 24 hours. Please log in to the email in time and click on the link in the email to activate the account.',
   'app.register-result.back-home': 'Back to home',
   'app.register-result.view-mailbox': 'View mailbox',
   'app.home.introduce': 'introduce',
@@ -155,8 +152,7 @@ export default {
   'app.analysis.table.users': 'Users',
   'app.analysis.table.weekly-range': 'Weekly Range',
   'app.forms.basic.title': 'Basic form',
-  'app.forms.basic.description':
-    'Form pages are used to collect or verify information to users, and basic forms are common in scenarios where there are fewer data items.',
+  'app.forms.basic.description': 'Form pages are used to collect or verify information to users, and basic forms are common in scenarios where there are fewer data items.',
   'app.monitor.trading-activity': 'Real-Time Trading Activity',
   'app.monitor.total-transactions': 'Total transactions today',
   'app.monitor.sales-target': 'Sales target completion rate',
@@ -203,13 +199,11 @@ export default {
   'app.settings.security.phone': 'Security Phone',
   'app.settings.security.phone-description': 'Bound phone：',
   'app.settings.security.question': 'Security Question',
-  'app.settings.security.question-description':
-    'The security question is not set, and the security policy can effectively protect the account security',
+  'app.settings.security.question-description': 'The security question is not set, and the security policy can effectively protect the account security',
   'app.settings.security.email': 'Backup Email',
   'app.settings.security.email-description': 'Bound Email：',
   'app.settings.security.mfa': 'MFA Device',
-  'app.settings.security.mfa-description':
-    'Unbound MFA device, after binding, can be confirmed twice',
+  'app.settings.security.mfa-description': 'Unbound MFA device, after binding, can be confirmed twice',
   'app.settings.security.modify': 'Modify',
   'app.settings.security.set': 'Set',
   'app.settings.security.bind': 'Bind',
@@ -221,14 +215,11 @@ export default {
   'app.settings.binding.dingding-description': 'Currently unbound DingTalk account',
   'app.settings.binding.bind': 'Bind',
   'app.settings.notification.password': 'Account Password',
-  'app.settings.notification.password-description':
-    'Messages from other users will be notified in the form of a station letter',
+  'app.settings.notification.password-description': 'Messages from other users will be notified in the form of a station letter',
   'app.settings.notification.messages': 'System Messages',
-  'app.settings.notification.messages-description':
-    'System messages will be notified in the form of a station letter',
+  'app.settings.notification.messages-description': 'System messages will be notified in the form of a station letter',
   'app.settings.notification.todo': 'To-do Notification',
-  'app.settings.notification.todo-description':
-    'The to-do list will be notified in the form of a letter from the station',
+  'app.settings.notification.todo-description': 'The to-do list will be notified in the form of a letter from the station',
   'app.settings.open': 'Open',
   'app.settings.close': 'Close',
   'app.exception.back': 'Back to home',
@@ -236,8 +227,7 @@ export default {
   'app.exception.description.404': 'Sorry, the page you visited does not exist',
   'app.exception.description.500': 'Sorry, the server is reporting an error',
   'app.result.error.title': 'Submission Failed',
-  'app.result.error.description':
-    'Please check and modify the following information before resubmitting.',
+  'app.result.error.description': 'Please check and modify the following information before resubmitting.',
   'app.result.error.hint-title': 'The content you submitted has the following error:',
   'app.result.error.hint-text1': 'Your account has been frozen',
   'app.result.error.hint-btn1': 'Thaw immediately',
@@ -245,8 +235,7 @@ export default {
   'app.result.error.hint-btn2': 'Upgrade immediately',
   'app.result.error.btn-text': 'Return to modify',
   'app.result.success.title': 'Submission Success',
-  'app.result.success.description':
-    'The submission results page is used to feed back the results of a series of operational tasks. If it is a simple operation, use the Message global prompt feedback. This text area can show a simple supplementary explanation. If there is a similar requirement for displaying “documents”, the following gray area can present more complicated content.',
+  'app.result.success.description': 'The submission results page is used to feed back the results of a series of operational tasks. If it is a simple operation, use the Message global prompt feedback. This text area can show a simple supplementary explanation. If there is a similar requirement for displaying “documents”, the following gray area can present more complicated content.',
   'app.result.success.operate-title': 'Project Name',
   'app.result.success.operate-id': 'Project ID：',
   'app.result.success.principal': 'Principal：',
@@ -288,6 +277,9 @@ export default {
   'app.setting.weakmode': 'Weak Mode',
   'app.setting.copy': 'Copy Setting',
   'app.setting.copyinfo': 'copy success，please replace defaultSettings in src/models/setting.js',
-  'app.setting.production.hint':
-    'Setting panel shows in development environment only, please manually modify',
+  'app.setting.production.hint': 'Setting panel shows in development environment only, please manually modify',
+  // XTOPMS
+  'menu.Organization': 'Organization',
+  'menu.Organization.Organization': 'Organization',
+  'menu.Organization.User': 'User',
 };

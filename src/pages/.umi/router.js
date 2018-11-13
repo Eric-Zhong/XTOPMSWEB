@@ -51,6 +51,31 @@ let routes = [
         "exact": true
       },
       {
+        "path": "/system",
+        "name": "Organization",
+        "icon": "user",
+        "authority": [
+          "admin"
+        ],
+        "routes": [
+          {
+            "path": "/system/organizations",
+            "name": "Organization",
+            "component": dynamic({ loader: () => import('../List/TableList'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "path": "/system/users/",
+            "name": "User",
+            "component": dynamic({ loader: () => import('../System/UserList'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
+          }
+        ]
+      },
+      {
         "path": "/dashboard",
         "name": "dashboard",
         "icon": "dashboard",

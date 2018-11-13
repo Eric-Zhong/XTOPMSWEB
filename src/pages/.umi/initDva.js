@@ -21,11 +21,11 @@ app.model({ namespace: 'project', ...(require('/Work/Dotnet/XTOPMSWEB/src/models
 app.model({ namespace: 'setting', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/setting.js').default) });
 app.model({ namespace: 'user', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/user.js').default) });
 app.model({ namespace: 'register', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/User/models/register.js').default) });
+app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
 app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
 app.model({ namespace: 'chart', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/chart.js').default) });
 app.model({ namespace: 'monitor', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/monitor.js').default) });
 app.model({ namespace: 'form', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Forms/models/form.js').default) });
-app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
 app.model({ namespace: 'profile', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Profile/models/profile.js').default) });
 app.model({ namespace: 'error', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Exception/models/error.js').default) });
 app.model({ namespace: 'geographic', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Account/Settings/models/geographic.js').default) });
