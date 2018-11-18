@@ -8,10 +8,38 @@ import styles from './Login.less';
 
 const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
 
+
+// 使用 dva 框架实现 
+// https://dvajs.com/guide/introduce-class.html#数据流图 
+
+/*
+核心概念
+State：一个对象，保存整个应用状态
+View：React 组件构成的视图层
+Action：一个对象，描述事件
+connect 方法：一个函数，绑定 State 到 View
+dispatch 方法：一个函数，发送 Action 到 State
+#
+*/
+
+/*
+connect 是一个函数，绑定 State 到 View。
+```
+import { connect } from 'dva';
+function mapStateToProps(state) {
+  return { todos: state.todos };
+}
+connect(mapStateToProps)(App);
+```
+connect 方法返回的也是一个 React 组件，通常称为容器组件。因为它是原始 UI 组件的容器，即在外面包了一层 State。
+connect 方法传入的第一个参数是 mapStateToProps 函数，mapStateToProps 函数会返回一个对象，用于建立 State 到 Props 的映射关系。
+*/
 @connect(({ login, loading }) => ({
   login,
   submitting: loading.effects['login/login'],
 }))
+
+
 class LoginPage extends Component {
 
   // this.state 的默认值
@@ -25,6 +53,27 @@ class LoginPage extends Component {
     this.setState({ type });
   };
 
+
+  /*
+
+  Dispatch
+  dispatch 是一个函数方法，用来将 Action 发送给 State。
+  dispatch 方法从哪里来？被 connect 的 Component 会自动在 props 中拥有 dispatch 方法。
+
+  Action
+  用来描述UI层事件的一个对象
+  使用 dispatch 来进行传递，如下面的
+  {
+    type: 'login/getCaptcha',
+    payload: values.mobile,
+  }
+  type：指定会触发哪个 state 的 函数.
+        “login/getCaptchs”
+        login： state 名称
+        getCaptcha： 在 state 中定义的函数名称
+  */
+  
+
   onGetCaptcha = () =>
     new Promise((resolve, reject) => {
       this.loginForm.validateFields(['mobile'], {}, (err, values) => {
@@ -32,6 +81,10 @@ class LoginPage extends Component {
           reject(err);
         } else {
           const { dispatch } = this.props;
+          // dva中，被connect后，在this.props中就会有dispatch函数了
+          // 通知 model (namespace='login') 去执行里面定义的 getCaptcha() 函数。
+          // 传递的参数是 payload: values.mobile 传递表单界面中的 mobile 数据
+          // 
           dispatch({
             type: 'login/getCaptcha',
             payload: values.mobile,
@@ -49,6 +102,7 @@ class LoginPage extends Component {
     console.log(type);
     if (!err) {
       const { dispatch } = this.props;
+      // 调用 model 中定义的 effects 和 action 的内容
       dispatch({
         type: 'login/login',
         payload: {
@@ -88,7 +142,10 @@ class LoginPage extends Component {
               login.type === 'account' &&
               !submitting &&
               this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
-            <UserName name="userName" placeholder="username: admin or user 用户名" />
+            <UserName 
+              name="userName" 
+              placeholder="username: admin or user 用户名" 
+            />
             <Password
               name="password"
               placeholder="password: ant.design 密码"

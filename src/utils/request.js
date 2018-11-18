@@ -4,6 +4,8 @@ import router from 'umi/router';
 import hash from 'hash.js';
 import { isAntdPro } from './utils';
 
+import {getToken} from '@/utils/token';
+
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
   201: '新建或修改数据成功。',
@@ -24,6 +26,7 @@ const codeMessage = {
 
 const checkStatus = response => {
   if (response.status >= 200 && response.status < 300) {
+    // 成功获取了服务器返回的响应数据
     return response;
   }
   const errortext = codeMessage[response.status] || response.statusText;
@@ -71,6 +74,7 @@ export default function request(url, option) {
   /**
    * Produce fingerprints based on url and parameters
    * Maybe url has the same parameters
+   * 生成一个用于标识某一类请求的 Hash 值。 后面做 Cache 时会用到这个 Code。
    */
   const fingerprint = url + (options.body ? JSON.stringify(options.body) : '');
   const hashcode = hash
@@ -87,6 +91,7 @@ export default function request(url, option) {
     newOptions.method === 'PUT' ||
     newOptions.method === 'DELETE'
   ) {
+    // 如果它不是 Form 类型的提交，给上面这些 Method 方式的 Ajax 调用，添加默认的 Http Header 信息。
     if (!(newOptions.body instanceof FormData)) {
       newOptions.headers = {
         Accept: 'application/json',
@@ -103,13 +108,24 @@ export default function request(url, option) {
     }
   }
 
-  const expirys = options.expirys && 60;
+  // 在 XTOPMS 中，需要用到 Token
+  var token = getToken();
+  if(token){
+    newOptions.headers = {
+      Authorization: 'Bearer ' + token,
+      ...newOptions.headers,
+    };
+  }
+
+    const expirys = options.expirys && 60;
   // options.expirys !== false, return the cache,
   if (options.expirys !== false) {
     const cached = sessionStorage.getItem(hashcode);
     const whenCached = sessionStorage.getItem(`${hashcode}:timestamp`);
     if (cached !== null && whenCached !== null) {
       const age = (Date.now() - whenCached) / 1000;
+      // 如果 sessionStorage 中的数据没有过期，直接使用它里面的数据。
+      // 这样可以有效减少后端数据库的交互操作。
       if (age < expirys) {
         const response = new Response(new Blob([cached]));
         return response.json();
@@ -118,7 +134,18 @@ export default function request(url, option) {
       sessionStorage.removeItem(`${hashcode}:timestamp`);
     }
   }
+
+  console.log('Http Ajax Request URL (fetch): ' + url);
+  console.log('Http Ajax Request Body (fetch):');
+  console.log(newOptions);
+
   return fetch(url, newOptions)
+    .then(response=>{
+      // TODO: 这里主要是参加一个 Handler，为了打印 http response 内容。 PRD 时请去掉。
+      console.log('Http Ajax Response Data (fetch):');
+      console.log(response);
+      return response;
+    })
     .then(checkStatus)
     .then(response => cachedSave(response, hashcode))
     .then(response => {

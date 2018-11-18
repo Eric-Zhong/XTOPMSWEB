@@ -74,7 +74,7 @@ export default {
       pathRewrite: { '^/server': '' },
     },
     '/api': {
-      target: 'https://preview.pro.ant.design/',
+      target: 'http://localhost:21021',
       changeOrigin: true,
       // pathRewrite: { '^/server': '' },
     },

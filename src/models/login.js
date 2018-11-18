@@ -7,6 +7,10 @@ import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
+import {setToken, getToken} from '@/utils/token';
+
+// 引用 xto 的核心 api
+import {tokenAuth} from '@/services/xtoapi';
 
 export default {
   namespace: 'login',
@@ -25,15 +29,34 @@ export default {
     // 处理登录请求. 用 *来定义函数名称
     *login({ payload }, { call, put }) {
       // 调用 web api 模拟登录身份验证. Response 为调用后的返回结果
-      const response = yield call(fakeAccountLogin, payload);
+      // const response = yield call(fakeAccountLogin, payload);
 
-      // 使用 put 调用下一个函数 "changeLoginStatus". changeLoginStatus 函数定义见最下面.
+      // 去掉 ant 的登录验证，换成 xto 的登记。
+      // response 即调用 ajax 后的返回 http response 对象。
+      const response = yield call(tokenAuth, payload);
+
+      // 使用 put 调用 model 中定义的函数 "changeLoginStatus". changeLoginStatus 函数定义见最下面.
       yield put({
         type: 'changeLoginStatus', 
         payload: response,
       });
+
       // Login successfully
-      if (response.status === 'ok') {
+      // 为了兼容 XTO 与 Ant，这里重写了一下。
+      if (
+        (
+          // XTO response
+          response.__abp && response.__abp === true && response.result && response.result.ok === true
+        )
+        || // Ant response
+        (response.status === 'ok')
+      ) {
+
+        // 取 response 中获取到的 Token
+        const token = response.result.accessToken;
+        // 保存 Token
+        setToken(token);
+
         reloadAuthorized();
         const urlParams = new URL(window.location.href);
         const params = getPageQuery(); // 获取 URL 中的参数
@@ -50,6 +73,8 @@ export default {
             return;
           }
         }
+
+        // 通知页面进行跳转
         yield put(routerRedux.replace(redirect || '/'));
       }
     },
@@ -87,12 +112,26 @@ export default {
   */
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
-      return {
-        ...state,
-        status: payload.status,
-        type: payload.type,
-      };
+      console.log(payload);
+      if(payload && payload.__abp)
+      {
+        var resp = payload.result
+        setAuthority(resp.authority);
+        return {
+          ...state,
+          status: payload.success ? "ok" : "error",
+          type: resp.authType,
+        };
+      }
+      else
+      {
+        setAuthority(payload.currentAuthority);
+        return {
+          ...state,
+          status: payload.status,
+          type: payload.type,
+        };
+        }
     },
   },
 };

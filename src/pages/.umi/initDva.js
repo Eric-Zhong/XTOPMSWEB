@@ -20,6 +20,7 @@ app.model({ namespace: 'login', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/l
 app.model({ namespace: 'project', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/project.js').default) });
 app.model({ namespace: 'setting', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/setting.js').default) });
 app.model({ namespace: 'user', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/user.js').default) });
+app.model({ namespace: 'xtouser', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/xtouser.js').default) });
 app.model({ namespace: 'register', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/User/models/register.js').default) });
 app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
 app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
