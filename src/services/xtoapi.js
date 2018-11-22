@@ -5,7 +5,7 @@ import request from '@/utils/request';
 export async function tokenAuth(params){
   return request("http://localhost:21021/api/TokenAuth/Authenticate", {
     method: 'POST',
-    mode: 'cors',
+    // mode: 'cors',
     headers:[
       {"Content-Type": "application/json"},
       {'accept':'text/plain'},

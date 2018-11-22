@@ -95,11 +95,10 @@ class LoginPage extends Component {
       });
     });
 
-  // 处理 Submit 提交事件
+  // 处理 Submit 提交事件. 
+  // 因为是从 @Form 中提交的，在 values 中定义了整个表单内的所有数据。
   handleSubmit = (err, values) => {
-    console.log('处理点击登录')
     const { type } = this.state;
-    console.log(type);
     if (!err) {
       const { dispatch } = this.props;
       // 调用 model 中定义的 effects 和 action 的内容

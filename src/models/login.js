@@ -2,15 +2,16 @@
 /* React effects reduces 中的概念 https://blog.csdn.net/zwp438123895/article/details/69374940 */
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-/* 引用 api 中定义的处理接口程序定义 */
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
-import {setToken, getToken} from '@/utils/token';
+import {setToken, getToken, setAccessToken} from '@/utils/token';
 
 // 引用 xto 的核心 api
 import {tokenAuth} from '@/services/xtoapi';
+// Ant Pro 原来的 api
+/* 引用 api 中定义的处理接口程序定义 */
+import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
 
 export default {
   namespace: 'login',
@@ -34,7 +35,10 @@ export default {
       // 去掉 ant 的登录验证，换成 xto 的登记。
       // response 即调用 ajax 后的返回 http response 对象。
       const response = yield call(tokenAuth, payload);
+      // const response = yield call(fakeAccountLogin, payload);
 
+      console.log('Login Response:');
+      console.log(response);
       // 使用 put 调用 model 中定义的函数 "changeLoginStatus". changeLoginStatus 函数定义见最下面.
       yield put({
         type: 'changeLoginStatus', 
@@ -45,37 +49,55 @@ export default {
       // 为了兼容 XTO 与 Ant，这里重写了一下。
       if (
         (
-          // XTO response
-          response.__abp && response.__abp === true && response.result && response.result.ok === true
+          // XTO response model
+          response.__abp && response.result && response.result.success === true
         )
-        || // Ant response
+        || // Ant response model
         (response.status === 'ok')
       ) {
 
-        // 取 response 中获取到的 Token
-        const token = response.result.accessToken;
-        // 保存 Token
-        setToken(token);
+        if(response.__abp)
+        {
+          // 取 response 中获取到的 Token
+          const token = response.result.accessToken;
+          const accessToken = response.result.encryptedAccessToken;
+          const expireInSeconds = response.result.expireInSeconds;
+          const userId = response.result.userid;
+          // 保存 Token
+          setToken(token);
+          setAccessToken(accessToken);
+        }
 
         reloadAuthorized();
+
         const urlParams = new URL(window.location.href);
         const params = getPageQuery(); // 获取 URL 中的参数
-        let { redirect } = params; // 
+        let { redirect } = params;
+
+        // 如果不存在需要跳转的路径
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
+
           if (redirectUrlParams.origin === urlParams.origin) {
-            redirect = redirect.substr(urlParams.origin.length);
-            if (redirect.startsWith('/#')) {
+            // 如果跳转的地址，就是当前系统的另一个界面地址时
+            redirect = redirect.substr(urlParams.origin.length); // 去掉前面的域名部分
+            if (redirect.startsWith('/#')) { // 如果 URL 参数是 #开头，就去掉
               redirect = redirect.substr(2);
             }
-          } else {
+          } 
+          else {
+            // 如果是其它系统的 URL，只能采用 Client 跳转
             window.location.href = redirect;
             return;
           }
         }
+        else{
+          redirect = "/";
+        }
 
-        // 通知页面进行跳转
+        // 通知页面进行跳转。这里需要注意，只有当用户的 Authority 中必须有非 guest 角色时，跳转到 / 时才生效，否则又回跳回到登录页面
         yield put(routerRedux.replace(redirect || '/'));
+        // yield put(routerRedux.push(redirect));
       }
     },
 
@@ -112,26 +134,28 @@ export default {
   */
   reducers: {
     changeLoginStatus(state, { payload }) {
-      console.log(payload);
-      if(payload && payload.__abp)
+      if(payload)
       {
-        var resp = payload.result
-        setAuthority(resp.authority);
-        return {
-          ...state,
-          status: payload.success ? "ok" : "error",
-          type: resp.authType,
-        };
-      }
-      else
-      {
-        setAuthority(payload.currentAuthority);
-        return {
-          ...state,
-          status: payload.status,
-          type: payload.type,
-        };
+        if(payload.__abp) // XTOPMS 接口返回的数据
+        {
+          var resp = payload.result
+          setAuthority(resp.authority);
+          return {
+            ...state,
+            status: payload.success ? "ok" : "error",
+            type: resp.authType,
+          };
         }
+        else
+        {
+          setAuthority(payload.currentAuthority);
+          return {
+            ...state,
+            status: payload.status,
+            type: payload.type,
+          };
+        }
+      }
     },
   },
 };

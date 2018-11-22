@@ -18,6 +18,7 @@ state: 该 Model 当前的状态。数据保存在这里，直接决定了视图
 reducers: Action 处理器，处理同步动作，用来算出最新的 State
 effects：Action 处理器，处理异步动作
 
+effects, reducers 的写法，及 DVA 的知识库，可以参考 https://github.com/dvajs/dva-knowledgemap 
 */
 
 // 引用针对自己的 Service/Api 定义
