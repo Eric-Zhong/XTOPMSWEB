@@ -282,4 +282,7 @@ export default {
   'menu.Organization': 'Organization',
   'menu.Organization.Organization': 'Organization',
   'menu.Organization.User': 'User',
+  'app.system.usercenter.title': 'User Center',
+  // Common Button
+  'app.button.new': 'New'
 };

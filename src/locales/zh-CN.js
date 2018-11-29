@@ -115,8 +115,7 @@ export default {
   'app.register.get-verification-code': '获取验证码',
   'app.register.sing-in': '使用已有账户登录',
   'app.register-result.msg': '你的账户：{email} 注册成功',
-  'app.register-result.activation-email':
-    '激活邮件已发送到你的邮箱中，邮件有效期为24小时。请及时登录邮箱，点击邮件中的链接激活帐户。',
+  'app.register-result.activation-email': '激活邮件已发送到你的邮箱中，邮件有效期为24小时。请及时登录邮箱，点击邮件中的链接激活帐户。',
   'app.register-result.back-home': '返回首页',
   'app.register-result.view-mailbox': '查看邮箱',
   'app.home.introduce': '介绍',
@@ -153,8 +152,7 @@ export default {
   'app.analysis.table.users': '用户数',
   'app.analysis.table.weekly-range': '周涨幅',
   'app.forms.basic.title': '基础表单',
-  'app.forms.basic.description':
-    '表单页用于向用户收集或验证信息，基础表单常见于数据项较少的表单场景。',
+  'app.forms.basic.description': '表单页用于向用户收集或验证信息，基础表单常见于数据项较少的表单场景。',
   'app.monitor.trading-activity': '活动实时交易情况',
   'app.monitor.total-transactions': '今日交易总额',
   'app.monitor.sales-target': '销售目标完成率',
@@ -237,8 +235,7 @@ export default {
   'app.result.error.hint-btn2': '立即升级',
   'app.result.error.btn-text': '返回修改',
   'app.result.success.title': '提交成功',
-  'app.result.success.description':
-    '提交结果页用于反馈一系列操作任务的处理结果， 如果仅是简单操作，使用 Message 全局提示反馈即可。 本文字区域可以展示简单的补充说明，如果有类似展示 “单据”的需求，下面这个灰色区域可以呈现比较复杂的内容。',
+  'app.result.success.description': '提交结果页用于反馈一系列操作任务的处理结果， 如果仅是简单操作，使用 Message 全局提示反馈即可。 本文字区域可以展示简单的补充说明，如果有类似展示 “单据”的需求，下面这个灰色区域可以呈现比较复杂的内容。',
   'app.result.success.operate-title': '项目名称',
   'app.result.success.operate-id': '项目 ID：',
   'app.result.success.principal': '负责人：',
@@ -283,5 +280,33 @@ export default {
   'app.setting.production.hint': '配置栏只在开发环境用于预览，生产环境不会展现，请拷贝后手动修改配置文件',
   // XTOPMS 在这里进行多语言翻译
   'menu.Organization': '组织架构',
+  'menu.Organization.Organization': '组织架构',
   'menu.Organization.User': '用户',
+  'app.system.usercenter.title': '用户管理中心',
+  // Common Text
+  'app.text.user_name': '姓名',
+  'app.text.user_account': '帐号',
+  'app.text.password': '密码',
+  'app.text.surname': '别名',
+  'app.text.email': '邮箱',
+  'app.text.status': '状态',
+  'app.text.is_active': '激活',
+  'app.text.creation_time': '创建时间',
+  'app.text.id': '编号',
+  'app.text.last_login_time': '上次登录时间',
+  'app.text.new_create': '新建',
+  'app.text.account_info': '帐号信息',
+  'app.text.department': '部门',
+  'app.text.role': '角色',
+  'app.text.check_all': '全选',
+  'app.text.create_user': '新建用户',
+  'app.text.change_password_when_first_login': '首次登录时要求修改密码',
+  // Common Button
+  'app.button.new': '新建',
+  // Form warning text
+  'app.form.user_name_required': '用户名不能为空',
+  // role
+  'app.role.user': '普通用户',
+  'app.role.admin': '管理员',
+  'app.xxxxxxxxxxx': 'xxxxxxxxxxxxxxxxxxxxxxx',
 };

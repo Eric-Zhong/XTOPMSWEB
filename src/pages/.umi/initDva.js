@@ -23,6 +23,7 @@ app.model({ namespace: 'user', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/us
 app.model({ namespace: 'xtouser', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/xtouser.js').default) });
 app.model({ namespace: 'register', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/User/models/register.js').default) });
 app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
+app.model({ namespace: 'UserCenterModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/System/models/UserCenterModel.js').default) });
 app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
 app.model({ namespace: 'chart', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/chart.js').default) });
 app.model({ namespace: 'monitor', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/monitor.js').default) });

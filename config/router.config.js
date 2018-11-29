@@ -32,10 +32,15 @@ export default [
             name: 'Organization',
             component: './List/TableList',
           },
+          // {
+          //   path: '/system/users/',
+          //   name: 'User1',
+          //   component: './System/UserList',
+          // },
           {
-            path: '/system/users/',
+            path: '/system/usercenter/',
             name: 'User',
-            component: './System/UserList',
+            component: './System/UserCenter',
           },
         ]
       },

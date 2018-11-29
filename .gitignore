@@ -71,3 +71,6 @@ dist
 src/pages/.umi/*
 src/pages/.umi/initDva.js
 src/pages/.umi/router.js
+
+# vscode
+.vscode/chrome/*

@@ -113,7 +113,17 @@ export default connect(mapStateToProps,mapDispatchToProps)(App)
 
 如何使用 @connect 看这里： https://blog.csdn.net/zl1zl2zl3/article/details/81357146
 */
-@connect((xtouser, loading)=>({
+
+// 见 @connect 是如何完成 connect 操作的
+/*
+connect 有两个参数, mapStateToProps, mapDispatchToProps. 一个将状态绑定到组件的props, 一个将方法绑定到组件的props
+
+以下是简写方式，将名称为 model 的实体中的 state 绑定到当前组件的 props 上。
+@connect((model)=>{
+  model
+})
+*/
+@connect((xtouser, loading)=>({ // 将 xtouser 这个 model 中定义的 state 绑定到当前组件的 this.props 上. 
   xtouser,
   loading: false,
 }))
@@ -141,14 +151,28 @@ class TableList extends PureComponent {
     },
     {
       title: 'Status',
-      // dataIndex: 'isActive',
-      dataIndex: 'lastLoginTime',
+      dataIndex: 'isActive',
+      // dataIndex: 'lastLoginTime',
+      render: (text, record) => {
+        let status = 'Unknow';
+        if(text){
+          status = 'Activie';
+        }else{
+          status = 'In-Active';
+        }
+        return status;
+      }
     },
     {
       title: 'Last Login Time',
       dataIndex: 'lastLoginTime',
       sorter: true,
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      render: (val) => {
+        if(val)
+          return <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>;
+        else
+          return <span>-</span>
+      },
     },
     {
       title: 'Creation Time',
@@ -219,9 +243,8 @@ class TableList extends PureComponent {
   render() {
 
     // 从当前 props 中获取需要的 信息，此信息在 render 是不能被修改的
-    // 见 @connect 是如何完成 connect 操作的
     const {
-      xtouser: {xtouser: {data}},
+      xtouser: {model},
       loading,
     } = this.props;
 
@@ -235,7 +258,7 @@ class TableList extends PureComponent {
               rowKey='id'
               selectedRows={selectedRows}
               loading={loading}
-              data={data}
+              data={model.data}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}

@@ -5,30 +5,54 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "name": "Launch Chrome For Debug",
+      "type": "chrome",
       "request": "launch",
-      "name": "Ant Design Pro Debug",
-      // "program": "${workspaceFolder}/dev",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "debug"
-      ],
-      "port": 9229
+      "url": "http://localhost:8000",
+      "sourceMaps": true,
+      "webRoot": "${workspaceRoot}",
+      "userDataDir": "${workspaceRoot}/.vscode/chrome"
     },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "npm debug",
-      "cwd": "${workspaceFolder}",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run-script",
-        "start"
-      ],
-      "timeout": 300000,
-      "port": 9229
-    }
+    // {
+    //   "type": "node",
+    //   "request": "launch",
+    //   "name": "Ant Design Pro Debug",
+    //   // "program": "${workspaceFolder}/dev",
+    //   "cwd": "${workspaceFolder}",
+    //   "runtimeExecutable": "npm",
+    //   "runtimeArgs": [
+    //     "run",
+    //     "debug"
+    //   ],
+    //   "port": 9222
+    // },
+    // {
+    //   "type": "node",
+    //   "request": "launch",
+    //   "name": "npm debug",
+    //   "cwd": "${workspaceFolder}",
+    //   "runtimeExecutable": "npm",
+    //   "runtimeArgs": [
+    //     "run-script",
+    //     "start"
+    //   ],
+    //   "timeout": 300000,
+    //   "port": 9222
+    // },
+    // {
+    //   "name": "Launch localhost",
+    //   "type": "chrome",
+    //   "request": "launch",
+    //   "url": "http://localhost:8000/",
+    //   "webRoot": "${workspaceFolder}/wwwroot"
+    // },
+    // {
+    //   "name": "Attach to url with files served from ./out",
+    //   "type": "chrome",
+    //   "request": "attach",
+    //   "port": 9222,
+    //   "url": "http://localhost:8000",
+    //   "webRoot": "${workspaceFolder}/wwwroot"
+    // }
   ]
 }

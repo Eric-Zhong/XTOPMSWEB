@@ -5,6 +5,7 @@ import hash from 'hash.js';
 import { isAntdPro } from './utils';
 
 import {getToken} from '@/utils/token';
+import { debug } from 'util';
 
 const codeMessage = {
   200: '服务器成功返回请求的数据。',
@@ -57,6 +58,12 @@ const cachedSave = (response, hashcode) => {
       });
   }
   return response;
+};
+
+const MyDebug = (title, obj) => {
+  return;
+  if(title) console.info(title);
+  console.info(obj);
 };
 
 /**
@@ -135,15 +142,12 @@ export default function request(url, option) {
     }
   }
 
-  console.log('Http Ajax Request URL (fetch): ' + url);
-  console.log('Http Ajax Request Body (fetch):');
-  console.log(newOptions);
+  MyDebug('Http Ajax Request URL (fetch): ' + url, newOptions);
 
   return fetch(url, newOptions)
     .then(response=>{
       // TODO: 这里主要是参加一个 Handler，为了打印 http response 内容。 PRD 时请去掉。
-      console.log('Http Ajax Response Data (fetch):');
-      console.log(response);
+      MyDebug('Http Ajax Response Data (fetch):', response);
       return response;
     })
     .then(checkStatus)

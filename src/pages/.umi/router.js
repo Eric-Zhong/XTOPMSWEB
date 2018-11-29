@@ -65,9 +65,9 @@ let routes = [
             "exact": true
           },
           {
-            "path": "/system/users/",
+            "path": "/system/usercenter/",
             "name": "User",
-            "component": dynamic({ loader: () => import('../System/UserList'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "component": dynamic({ loader: () => import('../System/UserCenter'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {
