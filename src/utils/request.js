@@ -25,6 +25,7 @@ const codeMessage = {
   504: '网关超时。',
 };
 
+// 对 response 进行预处理，如果正确返回200，就进行下一步操作，如果报错，给出提示信息并抛出异常信息
 const checkStatus = response => {
   if (response.status >= 200 && response.status < 300) {
     // 成功获取了服务器返回的响应数据
@@ -74,6 +75,13 @@ const MyDebug = (title, obj) => {
  * @return {object}           An object containing either "data" or "err"
  */
 export default function request(url, option) {
+
+  /* 执行 ajax 调用 */
+  /* 打印输入参数 */
+  console.log('/**************** http ajax request ***************/')
+  console.log(url);
+  console.log(option);
+
   const options = {
     expirys: isAntdPro(),
     ...option,
@@ -161,6 +169,7 @@ export default function request(url, option) {
       return response.json();
     })
     .catch(e => {
+      console.log(e);
       const status = e.name;
       if (status === 401) {
         // @HACK

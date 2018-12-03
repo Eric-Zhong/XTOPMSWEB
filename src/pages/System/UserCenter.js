@@ -87,14 +87,17 @@ class UserCenterComponent extends PureComponent {
   ];
 
   componentDidMount() {
-    console.log('System.Center mounted.')
     const { dispatch } = this.props;
+    /*
+    ! 这里是初始化时的数据查询，默认值暂时设置成0,10
+    */
+   const pagination = {
+    currentPage: 1, 
+    pageSize: 10
+   }
     dispatch({
       type: 'usercenter/query', // 调用 UserCenter Model 中定义的 Query effecter.
-      payload: {
-        skipCount: 0,
-        maxResultCount: 100
-      }
+      payload: pagination
     });
   }
 
@@ -107,6 +110,7 @@ class UserCenterComponent extends PureComponent {
       return newObj;
     }, {});
 
+    // * 分页、过滤、排序的查询条件
     const params = {
       currentPage: pagination.current,
       pageSize: pagination.pageSize,
@@ -146,11 +150,12 @@ class UserCenterComponent extends PureComponent {
             <StandardTable
                 rowKey='id'
                 selectedRows={selectedRows}
-                loading={loading.models.user}
+                loading={loading.models.usercenter}
                 data={usercenter.data}
                 columns={this.columns}
                 onSelectRow={this.onRowSelected}
                 onChange={this.handleStandardTableChange}
+                size='small'
             />
             <CreateUserDialog
               visible={showCreateUserDialog}

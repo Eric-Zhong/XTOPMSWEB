@@ -19,14 +19,14 @@ export default {
   },
 
   effects: {
+    /*
+    * 查询用户清单数据
+    */
     *query({payload}, { call, put }) {
-      console.log('Model:usercenter.effects.fetch()');
-      // console.log(payload);
       const response = yield call(getAll, payload);
       yield put({
         type: 'fetch',
         payload: response,
-        // params: payload, // 把调用时的参数也传给后面
       });
     },
     // handle create user dialog.
@@ -44,10 +44,7 @@ export default {
     },
     // Create user
     *createUser({payload}, {call, put}){
-      console.log(payload);
-      console.log('call create user api in UserCenterModel.');
       const response = yield call(create, payload);
-      console.log(response)
       // 判断 response 后，关闭窗口
       yield put({
         type: 'closeCreateUser',
@@ -72,7 +69,9 @@ export default {
         ...state,
         data: {
           list: list,
-          pagination: {},
+          pagination: {
+            total: total
+          },
         }
       };
       return newState; 

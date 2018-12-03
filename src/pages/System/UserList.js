@@ -209,9 +209,6 @@ class TableList extends PureComponent {
         maxResultCount: 100
       }
     });
-    // console.log('Pages.System.UserList.ComponentDidMount()');
-    // console.log(this.state);
-    // console.log(this.props);
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
