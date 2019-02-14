@@ -1,4 +1,4 @@
-import { getAll, create } from '@/services/xtouser';
+import { getAll, create, getOrganizationUnitTree } from '@/services/xtouser';
 import { get } from 'https';
 
 export default {
@@ -59,6 +59,15 @@ export default {
       });
 
     },
+    // Get organization unit tree
+    *getOU({payload}, {call, put}){
+      const response = yield call(getOrganizationUnitTree, payload);
+      console.log(response);
+      yield put({
+        type: 'loadOrganizationUnit',
+        payload: response
+      });
+    },
   },
 
   reducers: {
@@ -83,12 +92,19 @@ export default {
         showCreateUserDialog: false
       }
     },
+    // Open create user dialog.
     openCreateUser(state, action){
       return {
         ...state,
         showCreateUserDialog: true
       }
+    },
+    // Get orgnization unit data
+    loadOrganizationUnit(state, action){
+      return {
+        ...state,
+        organization: action.payload.result
+      }
     }
   },
-
 };

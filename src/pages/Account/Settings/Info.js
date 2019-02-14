@@ -20,9 +20,10 @@ class Info extends Component {
       security: (
         <FormattedMessage id="app.settings.menuMap.security" defaultMessage="Security Settings" />
       ),
-      binding: (
-        <FormattedMessage id="app.settings.menuMap.binding" defaultMessage="Account Binding" />
-      ),
+      // ! XTOPMS 不需要绑定非系统帐号
+      // binding: (
+      //   <FormattedMessage id="app.settings.menuMap.binding" defaultMessage="Account Binding" />
+      // ),
       notification: (
         <FormattedMessage
           id="app.settings.menuMap.notification"

@@ -92,6 +92,8 @@ class Center extends PureComponent {
       children,
     } = this.props;
 
+    console.log(currentUser);
+
     const operationTabList = [
       {
         key: 'articles',

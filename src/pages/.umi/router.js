@@ -59,9 +59,15 @@ let routes = [
         ],
         "routes": [
           {
+            "path": "/system/ou",
+            "name": "OU",
+            "component": dynamic({ loader: () => import('../System/OrganizationUnit'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
             "path": "/system/organizations",
             "name": "Organization",
-            "component": dynamic({ loader: () => import('../List/TableList'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "component": dynamic({ loader: () => import('../System/OrganizationCenter'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {

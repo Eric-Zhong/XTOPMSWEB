@@ -14,7 +14,8 @@ export async function tokenAuth(params){
     // Request.js 已经帮我们执行了 JSON.String 处理，所以这里不用再执行一次了
     body: {
       userNameOrEmailAddress: params.userName,
-      password: params.password
+      password: params.password,
+      tenancyName: params.tenancyName
     }
   });
 };

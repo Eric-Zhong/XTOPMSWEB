@@ -6,7 +6,7 @@ import { Checkbox, Alert, Icon } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
 
-const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+const { Tab, UserName, Password, Mobile, Captcha, Submit, TenancyName } = Login;
 
 
 // 使用 dva 框架实现 
@@ -141,13 +141,20 @@ class LoginPage extends Component {
               login.type === 'account' &&
               !submitting &&
               this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
+            <TenancyName 
+              name="tenancyName" 
+              placeholder="tenancy name: empty or default"
+              defaultValue="default"
+            />
             <UserName 
               name="userName" 
-              placeholder="username: admin or user 用户名" 
+              placeholder="username: admin or user 用户名"
+              defaultValue="admin"
             />
             <Password
               name="password"
               placeholder="password: ant.design 密码"
+              defaultValue="123qwe"
               onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
             />
           </Tab>

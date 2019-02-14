@@ -3,12 +3,15 @@ import request from '@/utils/request';
 
 // 获取所有用户信息
 export async function getAll(params) {
+  
   let currentPage = params.currentPage ? params.currentPage: 1;
   let pageSize = params.pageSize? params.pageSize: 10;
+  let sorter = params.sorter? params.sorter: "_";
 
   /* 
    ! 参数示例：{currentPage: 1, pageSize: 10}
    ! 参数示例：{currentPage: 2, pageSize: 10}
+   ! 参数示例：{currentPage: 2, pageSize: 10, sorter: 'id_descend'}
   */
 
   /*
@@ -18,7 +21,7 @@ export async function getAll(params) {
  let maxResultCount = pageSize;
 
   return request(
-    `http://localhost:21021/api/services/app/User/GetAll?SkipCount=${skipCount}&MaxResultCount=${maxResultCount}`, {
+    `http://localhost:21021/api/services/app/User/GetAll?SkipCount=${skipCount}&MaxResultCount=${maxResultCount}&sorter=${sorter}`, {
       method: 'GET',
       // mode: 'cors',
     }
@@ -37,3 +40,27 @@ export async function create(params) {
   }
   return request(url, option);
 };
+
+
+/*
+* 猎取当前登录用户信息
+*/
+export async function getCurrentUser(){
+  let url = 'http://localhost:21021/api/services/app/Session/GetCurrentLoginInformations';
+  let option = {
+    method: 'GET'
+  }
+  return request(url, option);
+}
+
+
+/*
+* 获取当前用户下所有的组织框架数据
+*/
+export async function getOrganizationUnitTree(){
+  let url = 'http://localhost:21021/api/services/app/OrganizationUnit/GetOrganizationUnitsTree';
+  let option = {
+    method: 'GET'
+  }
+  return request(url, option);
+}

@@ -88,19 +88,6 @@ class CreateUserDailog extends PureComponent {
             }
             </FormItem>
             <FormItem {...formItemLayout}
-              label={formatMessage({id:'app.text.user_account'})}
-            >
-            {
-              getFieldDecorator('name', {
-                rules:[{
-                  required: true, 
-                }]
-              })(
-                <Input></Input>
-              )
-            }
-            </FormItem>
-            <FormItem {...formItemLayout}
               label={formatMessage({id:'app.text.email'})}
             >
             {
@@ -130,7 +117,7 @@ class CreateUserDailog extends PureComponent {
               label={formatMessage({id:'app.text.user_name'})}
             >
             {
-              getFieldDecorator('userName', {
+              getFieldDecorator('name', {
                 rules:[{
                   required: true, 
                   message: formatMessage({id: 'app.form.user_name_required'})

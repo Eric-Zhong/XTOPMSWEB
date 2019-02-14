@@ -3,6 +3,21 @@ import { Icon } from 'antd';
 import styles from './index.less';
 
 export default {
+  // XTOPMS: add tenancy name form item.
+  TenancyName: {
+    props: {
+      size: 'large',
+      id: 'tenancyName',
+      prefix: <Icon type="user" className={styles.prefixIcon} />,
+      placeholder: 'default',
+    },
+    rules: [
+      {
+        required: false,
+        message: 'Please enter your tenancy name!',
+      },
+    ],
+  },
   UserName: {
     props: {
       size: 'large',

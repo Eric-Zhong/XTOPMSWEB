@@ -44,14 +44,27 @@ class UserCenterComponent extends PureComponent {
     {
       title: formatMessage({id:'app.text.id'}),
       dataIndex: 'id',
+      sorter: true,
+    },
+    {
+      title: formatMessage({id:'app.text.user_account'}),
+      dataIndex: 'userName',
+      sorter: true,
     },
     {
       title: formatMessage({id:'app.text.user_name'}),
       dataIndex: 'name',
+      sorter: true,
+    },
+    {
+      title: formatMessage({id:'app.text.surname'}),
+      dataIndex: 'surname',
+      sorter: true,
     },
     {
       title: formatMessage({id:'app.text.email'}),
       dataIndex: 'emailAddress',
+      sorter: true,
     },
     {
       title: formatMessage({id:'app.text.status'}),
@@ -91,10 +104,10 @@ class UserCenterComponent extends PureComponent {
     /*
     ! 这里是初始化时的数据查询，默认值暂时设置成0,10
     */
-   const pagination = {
-    currentPage: 1, 
-    pageSize: 10
-   }
+    const pagination = {
+      currentPage: 1, 
+      pageSize: 10
+    }
     dispatch({
       type: 'usercenter/query', // 调用 UserCenter Model 中定义的 Query effecter.
       payload: pagination

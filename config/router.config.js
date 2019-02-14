@@ -28,9 +28,14 @@ export default [
         authority: ['admin'], // 在这里控制访问权限
         routes: [
           {
+            path: '/system/ou',
+            name: 'OU',
+            component: './System/OrganizationUnit',
+          },
+          {
             path: '/system/organizations',
             name: 'Organization',
-            component: './List/TableList',
+            component: './System/OrganizationCenter',
           },
           // {
           //   path: '/system/users/',

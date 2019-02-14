@@ -79,8 +79,8 @@ export default function request(url, option) {
   /* 执行 ajax 调用 */
   /* 打印输入参数 */
   console.log('/**************** http ajax request ***************/')
-  console.log(url);
-  console.log(option);
+  if(url) console.log(url);
+  if(option)  console.log(option);
 
   const options = {
     expirys: isAntdPro(),
@@ -153,7 +153,7 @@ export default function request(url, option) {
   MyDebug('Http Ajax Request URL (fetch): ' + url, newOptions);
 
   return fetch(url, newOptions)
-    .then(response=>{
+    .then(response => {
       // TODO: 这里主要是参加一个 Handler，为了打印 http response 内容。 PRD 时请去掉。
       MyDebug('Http Ajax Response Data (fetch):', response);
       return response;
