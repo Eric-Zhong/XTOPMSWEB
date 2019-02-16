@@ -290,7 +290,30 @@ export default [
           },
         ],
       },
-      // component
+      // xeto develop platform
+      {
+        name: 'develop',
+        path: '/develop',
+        icon: 'user',
+        routes: [
+          {
+            path: '/develop/basic01',
+            name: '1.Basic layout',
+            component: './Develop/Basic01Layout',
+          },
+          {
+            path: '/develop/basic02',
+            name: '2.Basic table',
+            component: './Develop/Basic02Table',
+          },
+          {
+            path: '/develop/basic03',
+            name: '3.Basic form',
+            component: './Develop/Basic03Form',
+          },
+        ],
+      },
+      // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)
       {
         component: '404',
       },

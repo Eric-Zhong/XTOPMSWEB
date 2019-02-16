@@ -387,6 +387,34 @@ let routes = [
         ]
       },
       {
+        "name": "develop",
+        "path": "/develop",
+        "icon": "user",
+        "routes": [
+          {
+            "path": "/develop/basic01",
+            "name": "1.Basic layout",
+            "component": dynamic({ loader: () => import('../Develop/Basic01Layout'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "path": "/develop/basic02",
+            "name": "2.Basic table",
+            "component": dynamic({ loader: () => import('../Develop/Basic02Table'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "path": "/develop/basic03",
+            "name": "3.Basic form",
+            "component": dynamic({ loader: () => import('../Develop/Basic03Form'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
+          }
+        ]
+      },
+      {
         "component": dynamic({ loader: () => import('../404'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
         "exact": true
       },

@@ -74,3 +74,4 @@ src/pages/.umi/router.js
 
 # vscode
 .vscode/chrome/*
+src/pages/.umi/*
