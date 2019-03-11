@@ -410,6 +410,12 @@ let routes = [
             "exact": true
           },
           {
+            "path": "/develop/basic04",
+            "name": "4.Upload file",
+            "component": dynamic({ loader: () => import('../Develop/Basic04UploadFile'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
             "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
           }
         ]
