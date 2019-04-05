@@ -36,6 +36,8 @@ const checkStatus = response => {
     message: `请求错误 ${response.status}: ${response.url}`,
     description: errortext,
   });
+
+  // 定义 V8 引擎中的 Error 类型，关返回给系统
   const error = new Error(errortext);
   error.name = response.status;
   error.response = response;
@@ -169,7 +171,7 @@ export default function request(url, option) {
       return response.json();
     })
     .catch(e => {
-      console.log(e);
+      // console.log(e);
       const status = e.name;
       if (status === 401) {
         // @HACK
@@ -177,19 +179,26 @@ export default function request(url, option) {
         window.g_app._store.dispatch({
           type: 'login/logout',
         });
-        return;
       }
+
       // environment should not be used
       if (status === 403) {
         router.push('/exception/403');
-        return;
       }
+
       if (status <= 504 && status >= 500) {
         router.push('/exception/500');
-        return;
       }
+
       if (status >= 404 && status < 422) {
         router.push('/exception/404');
       }
+
+      if(status === "TypeError"){
+        // 处理不可控的Error信息
+        router.push('/exception/500'); // 用router.push 不起做用，页面不发生变化
+      }
+
+      return;
     });
 }

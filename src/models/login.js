@@ -37,13 +37,31 @@ export default {
       const response = yield call(tokenAuth, payload);
       // const response = yield call(fakeAccountLogin, payload);
 
-      console.log('Login Response:');
-      console.log(response);
-      // 使用 put 调用 model 中定义的函数 "changeLoginStatus". changeLoginStatus 函数定义见最下面.
-      yield put({
-        type: 'changeLoginStatus', 
-        payload: response,
-      });
+      // ! 这里要小心处理一下，数据 web api 服务有问题，这时 response 为 undefined.
+
+      // console.log('Login Response:');
+      // console.log(response);
+
+
+      // 先判断是否成功拿到了 response
+      if(!response){ // 真没拿到API的返回结果（网络、API Server的异常引起的原因）
+        // 如果 response 为空，或拿登录身份验证出错时，在下面这里处理
+        // 使用reduce去通知修改View中的sstate数据
+        yield put({
+          type: 'changeLoginStatus', 
+          payload: {
+            __abp: '2.0',
+            status: "404",
+            success: false,
+            result: {
+              authority: null,
+              authType: 'account',
+            }
+          },
+        });
+        return; // 退出该方法的执行。
+      }
+
 
       // Login successfully
       // 为了兼容 XTO 与 Ant，这里重写了一下。
@@ -55,6 +73,12 @@ export default {
         || // Ant response model
         (response.status === 'ok')
       ) {
+
+        // 使用 put 调用 model 中定义的函数 "changeLoginStatus". changeLoginStatus 函数定义见最下面.
+        yield put({
+          type: 'changeLoginStatus', 
+          payload: response,
+        });
 
         if(response.__abp)
         {
@@ -74,7 +98,7 @@ export default {
         const params = getPageQuery(); // 获取 URL 中的参数
         let { redirect } = params;
 
-        // 如果不存在需要跳转的路径
+        // 如果存在需要跳转的路径，需要登录后，将页面跳转到该路径上
         if (redirect) {
           const redirectUrlParams = new URL(redirect);
 
@@ -98,6 +122,8 @@ export default {
         // 通知页面进行跳转。这里需要注意，只有当用户的 Authority 中必须有非 guest 角色时，跳转到 / 时才生效，否则又回跳回到登录页面
         yield put(routerRedux.replace(redirect || '/'));
         // yield put(routerRedux.push(redirect));
+      }
+      else {
       }
     },
 
@@ -134,6 +160,7 @@ export default {
   */
   reducers: {
     changeLoginStatus(state, { payload }) {
+      
       if(payload)
       {
         if(payload.__abp) // XTOPMS 接口返回的数据
@@ -148,6 +175,7 @@ export default {
         }
         else
         {
+          // 这里是原来 Ant.Design 中模拟的返回值
           setAuthority(payload.currentAuthority);
           return {
             ...state,
@@ -155,7 +183,14 @@ export default {
             type: payload.type,
           };
         }
-      }
+      } else {
+        // ! 这里增加个判断，如果 Web API 出问题时，payload 的返回值会是 undefined.
+        // 此时，只能先自己构建一个 payload，然后传递给 UI 层进行显示
+        return {
+          ...state,
+          status: "error",
+        };
+    }
     },
   },
 };

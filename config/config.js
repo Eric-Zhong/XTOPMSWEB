@@ -4,6 +4,8 @@ import pageRoutes from './router.config';
 import webpackPlugin from './plugin.config';
 import defaultSettings from '../src/defaultSettings';
 
+import xtopmsRouters from './router.xtopms';
+
 const plugins = [
   [
     'umi-plugin-react',
@@ -56,7 +58,7 @@ export default {
     APP_TYPE: process.env.APP_TYPE || '',
   },
   // 路由配置
-  routes: pageRoutes,
+  routes: xtopmsRouters,
   // Theme for antd
   // https://ant.design/docs/react/customize-theme-cn
   theme: {
@@ -73,8 +75,8 @@ export default {
       changeOrigin: true,
       pathRewrite: { '^/server': '' },
     },
-    '/api': {
-      target: 'http://localhost:21021',
+    '/api/': {
+      target: 'http://localhost:21021/',
       changeOrigin: true,
       // pathRewrite: { '^/server': '' },
     },
@@ -110,5 +112,5 @@ export default {
     basePath: '/',
   },
 
-  chainWebpack: webpackPlugin,
+  // chainWebpack: webpackPlugin,
 };

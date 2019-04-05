@@ -65,42 +65,63 @@ export default {
       const response = yield call(getCurrentUser);
       // ! 从 XTOPMS 系统中获取 Current User 信息
       // TODO: 后期需要对这里的数据结构进行调整
-      const user = response.result.user;
-      let currentUser = {
-        ...user,
-        avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-        userid: user.id,
-        email: user.emailAddress,
-        signature: '',
-        title: '',
-        group: '',
-        tags: [{
-          key: '0',
-          label: '管理员'
-        }, {
-          key: '1',
-          label: 'Admin'
-        }],
-        notifyCount: 1,
-        country: 'China',
-        geographic: {
-          province: {
-            label: '浙江省',
-            key: '330000'
-          },
-          city: {
-            label: '杭州市',
-            key: '330100'
-          }
-        },
-        address: '',
-        phone: '18611178188'
-      };
 
-      yield put({
-        type: 'saveCurrentUser',
-        payload: currentUser,
-      });
+      // 如果没拿到用户信息，需要通知用户得新登录系统。
+      // 2019-04-02 Eric, 修复了此问题
+      if(
+        !response ||
+        response === null || 
+        // Ant 设计的 dispatch 功能，暂时不清楚是干什么用的，后面应该如何判断。
+        /*
+        !response.dispatch ||
+        response.dispatch === null || 
+        user === null
+        */
+        false
+        ){
+        window.g_app._store.dispatch({
+          type: 'login/logout',
+        });
+        return;
+      }
+      else{
+        const user = response.result.user;
+        let currentUser = {
+          ...user,
+          avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+          userid: user.id,
+          email: user.emailAddress,
+          signature: '',
+          title: '',
+          group: '',
+          tags: [{
+            key: '0',
+            label: '管理员'
+          }, {
+            key: '1',
+            label: 'Admin'
+          }],
+          notifyCount: 1,
+          country: 'China',
+          geographic: {
+            province: {
+              label: '浙江省',
+              key: '330000'
+            },
+            city: {
+              label: '杭州市',
+              key: '330100'
+            }
+          },
+          address: '',
+          phone: '18611178188'
+        };
+  
+        yield put({
+          type: 'saveCurrentUser',
+          payload: currentUser,
+        });
+      }
     },
   },
 

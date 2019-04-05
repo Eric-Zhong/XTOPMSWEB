@@ -5,6 +5,7 @@ import Link from 'umi/link';
 import { Checkbox, Alert, Icon } from 'antd';
 import Login from '@/components/Login';
 import styles from './Login.less';
+import { debug } from 'util';
 
 const { Tab, UserName, Password, Mobile, Captcha, Submit, TenancyName } = Login;
 
@@ -39,13 +40,13 @@ connect 方法传入的第一个参数是 mapStateToProps 函数，mapStateToPro
   submitting: loading.effects['login/login'],
 }))
 
-
 class LoginPage extends Component {
 
   // this.state 的默认值
   state = {
     type: 'account',
     autoLogin: true,
+    status: "",
   };
 
   // 切换Tab时
@@ -207,3 +208,4 @@ export default LoginPage;
               <FormattedMessage id="app.login.forgot-password" />
             </a>
 */
+

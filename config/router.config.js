@@ -316,6 +316,11 @@ export default [
             name: '4.Upload file',
             component: './Develop/Basic04UploadFile',
           },
+          {
+            path: '/develop/basic05',
+            name: '4.Web API',
+            component: './Develop/Basic05WebApi',
+          },
         ],
       },
       // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)

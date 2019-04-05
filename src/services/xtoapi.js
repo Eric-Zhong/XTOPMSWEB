@@ -3,7 +3,8 @@ import request from '@/utils/request';
 
 // 登录
 export async function tokenAuth(params){
-  return request("http://localhost:21021/api/TokenAuth/Authenticate", {
+  // return request("http://localhost:21021/api/TokenAuth/Authenticate", {
+  return request("/api/TokenAuth/Authenticate", {
     method: 'POST',
     // mode: 'cors',
     headers:[
