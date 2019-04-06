@@ -4,11 +4,16 @@ import { formatMessage, FormattedMessage } from 'umi/locale';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import {Card, Button, Table, Tag, Modal} from 'antd';
 import { Resizable } from 'react-resizable';
-import CustomerCreation from './CustomerCreation';
+import CustomerCreationDialog from './Components/CustomerCreationDialog';
+import { snowflakeId } from '@/utils/snowflake';
 
 const confirm = Modal.confirm;
 
 // 定义表格的 Columns
+/**
+ * @constant columns
+ * @description Column setting for customer list table.
+ */
 const columns = [
   {
     title: '编号',
@@ -70,41 +75,59 @@ const columns = [
   }
 ];
 
+/**
+ * @class CustomerIndexComponent
+ * @description Customer center index page component.
+ */
+class CustomerIndexComponent extends PureComponent {
 
-class CustomerComponent extends PureComponent {
-
-  state = {
-    table_props: {
-      bordered: true,
-      loading: false,
-      pagination: true,
-      size: 'small',
-      // expandedRowRender,
-      showHeader: true,
-      // footer,
-      rowSelection: {},
-      // scroll: undefined,
-      hasData: false,
-      scroll: {
-        x: 1300,
-        y: 350,
+  constructor(props){
+    super(props);
+    this.state = {
+      table_props: {
+        bordered: true,
+        loading: false,
+        pagination: true,
+        size: 'small',
+        // expandedRowRender,
+        showHeader: true,
+        // footer,
+        rowSelection: {},
+        // scroll: undefined,
+        hasData: false,
+        scroll: {
+          x: 1300,
+          y: 350,
+        },
       },
-    },
-    columns: columns,
-    selectedRowKeys: [],
-    visible: {
-      createDailog: false,
-    }
+      columns: columns,
+      selectedRowKeys: [],
+      visible: {
+        creation: false,
+      },
+      customerId: 0,
+    };
   }
 
-  onCreate = () =>{
+
+  /**
+   * @method handleOpenCreationDialog
+   * @description 打开创建新客户所使用的Dialog窗口
+   */
+  handleOpenCreationDialog = () =>{
     this.setState({
       visible: {
-        createDailog: true,
-      }
+        creation: true,           // Set customer creation dialog as display.
+      },
+      customerId: snowflakeId(),  // Generate a new snowflake id for new customer.
     });
   }
 
+  /**
+   * Display a confirm dialog for confirm wether delete the selected customers.
+   *
+   * @memberof CustomerIndexComponent
+   */
   onDelete = () => {
     confirm({
       title: '请确认是否删除',
@@ -235,12 +258,20 @@ class CustomerComponent extends PureComponent {
     },
   ];
 
-  handleCancel = () => {
+  handleCustomerCreationDialogOnCancel = () => {
     this.setState({
+      newCustomerId: snowflakeId(),
       visible: {
-        createDailog: false
+        creation: false
       }
     });
+    console.log("20190405001.Close customer creation dialog.")
+  }
+  
+  handleCustomerCreationDialogOnCreated = (form, customerInfo) => {
+    console.log(customerInfo);
+    form.resetFields();
+    console.log("20190405002.Creted, please refresh table data.")
   }
   
   render() {
@@ -248,7 +279,8 @@ class CustomerComponent extends PureComponent {
     const table_props = this.state.table_props;
     const table_columns = this.state.columns;
     const selectedRowKeys = this.state.selectedRowKeys;
-    const visible_createDailog = this.state.visible.createDailog;
+    const visible_createDailog = this.state.visible.creation;
+    const newCustomerId = this.state.customerId;
 
     const rowSelection = {
       selectedRowKeys,
@@ -261,7 +293,7 @@ class CustomerComponent extends PureComponent {
       return (
         <div>
           <Button type="default" icon="search">查询</Button>
-          <Button onClick={this.onCreate} type="default" icon="file-add">新建</Button>
+          <Button onClick={this.handleOpenCreationDialog} type="default" icon="file-add">新建</Button>
           <Button icon="upload">导入</Button>
           <Button icon="download">导出</Button>
           <Button onClick={this.onDelete} type="danger" icon="delete">删除</Button>
@@ -286,21 +318,16 @@ class CustomerComponent extends PureComponent {
             rowSelection={rowSelection}
           >
           </Table>
-          <Modal
-            title="新建客户"
+          <CustomerCreationDialog
+            customerId={newCustomerId}
             visible={visible_createDailog}
-            // onOk={this.handleOk}
-            // confirmLoading={confirmLoading}
-            onCancel={this.handleCancel}
-            mask={true}
-            width={800}
-          >
-            <CustomerCreation></CustomerCreation>
-          </Modal>          
+            onCancel={this.handleCustomerCreationDialogOnCancel}
+            onCreated={this.handleCustomerCreationDialogOnCreated}
+          ></CustomerCreationDialog>
         </Card>
       </PageHeaderWrapper>
     );
   }
 }
 
-export default CustomerComponent;
+export default CustomerIndexComponent;

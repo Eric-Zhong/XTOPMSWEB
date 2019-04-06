@@ -1,18 +1,71 @@
-import {Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col, Tabs, Rate} from 'antd';
-import { PureComponent } from 'react';
+/**
+ * @file Customer Creation Dialog Component
+ * @author Eric-Zhong Xu
+ * @copyright Tigoole Tech
+ * @createDate 2019-04-04 21:35:00
+ */
+
+import { PureComponent } from "react";
+import { Modal } from "antd";
+import { Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col, Tabs, Rate } from 'antd';
 import moment from 'moment';
+import {snowflakeId} from '@/utils/snowflake';
+
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const { RangePicker } = DatePicker;
 const { Meta } = Card;
 
-@Form.create()
-class CustomerCreationComponent extends PureComponent{
 
-  render(){
+/**
+ * @class CustomerCreationDialog
+ * @classdesc Use a dialog component for create customer data.
+ * @desc 
+ */
+@Form.create()
+class CustomerCreationDialog extends PureComponent{
+
+  /**
+   * @constructor
+   * @param {object} props 
+   */
+  constructor(props){
+    super(props);
+    this.state = {
+      onCreated: props.onCreated
+    };
+  }
+
+  /**
+   * @method handleCancel
+   * @description Handle event when dialog closed.
+   */
+  handleCancel = () =>{
+    this.state = {
+      visible: false,
+    };
+  }
+
+  onOk = () => {
+
+    const form = this.props.form;
+    const onCreated = this.state.onCreated;
+
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var customerInfo = fieldsValue;
+      if(onCreated) onCreated(form, customerInfo);
+    });
+
+  }
+
+  render() {
 
     const {form: {getFieldDecorator, getFieldValue}} = this.props;
-
+    const {id, visible, onOk, onCancel} = this.props;
+    // * 在这里计算用于显示的数据
+    const customerId = (this.props.customerId ? this.props.customerId : snowflakeId()); // 新建用户时，直接生成一个ID
+    
     const formItemLayout = {
       labelCol: {
         xs: {span: 24}, sm: {span: 4}
@@ -23,11 +76,32 @@ class CustomerCreationComponent extends PureComponent{
     };
 
     return (
-      <Card>
+      <Modal
+        title="新建客户"
+        destroyOnClose
+        visible={visible}
+        okText="创建"
+        onCancel={onCancel}
+        onOk={this.onOk}
+        width={800}
+      >
         <Form onSubmit={this.handleSubmit}>
           <Tabs type="card">
             <TabPane tab="基本信息" key="basic">
-              <FormItem {...formItemLayout} label="名称">
+              <FormItem {...formItemLayout} label="客户编号" help="客户编号，由系统自动生成，不需修改。">
+                { getFieldDecorator(
+                    'id', { 
+                      initialValue: customerId 
+                    } )(<Input placeholder="客户编号" readOnly></Input>) }
+              </FormItem>
+              <FormItem {...formItemLayout} label="母公司名称" help="客户所属的母公司名称。如果没有，请留空。如果找不到，请先创建母公司。">
+                { getFieldDecorator('parentCustomerId', { initialValue: "" } )(<Input placeholder="母公司名称"></Input>) }
+              </FormItem>
+              <FormItem 
+                {...formItemLayout} 
+                label="客户名称"
+                help="企业营业执照上的企业名称，不要使用缩写或自定义名称。"
+                >
                 {
                   getFieldDecorator(
                     'name',
@@ -36,17 +110,17 @@ class CustomerCreationComponent extends PureComponent{
                       rules:[
                         {
                           required: true, 
-                          message: "请输入客户名称"
+                          message: "请输入客户名称，且最少4个文字。"
                         }
                       ]
                     }
-                  )(<Input placeholder="公司名称，请输入公司的全称，要不用短名"></Input>)
+                  )(<Input placeholder="企业营业执照上的企业名称"></Input>)
                 }
               </FormItem>
-              <FormItem {...formItemLayout} label="企业代码">
-                { getFieldDecorator('erpid', { initialValue: "" } )(<Input placeholder="企业信用代码证号"></Input>) }
+              <FormItem {...formItemLayout} label="统一社会信用代码" help="新版营业执行上的统一社会信用代码，如：91110228691683137R">
+                { getFieldDecorator('companyCode', { initialValue: "" } )(<Input placeholder="企业信用代码证号。如：91110228691683137R"></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="唯一识别号">
+              <FormItem {...formItemLayout} label="系统识别号" help="输入你所在企业对此客户定义的唯一编号。如SAP系统中的CUSTOMER NUMBER。">
                 { getFieldDecorator('erpid', { initialValue: "" } )(<Input placeholder="请输入企业内部系统中定义该客户的唯一标识"></Input>) }
               </FormItem>
               <FormItem {...formItemLayout} label="代码">
@@ -57,7 +131,7 @@ class CustomerCreationComponent extends PureComponent{
                   getFieldDecorator(
                     'category',
                     {
-                      initialValue: ["Red", "Blue"]
+                      initialValue: ["100010001", "100010002"]
                     }
                   )(
                     <Checkbox.Group style={{ width: "100%" }}>
@@ -75,10 +149,10 @@ class CustomerCreationComponent extends PureComponent{
             </TabPane>
             <TabPane tab="银行信息" key="bank">
               <FormItem {...formItemLayout} label="开户银行名称">
-                { getFieldDecorator('comment', { initialValue: "" } )(<Input placeholder="开户银行名称，请用银行全称"></Input>) }
+                { getFieldDecorator('bankName', { initialValue: "" } )(<Input placeholder="开户银行名称，请用银行全称"></Input>) }
               </FormItem>
               <FormItem {...formItemLayout} label="开户银行账号">
-                { getFieldDecorator('comment', { initialValue: "" } )(<Input placeholder=""></Input>) }
+                { getFieldDecorator('bankAccount', { initialValue: "" } )(<Input placeholder=""></Input>) }
               </FormItem>
             </TabPane>
             <TabPane tab="联系方式" key="contact">
@@ -105,31 +179,35 @@ class CustomerCreationComponent extends PureComponent{
                     <Meta title="营业执照" description="" />
                   </Card>
                 </Col>
+                <Col span={4}>
+                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
+                    <Meta title="营业执照" description="" />
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
+                    <Meta title="营业执照" description="" />
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
+                    <Meta title="营业执照" description="" />
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
+                    <Meta title="营业执照" description="" />
+                  </Card>
+                </Col>
+                <Col span={4}>
+                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
+                    <Meta title="营业执照" description="" />
+                  </Card>
+                </Col>
               </Row>
-                <Col span={4}>
-                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                    <Meta title="营业执照" description="" />
-                  </Card>
-                </Col>
-              <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                <Col span={4}>
-                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                    <Meta title="营业执照" description="" />
-                  </Card>
-                </Col>
-              </Card>
-              <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                  <Meta title="营业执照" description="" />
-              </Card>
-              <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                  <Meta title="营业执照" description="" />
-              </Card>
-              <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                  <Meta title="营业执照" description="" />
-              </Card>
-              <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                  <Meta title="营业执照" description="" />
-              </Card>
+            </TabPane>
+            <TabPane tab="扩展字段" key="extension">
+              <span>开发中...</span>
             </TabPane>
             <TabPane tab="信誉等级" key="rate">
               <FormItem {...formItemLayout} label="信誉评定">
@@ -139,14 +217,12 @@ class CustomerCreationComponent extends PureComponent{
                 { getFieldDecorator('rateReason', { initialValue: "" } )(<Input placeholder=""></Input>) }
               </FormItem>
             </TabPane>
-            <TabPane tab="扩展字段" key="extension">
-            </TabPane>
           </Tabs>
         </Form>
-      </Card>
+      </Modal>
     );
   }
+
 }
 
-
-export default CustomerCreationComponent;
+export default CustomerCreationDialog;

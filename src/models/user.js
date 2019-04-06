@@ -71,6 +71,8 @@ export default {
       if(
         !response ||
         response === null || 
+        !response.result ||
+        !response.result.user || 
         // Ant 设计的 dispatch 功能，暂时不清楚是干什么用的，后面应该如何判断。
         /*
         !response.dispatch ||

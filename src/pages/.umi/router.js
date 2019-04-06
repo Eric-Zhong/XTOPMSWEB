@@ -37,6 +37,41 @@ let routes = [
     ]
   },
   {
+    "path": "/exception",
+    "name": "exception",
+    "icon": "warning",
+    "routes": [
+      {
+        "path": "/exception/403",
+        "name": "not-permission",
+        "component": dynamic({ loader: () => import('../Exception/403'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+        "exact": true
+      },
+      {
+        "path": "/exception/404",
+        "name": "not-find",
+        "component": dynamic({ loader: () => import('../Exception/404'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+        "exact": true
+      },
+      {
+        "path": "/exception/500",
+        "name": "server-error",
+        "component": dynamic({ loader: () => import('../Exception/500'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+        "exact": true
+      },
+      {
+        "path": "/exception/trigger",
+        "name": "trigger",
+        "hideInMenu": true,
+        "component": dynamic({ loader: () => import('../Exception/TriggerException'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+        "exact": true
+      },
+      {
+        "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
+      }
+    ]
+  },
+  {
     "path": "/",
     "component": dynamic({ loader: () => import('../../layouts/BasicLayout'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
     "Routes": [require('../Authorized').default],
@@ -168,7 +203,7 @@ let routes = [
           {
             "path": "/marketing/customer",
             "name": "客户管理-MVP",
-            "component": dynamic({ loader: () => import('../Marketing/Customer'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "component": dynamic({ loader: () => import('../Customer/Index'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {
@@ -911,42 +946,6 @@ let routes = [
       },
       {
         "component": dynamic({ loader: () => import('../404'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
-        "exact": true
-      },
-      {
-        "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
-      }
-    ]
-  },
-  {
-    "name": "exception",
-    "icon": "warning",
-    "path": "/exception",
-    "component": dynamic({ loader: () => import('../../layouts/BlankLayout'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
-    "routes": [
-      {
-        "path": "/exception/403",
-        "name": "not-permission",
-        "component": dynamic({ loader: () => import('../Exception/403'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
-        "exact": true
-      },
-      {
-        "path": "/exception/404",
-        "name": "not-find",
-        "component": dynamic({ loader: () => import('../Exception/404'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
-        "exact": true
-      },
-      {
-        "path": "/exception/500",
-        "name": "server-error",
-        "component": dynamic({ loader: () => import('../Exception/500'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
-        "exact": true
-      },
-      {
-        "path": "/exception/trigger",
-        "name": "trigger",
-        "hideInMenu": true,
-        "component": dynamic({ loader: () => import('../Exception/TriggerException'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
         "exact": true
       },
       {

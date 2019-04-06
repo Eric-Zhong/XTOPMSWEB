@@ -48,10 +48,10 @@ const CreateForm = Form.create()(props => {
     });
   };
   return (
-    <Modal
+    <Modal 
       destroyOnClose
       title="新建规则"
-      visible={modalVisible}
+      visible={modalVisible} 
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >

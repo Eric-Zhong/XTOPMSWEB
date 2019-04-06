@@ -13,6 +13,36 @@ export default [
       { path: '/user/register-result', component: './User/RegisterResult' },
     ],
   },
+  // exception
+  {
+    path: '/exception',
+    name: 'exception',
+    icon: 'warning',
+    routes: [
+      // exception
+      {
+        path: '/exception/403',
+        name: 'not-permission',
+        component: './Exception/403',
+      },
+      {
+        path: '/exception/404',
+        name: 'not-find',
+        component: './Exception/404',
+      },
+      {
+        path: '/exception/500',
+        name: 'server-error',
+        component: './Exception/500',
+      },
+      {
+        path: '/exception/trigger',
+        name: 'trigger',
+        hideInMenu: true,
+        component: './Exception/TriggerException',
+      },
+    ],
+  },
   // app
   {
     path: '/',
@@ -120,7 +150,7 @@ export default [
           {
             path: '/marketing/customer',
             name: '客户管理-MVP',
-            component: './Marketing/Customer',
+            component: './Customer/Index',
           },
         ]
       },
@@ -443,36 +473,4 @@ export default [
       },
     ],
   },
-  // exception
-  {
-    name: 'exception',
-    icon: 'warning',
-    path: '/exception',
-    component: '../layouts/BlankLayout',
-    routes: [
-      // exception
-      {
-        path: '/exception/403',
-        name: 'not-permission',
-        component: './Exception/403',
-      },
-      {
-        path: '/exception/404',
-        name: 'not-find',
-        component: './Exception/404',
-      },
-      {
-        path: '/exception/500',
-        name: 'server-error',
-        component: './Exception/500',
-      },
-      {
-        path: '/exception/trigger',
-        name: 'trigger',
-        hideInMenu: true,
-        component: './Exception/TriggerException',
-      },
-    ],
-  },
-
 ];
