@@ -1,15 +1,37 @@
-/**
- * @file Customer Creation Dialog Component
- * @author Eric-Zhong Xu
- * @copyright Tigoole Tech
- * @createDate 2019-04-04 21:35:00
+/*
+* Apache License, Version 2.0
+*
+* Copyright (c) 2019 Tigoole
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at:
+*     http://www.apache.org/licenses/LICENSE-2.0
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+ */
+/*
+*
+* Copyright (c) 2019 Tigoole
+*
+* Author: Eric-Zhong Xu
+*
+* Creation: 2019-04-07 09:15:54
  */
 
+ 
 import { PureComponent } from "react";
+import { connect } from 'dva';
 import { Modal } from "antd";
 import { Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col, Tabs, Rate } from 'antd';
 import moment from 'moment';
 import {snowflakeId} from '@/utils/snowflake';
+
+// Services
+import {create} from '@/services/CustomerService';
 
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
@@ -22,6 +44,10 @@ const { Meta } = Card;
  * @classdesc Use a dialog component for create customer data.
  * @desc 
  */
+@connect((customer, loading)=>({ // 将 customer 这个 model 中定义的 state 绑定到当前组件的 this.props 上. 
+  customer,
+  loading: false,
+}))
 @Form.create()
 class CustomerCreationDialog extends PureComponent{
 
@@ -47,13 +73,15 @@ class CustomerCreationDialog extends PureComponent{
   }
 
   onOk = () => {
-
-    const form = this.props.form;
+    const {form, dispatch} = this.props;
     const onCreated = this.state.onCreated;
-
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       var customerInfo = fieldsValue;
+      dispatch({
+        type: "customer/create",
+        payload: customerInfo,
+      });
       if(onCreated) onCreated(form, customerInfo);
     });
 
@@ -123,10 +151,10 @@ class CustomerCreationDialog extends PureComponent{
               <FormItem {...formItemLayout} label="系统识别号" help="输入你所在企业对此客户定义的唯一编号。如SAP系统中的CUSTOMER NUMBER。">
                 { getFieldDecorator('erpid', { initialValue: "" } )(<Input placeholder="请输入企业内部系统中定义该客户的唯一标识"></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="代码">
-                { getFieldDecorator('code', { initialValue: "" } )(<Input placeholder="用于快速检索的代码"></Input>) }
+              <FormItem {...formItemLayout} label="简称">
+                { getFieldDecorator('shortName', { initialValue: "" } )(<Input placeholder="客户通用的简称。如：钛谷，微软，IBM等。”"></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="分类">
+              <FormItem {...formItemLayout} label="分类(MVP)">
                 {
                   getFieldDecorator(
                     'category',
@@ -138,9 +166,13 @@ class CustomerCreationDialog extends PureComponent{
                       <Row>
                         <Col span={4}><Checkbox value="100010001">业主</Checkbox></Col>
                         <Col span={4}><Checkbox value="100010002">总包方</Checkbox></Col>
-                        <Col span={4}><Checkbox value="100010003">研究院</Checkbox></Col>
-                        <Col span={4}><Checkbox value="100010004">供货商</Checkbox></Col>
-                        <Col span={4}><Checkbox value="100010005">代理</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010003">分包方</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010004">施工方</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010005">供货方</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010006">监理方</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010007">研究院</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010008">代理</Checkbox></Col>
+                        <Col span={4}><Checkbox value="100010009">竞争对手</Checkbox></Col>
                       </Row>
                     </Checkbox.Group>
                   )

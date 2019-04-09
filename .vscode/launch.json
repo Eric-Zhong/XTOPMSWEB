@@ -8,7 +8,7 @@
       "name": "Launch Chrome For Debug",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:8000/system/usercenter",
+      "url": "http://localhost:8000/",
       "sourceMaps": true,
       "webRoot": "${workspaceRoot}",
       "userDataDir": "${workspaceRoot}/.vscode/chrome",

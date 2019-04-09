@@ -69,6 +69,20 @@ const MyDebug = (title, obj) => {
   console.info(obj);
 };
 
+
+/**
+ * @description Parse json object to query string.
+ * @param {obj} obj 
+ */
+const parseQuery = (obj) => {
+  let str = ''
+  for (let key in obj) {
+    const value = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key]
+    str += '&' + key + '=' + value
+  }
+  return str.substr(1)
+}
+
 /**
  * Requests a URL, returning a promise.
  *
@@ -102,6 +116,8 @@ export default function request(url, option) {
   const defaultOptions = {
     credentials: 'include',
   };
+
+
   const newOptions = { ...defaultOptions, ...options };
   if (
     newOptions.method === 'POST' ||
@@ -123,6 +139,10 @@ export default function request(url, option) {
         ...newOptions.headers,
       };
     }
+  } else if(newOptions.method === "GET"){
+    // 因为是GET请求，将Body中的Key-Value对象，映射到URL上。
+    const queryString = parseQuery(newOptions.body);
+    url = url + '?' + queryString;
   }
 
   // 在 XTOPMS 中，需要用到 Token
@@ -171,8 +191,35 @@ export default function request(url, option) {
       return response.json();
     })
     .catch(e => {
-      // console.log(e);
+      console.log(e);
+      debugger;
       const status = e.name;
+
+
+      // 2019-04-08 Eric: 在这里处理一下由于调用ABP Web API引起的权限问题返回的 403 错误。
+      const url = e.response.url;
+      if(url.toLowerCase().indexOf('/api/services/app/')){    // 如果url中包含此字符串，说明是ABP的API返回值
+        if(status === 403){                     // 当前登录的用户没有调用此 API 的权限
+          var json = {
+            __abp: 4.0,
+            success: false,
+            result: null,
+            error: '你的权限设置，不允许进行此操作。',
+          }
+          return json;
+        }else if(status === 404){
+          var json = {
+            __abp: 4.0,
+            success: false,
+            result: null,
+            error: 'API接口不存在',
+          }
+          return json;
+        }
+
+      }
+
+
       if (status === 401) {
         // @HACK
         /* eslint-disable no-underscore-dangle */

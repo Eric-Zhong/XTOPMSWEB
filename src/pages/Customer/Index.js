@@ -1,11 +1,14 @@
+
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import {Card, Button, Table, Tag, Modal} from 'antd';
+import {Card, Button, Table, Tag, Modal, Row} from 'antd';
 import { Resizable } from 'react-resizable';
 import CustomerCreationDialog from './Components/CustomerCreationDialog';
 import { snowflakeId } from '@/utils/snowflake';
+import Customer from './Models/CustomerModel';
+import { truncate } from 'fs';
 
 const confirm = Modal.confirm;
 
@@ -14,39 +17,31 @@ const confirm = Modal.confirm;
  * @constant columns
  * @description Column setting for customer list table.
  */
-const columns = [
+const tableColumns = [
   {
-    title: '编号',
-    dataIndex: 'id',
-    width: 80,
-    fixed: 'left',
-  },{
     title: '名称',
     dataIndex: 'name',
-    width: 200,
+    width: 500,
     fixed: 'left',
   },{
-    title: '区域',
-    dataIndex: 'region',
-    width: 80,
-  },{
-    title: '联系人',
-    dataIndex: 'contact',
-    width: 80,
-  },{
-    title: '电话',
-    dataIndex: 'phone',
-    width: 150,
-  },{
-    title: '邮箱',
-    dataIndex: 'email',
-    width: 150,
+    title: '状态',
+    dataIndex: 'status',
+    width: 100,
+    // fixed: 'right',
+    render: (item, record) => (
+      <span>
+        {item && item.map(tag => {
+          return <Tag color="green" key={tag}>{tag}</Tag>;
+        })}
+      </span>
+    ),
   },{
     title: '类型',
     dataIndex: 'category',
+    width: 200,
     render: tags => (
       <span>
-        {tags.map(tag => {
+        {tags && tags.map(tag => {
           let color = tag.length > 2 ? 'geekblue' : 'green';
           if (tag === 'loser') {
             color = 'volcano';
@@ -56,56 +51,89 @@ const columns = [
       </span>
     ),
   },{
+    title: '地址',
+    dataIndex: 'address',
+    width: 500,
+  },{
+    title: '联系人',
+    dataIndex: 'person',
+    width: 150,
+  },{
+    title: '电话',
+    dataIndex: 'phone',
+    width: 200,
+  },{
+    title: '邮箱',
+    dataIndex: 'email',
+    width: 400,
+  },{
+    title: '开户银行',
+    dataIndex: 'bankName',
+    width: 500,
+  },{
+    title: '银行账号',
+    dataIndex: 'bankAccount',
+    width: 400,
+  },{
     title: 'ERP#',
     dataIndex: 'erpid',
-    width: 120,
-    fixed: 'right',
+    width: 300,
   },{
-    title: '状态',
-    dataIndex: 'status',
-    width: 100,
-    fixed: 'right',
-    render: (item, record) => (
-      <span>
-        {item.map(tag => {
-          return <Tag color="green" key={tag}>{tag}</Tag>;
-        })}
-      </span>
-    ),
+    title: '编号',
+    dataIndex: 'key',
+    width: 300,
   }
 ];
+
+/**
+ * @description Table's options
+ */
+const tableOptions = {
+  rowKey: 'key',
+  bordered: true,
+  size: 'small',
+  // expandedRowRender,
+  showHeader: true,
+  // footer,
+  // scroll: undefined,
+  hasData: false,
+  scroll: {
+    x: 3800,
+    y: 450,
+  },
+};
 
 /**
  * @class CustomerIndexComponent
  * @description Customer center index page component.
  */
+@connect((customer, loading)=>({ // 将 customer 这个 model 中定义的 state 绑定到当前组件的 this.props 上. 
+  customer,
+  loading: customer.loading.global,
+}))
 class CustomerIndexComponent extends PureComponent {
 
   constructor(props){
     super(props);
     this.state = {
-      table_props: {
-        bordered: true,
-        loading: false,
-        pagination: true,
-        size: 'small',
-        // expandedRowRender,
-        showHeader: true,
-        // footer,
-        rowSelection: {},
-        // scroll: undefined,
-        hasData: false,
-        scroll: {
-          x: 1300,
-          y: 350,
-        },
+      tableOptions: tableOptions,
+      tableColumns: tableColumns,
+      pagination: {
+        current: 1,
+        pageSize: 10,
+        defaultPageSize: 10,
+        pageSizeOptions: ['10','20','50','100','500'],
+        showQuickJumper: true,
+        showSizeChanger: true,
       },
-      columns: columns,
+      rowSelection: {},
       selectedRowKeys: [],
       visible: {
         creation: false,
       },
       customerId: 0,
+      data:[],
+      count: 0,
     };
   }
 
@@ -149,115 +177,11 @@ class CustomerIndexComponent extends PureComponent {
   }
 
 
-  // 定义表格的 Data
-  data = [
-    {
-      id: '1',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '2',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '3',
-      name: 'Dell',
-      category: ["供货方"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '4',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '5',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '6',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      erpid: 50001234,
-      status: ["禁用"]
-    },{
-      id: '7',
-      name: 'Dell',
-      category: ["供货方"],
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '8',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      erpid: 50001234,
-      status: ["禁用"]
-    },{
-      id: '9',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '10',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '11',
-      name: 'Dell',
-      category: ["供货方"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可疑"]
-    },{
-      id: '12',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可疑"]
-    },
-  ];
-
+  /**
+   *
+   * Clear customer creation dialog when close the dialog.
+   * @memberof CustomerIndexComponent
+   */
   handleCustomerCreationDialogOnCancel = () => {
     this.setState({
       newCustomerId: snowflakeId(),
@@ -268,19 +192,102 @@ class CustomerIndexComponent extends PureComponent {
     console.log("20190405001.Close customer creation dialog.")
   }
   
+
+  /**
+   * @description Handle event when customer created successful. When the customerInfo param in callback function have some object, It mean customer created successfully, otherwise created failed.
+   * @memberof CustomerIndexComponent
+   */
   handleCustomerCreationDialogOnCreated = (form, customerInfo) => {
-    console.log(customerInfo);
-    form.resetFields();
-    console.log("20190405002.Creted, please refresh table data.")
+    // console.log(customerInfo);
+    if(customerInfo){
+      form.resetFields();   // reset the customer creation dialog form.
+      console.log("20190405002.Customer Creted, please refresh table data.")
+      // TODO: 在这里添加刷新 Customer List 的方法。或者将此 Customer Info 插入到 List 中。
+      // Close creation dialog
+      this.setState({
+        newCustomerId: snowflakeId(),
+        visible: {
+          creation: false
+        }
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      setTimeout(() => this.componentDidMount(), 1000);
+
+      // Refresh data
+    }
+  }
+
+  /**
+   * @description Handle table on change.
+   * @author Eric-Zhong Xu
+   * @copyright Tigoole
+   * @date 2019-04-08
+   * @memberof CustomerIndexComponent
+   */
+  handleTableOnChange = (pagination, filters, sorter, extra) => {
+
+    const { dispatch } = this.props;
+
+    /*
+    console.log('Table on changed.');
+    console.log(pagination);
+    console.log(filters);
+    console.log(sorter);
+    */
+
+    // Set new pagination to state.
+    this.setState({
+      pagination: {
+        pageSize: pagination.pageSize,
+        current: pagination.current,
+      }
+    });
+
+    const params = {
+      current: pagination.current, 
+      pageSize: pagination.pageSize,
+    };
+    
+    dispatch({
+      type: 'customer/getAll',
+      payload: params
+    })
+
+  }
+
+
+  componentDidMount(){
+    const { dispatch } = this.props;
+
+    const params = {
+      current: this.state.pagination.current, 
+      pageSize: this.state.pagination.pageSize,
+    };
+
+    dispatch({
+      type: 'customer/getAll',
+      payload: params,
+    });
   }
   
   render() {
 
-    const table_props = this.state.table_props;
-    const table_columns = this.state.columns;
+    const {
+      customer: {customer, loading},
+    } = this.props;
+
+    const table_dataSource = customer.data;
+
+    const table_props = this.state.tableOptions;
+    const table_columns = this.state.tableColumns;
     const selectedRowKeys = this.state.selectedRowKeys;
     const visible_createDailog = this.state.visible.creation;
     const newCustomerId = this.state.customerId;
+    const pagination = {
+      ...this.state.pagination,
+      total: customer.total,
+    };
+
 
     const rowSelection = {
       selectedRowKeys,
@@ -291,16 +298,16 @@ class CustomerIndexComponent extends PureComponent {
     
     var title = () => {
       return (
-        <div>
-          <Button type="default" icon="search">查询</Button>
+        <Row>
+          <Button type="default" icon="search" disabled>查询</Button>
           <Button onClick={this.handleOpenCreationDialog} type="default" icon="file-add">新建</Button>
-          <Button icon="upload">导入</Button>
-          <Button icon="download">导出</Button>
-          <Button onClick={this.onDelete} type="danger" icon="delete">删除</Button>
+          <Button icon="upload" disabled>导入</Button>
+          <Button icon="download" disabled>导出</Button>
+          <Button onClick={this.onDelete} type="danger" icon="delete" disabled>删除</Button>
           <span style={{ marginLeft: 8 }}>
             {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
           </span>
-        </div>
+        </Row>
       );
     };
 
@@ -313,9 +320,12 @@ class CustomerIndexComponent extends PureComponent {
           <Table 
             title={title}
             columns={table_columns} 
-            dataSource={this.data}
+            dataSource={table_dataSource}
             {...table_props}
+            pagination={pagination}
             rowSelection={rowSelection}
+            loading={loading.effects['customer/getAll']}
+            onChange={this.handleTableOnChange}
           >
           </Table>
           <CustomerCreationDialog
