@@ -46,23 +46,7 @@ const tableColumns = [
       }
     }
   },{
-    title: '客户类型',
-    dataIndex: 'category',
-    width: 300,
-    render: (cell, record, index) => {
-      if(cell && cell.length>0){
-        const categorys = cell.split(',');
-        const html = categorys.map((element, idx)=>{
-          const item = QueryCustomerCategory(element);
-          if(item){
-            return <Tag>{item.value}</Tag>
-          }
-        });
-        return html;
-      }
-    }
-  },{
-    title: '客户状态',
+    title: '机会状态',
     dataIndex: 'status',
     width: 100,
     render: (cell, record, index) => {
@@ -177,6 +161,9 @@ class CustomerIndexComponent extends PureComponent {
         pageSizeOptions: ['10','20','50','100','500'],
         showQuickJumper: true,
         showSizeChanger: true,
+        showTotal: (total, range) => {
+          return '总计: ' + total + ' 条';
+        }
       },
       rowSelection: {},
       selectedRowKeys: [],

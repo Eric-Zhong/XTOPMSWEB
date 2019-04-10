@@ -24,6 +24,7 @@
 
 
 import { 
+  get as Get,
   getAll as GetAllApi, 
   create as createApi,
   deleteCustomer as Delete,
@@ -109,7 +110,25 @@ export default {
       const response = yield call(Delete, customerId);
       console.log(response);
       // TODO: 要不要通知前台界面？
+    },
+
+
+
+    /**
+     * @description Get an customer data
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-10
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *get({payload}, {call, put}){
+      const customerId = payload;
+      const response = yield call(Get, customerId);
+      // TODO: 传递给前端
+      console.log(response);
     }
+
+
   },
 
   /**

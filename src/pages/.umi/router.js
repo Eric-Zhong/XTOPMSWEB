@@ -213,13 +213,13 @@ let routes = [
       },
       {
         "path": "/evaluation",
-        "name": "项目确立",
+        "name": "机会评审",
         "icon": "user",
         "routes": [
           {
-            "path": "/evaluation/register",
-            "name": "机会登记",
-            "component": dynamic({ loader: () => import('../Develop/404'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "path": "/evaluation/opportunity",
+            "name": "机会登记-MVP",
+            "component": dynamic({ loader: () => import('../Opportunity/Index'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {

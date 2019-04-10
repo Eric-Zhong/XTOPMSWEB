@@ -157,13 +157,13 @@ export default [
       // ################### 市场阶段 ##################
       {
         path: '/evaluation',
-        name: '项目确立',
+        name: '机会评审',
         icon: 'user',
         routes: [
           {
-            path: '/evaluation/register',
-            name: '机会登记',
-            component: './Develop/404',
+            path: '/evaluation/opportunity',
+            name: '机会登记-MVP',
+            component: './Opportunity/Index',
           },
           {
             path: '/evaluation/decision',

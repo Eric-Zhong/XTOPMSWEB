@@ -24,7 +24,9 @@ app.model({ namespace: 'user', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/us
 app.model({ namespace: 'xtouser', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/xtouser.js').default) });
 app.model({ namespace: 'register', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/User/models/register.js').default) });
 app.model({ namespace: 'error', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Exception/models/error.js').default) });
+app.model({ namespace: 'DefaultModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Develop/models/DefaultModel.js').default) });
 app.model({ namespace: 'CustomerModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Customer/models/CustomerModel.js').default) });
+app.model({ namespace: 'OpportunityModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Opportunity/models/OpportunityModel.js').default) });
 app.model({ namespace: 'UserCenterModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/System/models/UserCenterModel.js').default) });
 app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
 app.model({ namespace: 'chart', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/chart.js').default) });
