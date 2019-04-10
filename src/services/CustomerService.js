@@ -49,11 +49,32 @@ export async function getAll(params) {
 }
  */
 export async function create(params) {
-    const restParams = params; // 在这里得到需要传递给 web api 的实际参数
+    var category = params.category;           // 客户分类: ['100010001', '100010002',...]
+    const categoryString = category.join();     // Change to string value: '100010001','100010002',..... 
+    const restParams = {
+        ...params,
+        category: categoryString,
+    }; // 在这里得到需要传递给 web api 的实际参数
+
     const option = {
             method: "POST",
             body: restParams,
         }
         // Call web api.
     return request('/api/services/app/customer/create', option);
+}
+
+
+export async function deleteCustomer(params){
+    // Realize web api params
+    const restParams = {
+        id: params
+    }; // 在这里得到需要传递给 web api 的实际参数
+
+    const option = {
+        method: "DELETE",
+        body: restParams,
+    }
+    // Call web api.
+    return request('/api/services/app/customer/delete', option);
 }

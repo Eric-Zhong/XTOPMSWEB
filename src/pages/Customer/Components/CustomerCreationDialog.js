@@ -30,9 +30,6 @@ import { Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col,
 import moment from 'moment';
 import {snowflakeId} from '@/utils/snowflake';
 
-// Services
-import {create} from '@/services/CustomerService';
-
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const { RangePicker } = DatePicker;
@@ -40,14 +37,10 @@ const { Meta } = Card;
 
 
 /**
+ * @description Dialog for create customer.
  * @class CustomerCreationDialog
  * @classdesc Use a dialog component for create customer data.
- * @desc 
  */
-@connect((customer, loading)=>({ // 将 customer 这个 model 中定义的 state 绑定到当前组件的 this.props 上. 
-  customer,
-  loading: false,
-}))
 @Form.create()
 class CustomerCreationDialog extends PureComponent{
 
@@ -73,18 +66,8 @@ class CustomerCreationDialog extends PureComponent{
   }
 
   onOk = () => {
-    const {form, dispatch} = this.props;
-    const onCreated = this.state.onCreated;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      var customerInfo = fieldsValue;
-      dispatch({
-        type: "customer/create",
-        payload: customerInfo,
-      });
-      if(onCreated) onCreated(form, customerInfo);
-    });
-
+    const {form, dispatch, onCreated} = this.props;
+    if(onCreated) onCreated(form);
   }
 
   render() {
@@ -120,15 +103,27 @@ class CustomerCreationDialog extends PureComponent{
                 { getFieldDecorator(
                     'id', { 
                       initialValue: customerId 
-                    } )(<Input placeholder="客户编号" readOnly></Input>) }
+                    } )(<Input placeholder="客户编号" readOnly disabled></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="母公司名称" help="客户所属的母公司名称。如果没有，请留空。如果找不到，请先创建母公司。">
-                { getFieldDecorator('parentCustomerId', { initialValue: "" } )(<Input placeholder="母公司名称"></Input>) }
+              <FormItem {...formItemLayout} label="客户简称">
+                { 
+                  getFieldDecorator(
+                    'shortName', 
+                    { 
+                      initialValue: "",
+                      rules: [{
+                        required: true,
+                        max: 10,
+                        min: 2,
+                        type: 'string',
+                      }]
+                    } 
+                  )(<Input placeholder="客户通用的简称。如：钛谷，微软，IBM等。”"></Input>) }
               </FormItem>
               <FormItem 
                 {...formItemLayout} 
-                label="客户名称"
-                help="企业营业执照上的企业名称，不要使用缩写或自定义名称。"
+                label="客户全称"
+                help=""
                 >
                 {
                   getFieldDecorator(
@@ -142,17 +137,17 @@ class CustomerCreationDialog extends PureComponent{
                         }
                       ]
                     }
-                  )(<Input placeholder="企业营业执照上的企业名称"></Input>)
+                  )(<Input placeholder="企业营业执照上的企业名称，不要使用缩写或自定义名称。"></Input>)
                 }
               </FormItem>
-              <FormItem {...formItemLayout} label="统一社会信用代码" help="新版营业执行上的统一社会信用代码，如：91110228691683137R">
-                { getFieldDecorator('companyCode', { initialValue: "" } )(<Input placeholder="企业信用代码证号。如：91110228691683137R"></Input>) }
+              <FormItem {...formItemLayout} label="母公司" help="">
+                { getFieldDecorator('parentCustomerId', { initialValue: "" } )(<Input placeholder="客户所属的母公司名称。如果没有，请留空。如果找不到，请先创建母公司客户。" disabled></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="系统识别号" help="输入你所在企业对此客户定义的唯一编号。如SAP系统中的CUSTOMER NUMBER。">
-                { getFieldDecorator('erpid', { initialValue: "" } )(<Input placeholder="请输入企业内部系统中定义该客户的唯一标识"></Input>) }
+              <FormItem {...formItemLayout} label="统一社会信用代码" help="">
+                { getFieldDecorator('companyCode', { initialValue: "" } )(<Input placeholder="新版营业执行上的统一社会信用代码，如：91110228691683137R。"></Input>) }
               </FormItem>
-              <FormItem {...formItemLayout} label="简称">
-                { getFieldDecorator('shortName', { initialValue: "" } )(<Input placeholder="客户通用的简称。如：钛谷，微软，IBM等。”"></Input>) }
+              <FormItem {...formItemLayout} label="系统识别号" help="">
+                { getFieldDecorator('erpid', { initialValue: "" } )(<Input placeholder="你所在企业对此客户定义的唯一编号，如ERP系统中该客户的唯一识别号。"></Input>) }
               </FormItem>
               <FormItem {...formItemLayout} label="分类(MVP)">
                 {
@@ -178,6 +173,9 @@ class CustomerCreationDialog extends PureComponent{
                   )
                 }
               </FormItem>
+              <FormItem {...formItemLayout} label="公司地址">
+                { getFieldDecorator('address', { initialValue: "" } )(<Input placeholder=""></Input>) }
+              </FormItem>
             </TabPane>
             <TabPane tab="银行信息" key="bank">
               <FormItem {...formItemLayout} label="开户银行名称">
@@ -188,7 +186,7 @@ class CustomerCreationDialog extends PureComponent{
               </FormItem>
             </TabPane>
             <TabPane tab="联系方式" key="contact">
-              <FormItem {...formItemLayout} label="负责人">
+              <FormItem {...formItemLayout} label="联系人">
                 { getFieldDecorator('person', { initialValue: "" } )(<Input placeholder="客户方沟通协调人名称"></Input>) }
               </FormItem>
               <FormItem {...formItemLayout} label="联系电话">
@@ -199,9 +197,6 @@ class CustomerCreationDialog extends PureComponent{
               </FormItem>
               <FormItem {...formItemLayout} label="邮箱地址">
                 { getFieldDecorator('email', { initialValue: "" } )(<Input placeholder=""></Input>) }
-              </FormItem>
-              <FormItem {...formItemLayout} label="办公地址">
-                { getFieldDecorator('address', { initialValue: "" } )(<Input placeholder=""></Input>) }
               </FormItem>
             </TabPane>
             <TabPane tab="相关文件" key="files">

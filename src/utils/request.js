@@ -121,8 +121,7 @@ export default function request(url, option) {
   const newOptions = { ...defaultOptions, ...options };
   if (
     newOptions.method === 'POST' ||
-    newOptions.method === 'PUT' ||
-    newOptions.method === 'DELETE'
+    newOptions.method === 'PUT'
   ) {
     // 如果它不是 Form 类型的提交，给上面这些 Method 方式的 Ajax 调用，添加默认的 Http Header 信息。
     if (!(newOptions.body instanceof FormData)) {
@@ -139,7 +138,10 @@ export default function request(url, option) {
         ...newOptions.headers,
       };
     }
-  } else if(newOptions.method === "GET"){
+  } else if(
+    newOptions.method === "GET" ||
+    newOptions.method === 'DELETE'
+  ){
     // 因为是GET请求，将Body中的Key-Value对象，映射到URL上。
     const queryString = parseQuery(newOptions.body);
     url = url + '?' + queryString;

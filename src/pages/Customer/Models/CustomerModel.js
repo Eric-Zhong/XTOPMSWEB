@@ -23,7 +23,11 @@
  */
 
 
-import { getAll as GetAllApi, create as createApi } from '@/services/CustomerService';
+import { 
+  getAll as GetAllApi, 
+  create as createApi,
+  deleteCustomer as Delete,
+} from '@/services/CustomerService';
 
 
 export default {
@@ -78,7 +82,7 @@ export default {
       const {current, pageSize} = payload;
       var params = {
         skipCount: (current -1) * pageSize,
-        maxResultCount: current * pageSize,
+        maxResultCount: pageSize,
       };
 
       console.log(params);
@@ -90,6 +94,22 @@ export default {
         payload: response,
       });
     },
+
+
+
+    /**
+     * @description Delete customer
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-10
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *delete({payload}, {call, put}){
+      const customerId = payload;
+      const response = yield call(Delete, customerId);
+      console.log(response);
+      // TODO: 要不要通知前台界面？
+    }
   },
 
   /**
@@ -111,7 +131,7 @@ export default {
       // 这里写的方法基本就不会有什么执行后的效果了。
       // ! 从设计的角色看，这个Model应该写在 Index 上，而不是写在 Dialog 上进行调用会更合理一些。
       // 此时先屏蔽掉
-      return;
+      return state;
       
       var newData = state.data;
       newData.push(action.payload);

@@ -1,14 +1,18 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import { formatMessage, FormattedMessage } from 'umi/locale';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import {Card, Button, Table, Tag, Modal, Row} from 'antd';
+import {Card, Button, Table, Tag, Modal, Row, Rate} from 'antd';
 import { Resizable } from 'react-resizable';
-import CustomerCreationDialog from './Components/CustomerCreationDialog';
 import { snowflakeId } from '@/utils/snowflake';
 import Customer from './Models/CustomerModel';
 import { truncate } from 'fs';
+
+import CustomerCreationDialog from './Components/CustomerCreationDialog';
+import CustomerCategoryComponent from './Components/CustomerCategoryComponent';
+import {QueryCustomerCategory, QueryCustomerStatus} from '@/utils/Dictionary';
 
 const confirm = Modal.confirm;
 
@@ -19,41 +23,71 @@ const confirm = Modal.confirm;
  */
 const tableColumns = [
   {
-    title: '名称',
-    dataIndex: 'name',
-    width: 500,
+    title: '客户简称',
+    dataIndex: 'shortName',
+    width: 150,
     fixed: 'left',
   },{
-    title: '状态',
+    title: '客户名称',
+    dataIndex: 'name',
+  },{
+    title: '激活',
+    dataIndex: 'isActive',
+    width: 80,
+    render: (cell, record, index) => {
+      if(cell){
+        return (
+          <Tag color="green">已激活</Tag>
+        );
+      }else{
+        return (
+          <Tag color="red">未激活</Tag>
+        );
+      }
+    }
+  },{
+    title: '客户类型',
+    dataIndex: 'category',
+    width: 300,
+    render: (cell, record, index) => {
+      if(cell && cell.length>0){
+        const categorys = cell.split(',');
+        const html = categorys.map((element, idx)=>{
+          const item = QueryCustomerCategory(element);
+          if(item){
+            return <Tag>{item.value}</Tag>
+          }
+        });
+        return html;
+      }
+    }
+  },{
+    title: '客户状态',
     dataIndex: 'status',
     width: 100,
-    // fixed: 'right',
-    render: (item, record) => (
-      <span>
-        {item && item.map(tag => {
-          return <Tag color="green" key={tag}>{tag}</Tag>;
-        })}
-      </span>
-    ),
+    render: (cell, record, index) => {
+      const status = QueryCustomerStatus(cell);
+      if(status){
+        return (
+          <Tag color={status.color}>{status.value}</Tag>
+        );
+      }
+    }
   },{
-    title: '类型',
-    dataIndex: 'category',
-    width: 200,
-    render: tags => (
-      <span>
-        {tags && tags.map(tag => {
-          let color = tag.length > 2 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return <Tag color={color} key={tag}>{tag.toUpperCase()}</Tag>;
-        })}
-      </span>
-    ),
+    title: '评级',
+    dataIndex: 'rate',
+    width: 180,
+    render: (cell, record, index) => {
+      if(cell){
+        return (
+          <Rate disabled defaultValue={cell}></Rate>
+        );
+      }
+    }
   },{
-    title: '地址',
+    title: '公司地址',
     dataIndex: 'address',
-    width: 500,
+    width: 400,
   },{
     title: '联系人',
     dataIndex: 'person',
@@ -65,23 +99,41 @@ const tableColumns = [
   },{
     title: '邮箱',
     dataIndex: 'email',
-    width: 400,
+    width: 250,
   },{
     title: '开户银行',
     dataIndex: 'bankName',
-    width: 500,
+    width: 350,
   },{
     title: '银行账号',
     dataIndex: 'bankAccount',
-    width: 400,
+    width: 250,
   },{
     title: 'ERP#',
-    dataIndex: 'erpid',
-    width: 300,
+    dataIndex: 'erpId',
+    width: 200,
   },{
-    title: '编号',
+    title: '更新时间',
+    dataIndex: 'lastModificationTime',
+    width: 120,
+    render: (cell, raw, index) => {
+      if(cell){
+        const v = moment(cell).fromNow();
+        return v;
+        }
+    }
+  },{
+    title: '创建时间',
+    dataIndex: 'creationTime',
+    width: 120,
+    render: (cell, raw, index) => {
+      const v = moment(cell).fromNow();
+      return v;
+    }
+  },{
+    title: '系统编号',
     dataIndex: 'key',
-    width: 300,
+    width: 280,
   }
 ];
 
@@ -98,7 +150,7 @@ const tableOptions = {
   // scroll: undefined,
   hasData: false,
   scroll: {
-    x: 3800,
+    x: 3500,
     y: 450,
   },
 };
@@ -157,20 +209,41 @@ class CustomerIndexComponent extends PureComponent {
    * @memberof CustomerIndexComponent
    */
   onDelete = () => {
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    const onOk = this.handleDeleteConfirmOk; 
     confirm({
       title: '请确认是否删除',
       content: '请确认真的要删除吗？',
-      onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(() => console.log('Oops errors!'));
-      },
+      onOk,
       onCancel() {},
     });
   }
+
+
+  handleDeleteConfirmOk = () =>{
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    customerIds.map((element, index)=>{
+      const customerId = element;
+      console.log(customerId);
+      dispatch({
+        type: "customer/delete",
+        payload: customerId,
+      });          
+    });
+    this.setState({
+      selectedRowKeys: []
+    });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => this.componentDidMount(), 500);
+  }
   
 
-
+  /**
+   * @description The event on selected some item in the table.
+   * @memberof CustomerIndexComponent
+   */
   onSelectChange = (selectedRowKeys) => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
@@ -197,13 +270,17 @@ class CustomerIndexComponent extends PureComponent {
    * @description Handle event when customer created successful. When the customerInfo param in callback function have some object, It mean customer created successfully, otherwise created failed.
    * @memberof CustomerIndexComponent
    */
-  handleCustomerCreationDialogOnCreated = (form, customerInfo) => {
-    // console.log(customerInfo);
-    if(customerInfo){
-      form.resetFields();   // reset the customer creation dialog form.
-      console.log("20190405002.Customer Creted, please refresh table data.")
-      // TODO: 在这里添加刷新 Customer List 的方法。或者将此 Customer Info 插入到 List 中。
-      // Close creation dialog
+  handleCustomerCreationDialogOnCreated = (form) => {
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var customerInfo = fieldsValue;
+
+      dispatch({
+        type: "customer/create",
+        payload: customerInfo,
+      });
+
       this.setState({
         newCustomerId: snowflakeId(),
         visible: {
@@ -212,9 +289,7 @@ class CustomerIndexComponent extends PureComponent {
       });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
       setTimeout(() => this.componentDidMount(), 1000);
-
-      // Refresh data
-    }
+    });
   }
 
   /**
@@ -301,9 +376,9 @@ class CustomerIndexComponent extends PureComponent {
         <Row>
           <Button type="default" icon="search" disabled>查询</Button>
           <Button onClick={this.handleOpenCreationDialog} type="default" icon="file-add">新建</Button>
+          <Button onClick={this.onDelete} type="danger" icon="delete">删除</Button>
           <Button icon="upload" disabled>导入</Button>
           <Button icon="download" disabled>导出</Button>
-          <Button onClick={this.onDelete} type="danger" icon="delete" disabled>删除</Button>
           <span style={{ marginLeft: 8 }}>
             {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
           </span>
