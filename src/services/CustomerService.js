@@ -65,6 +65,14 @@ export async function create(params) {
 }
 
 
+/**
+ * @description Delete customer
+ * @author Eric-Zhong Xu (Tigoole)
+ * @date 2019-04-15
+ * @export Component
+ * @param {*} params
+ * @returns JSON
+ */
 export async function deleteCustomer(params){
     // Realize web api params
     const restParams = {
@@ -77,4 +85,25 @@ export async function deleteCustomer(params){
     }
     // Call web api.
     return request('/api/services/app/customer/delete', option);
+}
+
+
+
+/**
+ * @description Quick search customer
+ * @author Eric-Zhong Xu (Tigoole)
+ * @date 2019-04-15
+ * @export
+ * @param {*} params {value:'', count:20}
+ * @returns customer
+ */
+export async function quickSearch(params) {
+    const restParams = params; // 在这里得到需要传递给 web api 的实际参数
+    const option = {
+        method: "POST",
+        body: restParams,
+    }
+
+    // Call web api.
+    return request('/api/services/app/customer/quicksearch', option);
 }

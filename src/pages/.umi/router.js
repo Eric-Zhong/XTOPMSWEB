@@ -600,6 +600,22 @@ let routes = [
         ]
       },
       {
+        "path": "/eai",
+        "name": "应用集成",
+        "icon": "user",
+        "routes": [
+          {
+            "path": "/eai/accesstoken",
+            "name": "Token 管理",
+            "component": dynamic({ loader: () => import('../Background/AccessTokenComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "component": () => React.createElement(require('/Work/Dotnet/XTOPMSWEB/node_modules/.1.2.5@umi-build-dev/lib/plugins/404/NotFound.js').default, { pagesPath: 'src/pages', hasRoutesInConfig: true })
+          }
+        ]
+      },
+      {
         "path": "/system",
         "name": "Organization",
         "icon": "user",
@@ -931,8 +947,14 @@ let routes = [
           },
           {
             "path": "/develop/basic05",
-            "name": "4.Web API",
+            "name": "5.Web API",
             "component": dynamic({ loader: () => import('../Develop/Basic05WebApi'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "path": "/develop/basic06",
+            "name": "6.Common Table",
+            "component": dynamic({ loader: () => import('../_Template/T02_TableComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {

@@ -270,8 +270,13 @@ export default [
       },
       {
         path: '/develop/basic05',
-        name: '4.Web API',
+        name: '5.Web API',
         component: './Develop/Basic05WebApi',
+      },
+      {
+        path: '/develop/basic06',
+        name: '6.Common Table',
+        component: './_Template/T02_TableComponent',
       },
     ],
   },

@@ -28,11 +28,20 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import {Card, Button, Table, Tag, Modal, Row, Rate} from 'antd';
 import { connect } from "dva";
 import moment from 'moment';
+import OpportunityCreationComponent from './Components/OpportunityCreationComponent';
+import { snowflakeId } from '@/utils/snowflake';
 
 
 
-@connect(({opportunity, loading})=>({
+@connect(({
   opportunity,
+  customer,
+  user, 
+  loading
+})=>({
+  opportunity,
+  customer,
+  user,
   loading: loading.model,
 }))
 class OpportunityIndexComponent extends PureComponent{
@@ -40,9 +49,11 @@ class OpportunityIndexComponent extends PureComponent{
   constructor(props){
     super(props);
     this.state = {
+      newOpportunityId: snowflakeId(),
       rowSelection: {},
       selectedRowKeys: [],
       data: [],
+      showCreationDialog: true,
     }
   }
 
@@ -166,7 +177,9 @@ class OpportunityIndexComponent extends PureComponent{
 
 
   handleOnCreate = () =>{
-
+    this.setState({
+      showCreationDialog: true,
+    });
   }
 
 
@@ -185,8 +198,8 @@ class OpportunityIndexComponent extends PureComponent{
 
   tableTitle = () => {
 
-    const {hasSelected, seelctedRowKeys} = this.state;
-
+    const {selectedRowKeys} = this.state;
+    const hasSelected = selectedRowKeys.length > 0;
     return (
       <Row>
         <Button type="default" icon="search" disabled>查询</Button>
@@ -202,6 +215,39 @@ class OpportunityIndexComponent extends PureComponent{
   }
 
 
+  /**
+   * @description Handle the event when confirm to create opp in the creation dialog.
+   * @memberof OpportunityIndexComponent
+   */
+  onConfirmToCreateOpportunity = (form) =>{
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var formData = fieldsValue;
+      console.log(formData);
+      dispatch({
+        type: "opportunity/create",
+        payload: formData,
+      });
+
+      this.setState({
+        newOpportunityId: snowflakeId(),
+        showCreationDialog: false,
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      // setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+
+  onCancelToCreateOpportunity = () =>{
+    this.setState({
+      newOpportunityId: snowflakeId(),
+      showCreationDialog: false,
+    });
+  }
+
+
   componentDidMount = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -210,6 +256,22 @@ class OpportunityIndexComponent extends PureComponent{
     });
   }
 
+
+  /**
+   * @description User selector.
+   * @memberof OpportunityIndexComponent
+   */
+  onCustomerSearch = (value) => {
+    console.log(value);
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'customer/search',
+      payload: {
+        value: value,
+        count: 20
+      },
+    });
+  }
 
   /**
    * @description Output html
@@ -221,6 +283,7 @@ class OpportunityIndexComponent extends PureComponent{
   render() {
 
     const selectedRowKeys = this.state.selectedRowKeys;
+    const showCreationDialog = this.state.showCreationDialog;
 
     const rowSelection = {
       selectedRowKeys,
@@ -228,7 +291,11 @@ class OpportunityIndexComponent extends PureComponent{
     };
 
     const {
-      opportunity
+      opportunity,
+      customer,
+      user: {
+        currentUser
+      }
     } = this.props;
 
     const data = (opportunity.data? opportunity.data.items: []);
@@ -254,6 +321,15 @@ class OpportunityIndexComponent extends PureComponent{
             rowSelection={rowSelection}
           >
           </Table>
+          <OpportunityCreationComponent
+            newId={this.state.newOpportunityId}
+            user={currentUser}
+            visible={showCreationDialog}
+            onOk={this.onConfirmToCreateOpportunity}
+            onCancel={this.onCancelToCreateOpportunity}
+            onCustomerSearch={this.onCustomerSearch}
+            customerSearchResult={customer.customerSearchResult}
+          ></OpportunityCreationComponent>
         </Card>
       </PageHeaderWrapper>
     );

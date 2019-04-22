@@ -28,6 +28,7 @@ import {
   getAll as GetAllApi, 
   create as createApi,
   deleteCustomer as Delete,
+  quickSearch as QuickSearch
 } from '@/services/CustomerService';
 
 
@@ -41,6 +42,7 @@ export default {
   state: {
     data: [],
     total: 0,
+    customerSearchResult: []
   },
 
   /**
@@ -126,6 +128,22 @@ export default {
       const response = yield call(Get, customerId);
       // TODO: 传递给前端
       console.log(response);
+    },
+
+
+    /**
+     * @description Quick search user by key.
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-15
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *search({payload}, {call, put}){
+      const response = yield call(QuickSearch, payload);
+      yield put({
+        type: 'updateCustomerSearchResult',
+        payload: response,
+      });
     }
 
 
@@ -174,12 +192,29 @@ export default {
     customerGetAll(state, action){
       // 处理ajax返回值
       const {result:{totalCount, items}, success} = action.payload;
-
       return {
         ...state,
         data: items,
         total: totalCount,
       };
-    }
+    },
+
+
+    /**
+     * @description Update state after customer searched.
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-15
+     * @param {*} state
+     * @param {*} action
+     */
+    updateCustomerSearchResult(state, action){
+      // 处理ajax返回值
+      const data = action.payload.result;
+      return {
+        ...state,
+        customerSearchResult: data
+      };
+    },
+
   }
 }

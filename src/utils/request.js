@@ -64,7 +64,6 @@ const cachedSave = (response, hashcode) => {
 };
 
 const MyDebug = (title, obj) => {
-  return;
   if(title) console.info(title);
   console.info(obj);
 };
@@ -179,7 +178,6 @@ export default function request(url, option) {
   return fetch(url, newOptions)
     .then(response => {
       // TODO: 这里主要是参加一个 Handler，为了打印 http response 内容。 PRD 时请去掉。
-      MyDebug('Http Ajax Response Data (fetch):', response);
       return response;
     })
     .then(checkStatus)
@@ -196,7 +194,6 @@ export default function request(url, option) {
       console.log(e);
       debugger;
       const status = e.name;
-
 
       // 2019-04-08 Eric: 在这里处理一下由于调用ABP Web API引起的权限问题返回的 403 错误。
       const url = e.response.url;

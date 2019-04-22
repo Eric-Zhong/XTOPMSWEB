@@ -466,6 +466,18 @@ export default [
           },
         ]
       },
+      {
+        path: '/eai',
+        name: '应用集成',
+        icon: 'user',
+        routes: [
+          {
+            path: '/eai/accesstoken',
+            name: 'Token 管理',
+            component: './Background/AccessTokenComponent',
+          },
+        ]
+      },
       ...ant_router,
       // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)
       {

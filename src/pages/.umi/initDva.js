@@ -27,6 +27,7 @@ app.model({ namespace: 'error', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Ex
 app.model({ namespace: 'DefaultModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Develop/models/DefaultModel.js').default) });
 app.model({ namespace: 'CustomerModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Customer/models/CustomerModel.js').default) });
 app.model({ namespace: 'OpportunityModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Opportunity/models/OpportunityModel.js').default) });
+app.model({ namespace: 'AccessTokenModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AccessTokenModel.js').default) });
 app.model({ namespace: 'UserCenterModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/System/models/UserCenterModel.js').default) });
 app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
 app.model({ namespace: 'chart', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/chart.js').default) });
@@ -35,3 +36,4 @@ app.model({ namespace: 'form', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/For
 app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
 app.model({ namespace: 'profile', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Profile/models/profile.js').default) });
 app.model({ namespace: 'geographic', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Account/Settings/models/geographic.js').default) });
+app.model({ namespace: 'Models_Template', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/_Template/models/Models_Template.js').default) });
