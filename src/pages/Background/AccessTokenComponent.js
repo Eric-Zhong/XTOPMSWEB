@@ -25,10 +25,12 @@
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
-import { Row, Button, Card, Table, Tag } from "antd";
+import { Row, Button, Card, Table, Tag, Icon, Modal } from "antd";
 import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import moment from 'moment';
+import AccessTokenEditorDialog from './Components/AccessTokenEditorDialog';
+const confirm = Modal.confirm;
 
 @connect(({
   access_token,
@@ -52,7 +54,7 @@ class AccessTokenComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 3000,
+      x: 3400,
       y: 450,
     },
   };
@@ -62,6 +64,9 @@ class AccessTokenComponent extends PureComponent{
       dataIndex: 'name',
       width: 300,
       fixed: 'left',
+      render: (cell, record, index) => {
+        return cell;
+      }
     },{
       title: 'App Key',
       dataIndex: 'app_Key',
@@ -81,7 +86,7 @@ class AccessTokenComponent extends PureComponent{
           );
         } else {
           return (
-            <Tag color="red">-</Tag>
+            <Tag color="red">No</Tag>
           );
         }
       }
@@ -133,6 +138,10 @@ class AccessTokenComponent extends PureComponent{
       render: (cell, record, index) => {
         return moment(cell).fromNow();
       }
+    },{
+      title: 'System ID',
+      dataIndex: 'key',
+      width: 200,
     }    
   ]
   CON_TABLE_PAGINATION_OPTION = {
@@ -170,6 +179,8 @@ class AccessTokenComponent extends PureComponent{
     this.state = {
       newId: snowflakeId(),
       selectedRowKeys: [],
+      editorVisible: false,
+      editEntity: {},
     };
   }
 
@@ -201,8 +212,8 @@ class AccessTokenComponent extends PureComponent{
     return (
       <Row>
         <Button type="default" icon="search" disabled>查询</Button>
-        <Button onClick={this.handleClick} type="default" icon="file-add">新建</Button>
-        <Button onClick={this.handleClick} type="danger" icon="delete">删除</Button>
+        <Button onClick={this.handleOnCreate} type="default" icon="file-add">新建</Button>
+        <Button onClick={this.handleOnDelete} type="danger" icon="delete">删除</Button>
         <Button icon="upload" disabled>导入</Button>
         <Button icon="download" disabled>导出</Button>
         <span style={{ marginLeft: 8 }}>
@@ -210,6 +221,154 @@ class AccessTokenComponent extends PureComponent{
         </span>
       </Row>
     );
+  }
+
+  handleOnCreate = () => {
+    const entity = {
+      _model: 'new',
+      id: snowflakeId(),
+      name: 'New token',
+    };
+    
+    this.setState({
+      editEntity: entity,
+      editorVisible: true,
+    });
+  }
+
+  /**
+   * @description 当 Edit Dialog 点击 Cancel 时
+   * @memberof AccessTokenComponent
+   */
+  handleEditorCancel = () => {
+    this.setState({
+      editorVisible: false,
+    });
+  }
+
+  /**
+   * @description 当 Edit Dialog 点击 Ok 时
+   * @memberof AccessTokenComponent
+   */
+  handleDoUpdate = (form) => {
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var formData = {
+        ...this.state.editEntity,
+        ...fieldsValue,
+      };
+      console.log(formData);
+      dispatch({
+        type: this.SERVICE_NAMESPACE + "/update",
+        payload: formData,
+      });
+
+      this.setState({
+        newId: snowflakeId(),
+        editorVisible: false,
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+
+  /**
+   * @description 当 Create Dialog 点击 Create 时
+   * @memberof AccessTokenComponent
+   */
+  handleDoCreate = (form) => {
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var formData = {
+        ...fieldsValue,
+      };
+
+      dispatch({
+        type: this.SERVICE_NAMESPACE + "/create",
+        payload: formData,
+      });
+
+      this.setState({
+        newId: snowflakeId(),
+        editorVisible: false,
+      });
+
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+  /**
+   * @description 点击record时，弹出编辑对话框
+   * @memberof AccessTokenComponent
+   */
+  handleOnEdit = (record) => {
+    this.setState({
+      editEntity: {
+        _model: 'edit', 
+        ...record
+      },
+      editorVisible: true,
+    });
+  }
+
+
+  /**
+   * @description Init token 时调用这个方法
+   * @memberof AccessTokenComponent
+   */
+  handleInitToken = (params) => {
+    const {dispatch} = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/initializeAccessToken",
+      payload: params,
+    });
+    this.setState({
+      selectedRowKeys: [],
+      editorVisible: false,
+    });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => this.componentDidMount(), 500);
+  }
+
+  /**
+   * @description 执行 Delete
+   * @memberof AccessTokenComponent
+   */
+  handleDoDelete = () => {
+    const { dispatch } = this.props;
+    const selectedRowKeys = this.state.selectedRowKeys;
+    selectedRowKeys.map((element, index)=>{
+      const id = element;
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/remove',
+        payload: {
+          id: id
+        },
+      });
+    });
+    this.setState({
+      selectedRowKeys: []
+    });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => this.componentDidMount(), 500);
+  }
+
+  /**
+   * @description Delete 时执行
+   * @memberof AccessTokenComponent
+   */
+  handleOnDelete = () => {
+    const { dispatch } = this.props;
+    confirm({
+      title: '请确认是否删除',
+      content: '请确认真的要删除吗？',
+      onOk: this.handleDoDelete,
+      onCancel() {},
+    });
   }
 
 
@@ -223,12 +382,12 @@ class AccessTokenComponent extends PureComponent{
 
     const state = this.state;
 
-    const {access_token} = this.props;
+    // 从 Model 中获取 State 中记录的数据
+    const {access_token, data} = this.props;
     const dataSource = access_token.data;
+    const totalCount = access_token.total; // 需要从 api 中拿到数据后，得到数据的数量。
 
     const selectedRowKeys = this.state.selectedRowKeys;
-
-    var totalCount = 0; // 需要从 api 中拿到数据后，得到数据的数量。
 
     // 分页
     const paginationOption = {
@@ -255,14 +414,23 @@ class AccessTokenComponent extends PureComponent{
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
             dataSource={dataSource}
+            onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
+          <AccessTokenEditorDialog
+            newId={this.state.newId}
+            visible={this.state.editorVisible}
+            onCancel={this.handleEditorCancel}
+            onEdit={this.handleDoUpdate}
+            onCreate={this.handleDoCreate}
+            onInitToken={this.handleInitToken}
+            data={this.state.editEntity}
+          >
+          </AccessTokenEditorDialog>
         </Card>
       </PageHeaderWrapper>
     );
   }
-
-
 }
 
 

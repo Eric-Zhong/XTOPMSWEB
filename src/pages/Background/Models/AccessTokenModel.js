@@ -3,12 +3,14 @@ import {
   GetAll, 
   Create,
   Delete,
+  Remove,
   Update,
   GetMyAll,
-  QuickSearch
+  QuickSearch,
+  InitializeAccessToken
   } from '@/services/AccessTokenService';
 
-import {message} from 'antd';
+import {message, Modal} from 'antd';
 
 export default {
 
@@ -20,6 +22,7 @@ export default {
   state: {
     data: [],
     total: 0,
+    current: {},
     quickSearchResult: []
   },
 
@@ -29,6 +32,7 @@ export default {
   effects: {
 
     *create({payload}, {call, put}){
+      console.log(payload);
       const response = yield call(Create, payload);
       if(response && response.success){
         const payload = response.result;
@@ -76,14 +80,26 @@ export default {
      * @param {*} {call, put}
      */
     *delete({payload}, {call, put}){
-      const customerId = payload;
-      const response = yield call(Delete, customerId);
+      const body = payload;
+      const response = yield call(Delete, body);
       if(response.success){
 
       } else {
         message.error(response.error);
       }
     },
+
+    *remove({payload}, {call, put}){
+      const body = payload;
+      const response = yield call(Remove, body);
+      if(response.success){
+        const msg = body.id + ' was deleted.'
+        message.success(msg);
+      } else {
+        message.error(response.error);
+      }
+    },
+
 
 
 
@@ -122,6 +138,49 @@ export default {
         type: 'quickSearchReducer',
         payload: response,
       });
+    },
+
+
+    /**
+     * @description Update token data.
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-23
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *update({payload}, {call, put}){
+      const response = yield call(Update, payload);
+      yield put({
+        type: 'updateReducer',
+        payload: response,
+      });
+    },
+
+
+    /**
+     * @description Init access token
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-23
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *initializeAccessToken({payload}, {call, put}){
+      const response = yield call(InitializeAccessToken, payload);
+      if(response.success){
+        Modal.success({
+          title: 'successed',
+          content: 'New token generated: ' + response.result.access_Token + ' .',
+        });
+        yield put({
+          type: 'initializeAccessTokenReducer',
+          payload: response.result,
+        });
+      } else {
+        Modal.error({
+          title: response.error.message,
+          content: response.error.details
+        });
+      }
     }
 
 
@@ -189,6 +248,12 @@ export default {
     },
 
 
+    updateReducer(state, action){
+      console.log(action);
+      return state;
+    },
+
+
     /**
      * @description Update state after customer searched.
      * @author Eric-Zhong Xu (Tigoole)
@@ -201,9 +266,25 @@ export default {
       const data = payload ? payload.result : [];
       return {
         ...state,
-        quickSearchResult: data
+        quickSearchResult: data,
       };
     },
 
+
+    /**
+     * @description 拿到 Init Token 后的 Reducer
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-23
+     * @param {*} state
+     * @param {*} action
+     */
+    initializeAccessTokenReducer(state, action){
+      console.log(action);
+      const payload = action.payload;
+      return {
+        ...state,
+        current: payload
+      };
+    },
   }
 }

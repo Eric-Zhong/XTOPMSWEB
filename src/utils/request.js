@@ -192,7 +192,7 @@ export default function request(url, option) {
     })
     .catch(e => {
       console.log(e);
-      debugger;
+      // debugger;
       const status = e.name;
 
       // 2019-04-08 Eric: 在这里处理一下由于调用ABP Web API引起的权限问题返回的 403 错误。
@@ -233,7 +233,10 @@ export default function request(url, option) {
       }
 
       if (status <= 504 && status >= 500) {
-        router.push('/exception/500');
+        // 20190422: 因为我们主要是用于 web api，当服务器反馈 500 错误时，暂时不要跳到 500 报错页面。
+        // router.push('/exception/500');
+        const response = e.response;
+        return response.json();
       }
 
       if (status >= 404 && status < 422) {

@@ -7,7 +7,6 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import {Card, Button, Table, Tag, Modal, Row, Rate} from 'antd';
 import { Resizable } from 'react-resizable';
 import { snowflakeId } from '@/utils/snowflake';
-import Customer from './Models/CustomerModel';
 import { truncate } from 'fs';
 
 import CustomerCreationDialog from './Components/CustomerCreationDialog';

@@ -32,13 +32,13 @@ const CON_API_URI = '/api/services/app/' + CON_API_NAMED + '/';
 export async function GetAll(params) {
     const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
     const option = {method: "GET", body: restParams, }
-    return request(CON_API_URI + 'getall', option);
+    return request(CON_API_URI + 'GetAll', option);
 }
 
 export async function Get(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "GET", body: restParams, }
-  return request(CON_API_URI + 'getall', option);
+  return request(CON_API_URI + 'Get', option);
 }
 
 export async function GetMyAll(params) {
@@ -50,24 +50,46 @@ export async function GetMyAll(params) {
 export async function Create(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "POST", body: restParams, }
-  return request(CON_API_URI + 'create', option);
+  return request(CON_API_URI + 'Create', option);
 }
 
 export async function Update(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "PUT", body: restParams, }
-  return request(CON_API_URI + 'update', option);
+  return request(CON_API_URI + 'Update', option);
 }
-
 
 export async function Delete(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "DELETE", body: restParams, }
-  return request(CON_API_URI + 'delete', option);
+  return request(CON_API_URI + 'Delete', option);
+}
+
+export async function Remove(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "DELETE", body: restParams, }
+  return request(CON_API_URI + 'Remove', option);
 }
 
 export async function QuickSearch(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "POST", body: restParams, }
-  return request(CON_API_URI + 'quicksearch', option);
+  return request(CON_API_URI + 'QuickSearch', option);
 }
+
+/**
+ * @description 刷新 Token （多用于初次获取Token）
+ * @author Eric-Zhong Xu (Tigoole)
+ * @date 2019-04-23
+ * @export
+ * @param {*} params {"accessTokenId": 0,"code": "string"}
+ * @returns JSON
+ */
+export async function InitializeAccessToken(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'initializeaccesstoken', option);
+}
+
+
+
