@@ -71,7 +71,6 @@ class AccessTokenEditorDialog extends PureComponent{
 
     // 从 props 中获取的参数
     const {
-      newId,
       form: {getFieldDecorator, getFieldValue},
       visible,
       onCancel,
@@ -168,30 +167,33 @@ class AccessTokenEditorDialog extends PureComponent{
                 {getFieldDecorator( 'status',{ initialValue: data.status })(<Input></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Is Active" help="">
-                {getFieldDecorator( 'isActive')(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />} defaultChecked={data.isActive==1}></Switch>)}
+                {getFieldDecorator( 'isActive',{ valuePropName: 'checked', initialValue: data.isActive })(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch>)}
+              </FormItem>
+              <FormItem {...formItemLayout} label="Is Deleted" help="">
+                {getFieldDecorator( 'isDeleted',{ valuePropName: 'checked', initialValue: data.isDeleted })(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch>)}
               </FormItem>
             </TabPanel>
             <TabPanel tab="Access Token" key="tabToken">
               <FormItem {...formItemLayout} label="Alibaba ID" help="">
-                {getFieldDecorator( '_aliId',{ initialValue: data.aliId })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'aliId',{ initialValue: data.aliId })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Member ID" help="">
-                {getFieldDecorator( '_memberId',{ initialValue: data.memberId })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'memberId',{ initialValue: data.memberId })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Resource Owner" help="">
-                {getFieldDecorator( '_resourceOwner',{ initialValue: data.resource_Owner })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'resource_Owner',{ initialValue: data.resource_Owner })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Access Token" help="">
-                {getFieldDecorator( '_accessToken',{ initialValue: data.access_Token })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'access_Token',{ initialValue: data.access_Token })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Timeout" help="">
-                {getFieldDecorator( '_accessTokenTimeout',{ initialValue: data.expires_In })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'expires_In',{ initialValue: data.expires_In })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Refresh Token" help="">
-                {getFieldDecorator( '_refreshToken',{ initialValue: data.refresh_Token })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'refresh_Token',{ initialValue: data.refresh_Token })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Timeout" help="">
-                {getFieldDecorator( '_refreshTokenTimeout',{ initialValue: data.refresh_Token_Timeout })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'refresh_Token_Timeout',{ initialValue: data.refresh_Token_Timeout })(<Input readOnly></Input>)}
               </FormItem>
             </TabPanel>
             <TabPanel tab="Comment" key="tabComment">
@@ -201,7 +203,7 @@ class AccessTokenEditorDialog extends PureComponent{
             </TabPanel>
             <TabPanel tab="Other" key="tabOther">
               <FormItem {...formItemLayout} label="ID" help="">
-                {getFieldDecorator( 'id',{ initialValue: data.id })(<Input readOnly></Input>)}
+                {getFieldDecorator( 'id',{ initialValue: data.key })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Creator User ID" help="">
                 {getFieldDecorator( '_creatorUserId',{ initialValue: data.creatorUserId })(<Input readOnly></Input>)}

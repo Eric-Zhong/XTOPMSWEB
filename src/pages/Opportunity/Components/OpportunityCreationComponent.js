@@ -28,7 +28,6 @@ import { PureComponent } from "react";
 import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete} from "antd";
 import { basename } from "path";
 import { connect } from "dva";
-import User from '@/models/user';
 import {GetBusinessCategoryTree} from '@/utils/Dictionary';
 import moment from "moment";
 
@@ -38,18 +37,11 @@ const
   Option = AutoComplete.Option;
 
 
-connect(({user, loading})=>({
-  user,
-  loading: loading.opportunity.model
-}));
 @Form.create()
 class OpportunityCreationComponent extends PureComponent{
 
   constructor(props){
     super(props);
-    this.state = {
-      user:{}
-    };
   }
 
   /**
@@ -73,21 +65,19 @@ class OpportunityCreationComponent extends PureComponent{
    * @memberof OpportunityCreationComponent
    */
   render(){
-
-    // console.log(this.props);
-
     // 从 props 中获取的参数
     const {
-      newId,
       form: {getFieldDecorator, getFieldValue},
+      data,
       visible,
-      onCancel,
       user,
+      onDoCreate,
+      onDoUpdate,
+      onCancel,
       onCustomerSearch,
       onCustomerChange,
       customerSearchResult,
     } = this.props;
-
 
     // 从 state 中获取数据
 
@@ -113,9 +103,12 @@ class OpportunityCreationComponent extends PureComponent{
 
     const bizCategoryOption = GetBusinessCategoryTree();
 
-    const onConfirmOk = () => {
-      const {form, onOk} = this.props;
-      if(onOk) onOk(form);  
+    const okText = (data.model === 'create'? '创建': '修改');
+    const doOk = (data.model === 'create'? onDoCreate: onDoUpdate);
+
+    const onOk = () => {
+      const {form} = this.props;
+      if(doOk) doOk(form);
     };
 
     const salesData = [];
@@ -126,9 +119,9 @@ class OpportunityCreationComponent extends PureComponent{
       title="新建机会"
       destroyOnClose
       visible={visible}
-      okText="创建"
+      okText={okText}
       onCancel={onCancel}
-      onOk={onConfirmOk}
+      onOk={onOk}
       width={800}
       >
         <Form>
@@ -141,7 +134,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'createUserName',
                         {
-                          initialValue: user.name
+                          initialValue: data.createUserName
                         }
                       )(<Input readOnly></Input>) 
                     }
@@ -163,7 +156,7 @@ class OpportunityCreationComponent extends PureComponent{
                     { 
                       getFieldDecorator(
                         'id',{
-                          initialValue: newId
+                          initialValue: data.key
                         }
                       )(<Input readOnly></Input>) 
                     }
@@ -175,7 +168,7 @@ class OpportunityCreationComponent extends PureComponent{
                   <FormItem {...formItemLayoutHorizontal} label="销售代表" help="">
                     { 
                       getFieldDecorator(
-                        'salesName' /*, {initialValue: ''} */
+                        'salesName' , {initialValue: data.salesName} 
                       )(<Select
                           showSearch={true}
                           placeholder="选择销售"
@@ -196,7 +189,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'code',
                         {
-                          initialValue: ""
+                          initialValue: data.code
                         }
                       )(<Input></Input>) 
                     }
@@ -208,7 +201,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'erpId',
                         {
-                          initialValue: ""
+                          initialValue: data.erpId
                         }
                       )(<Input placeholder="企业内部系统ID"></Input>) 
                     }
@@ -234,7 +227,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'shipToName',
                         {
-                          initialValue: ""
+                          initialValue: data.shipToName
                         }
                       )(<AutoComplete
                           placeholder="收货方"
@@ -250,7 +243,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'partnerName',
                         {
-                          initialValue: ""
+                          initialValue: data.partnerName
                         }
                       )(<Input placeholder=""></Input>) 
                     }
@@ -264,7 +257,7 @@ class OpportunityCreationComponent extends PureComponent{
                       getFieldDecorator(
                         'name',
                         { 
-                          initialValue: user.name + "于" + moment().format('YYYY/MM/DD') + "创建的机会",
+                          initialValue: data.name,
                           rules: [{
                             required: true,
                             max: 50,
@@ -285,7 +278,7 @@ class OpportunityCreationComponent extends PureComponent{
                   <FormItem {...formItemLayout} label="所属行业" help="">
                     { 
                       getFieldDecorator(
-                        'bizCategory'
+                        'bizCategory', { initialValue: data.bizCategory, valuePropName: 'defaultValue'}
                       )(<Cascader
                           options={bizCategoryOption}
                           placeholder="项目所属行业"

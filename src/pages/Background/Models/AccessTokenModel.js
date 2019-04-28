@@ -150,10 +150,24 @@ export default {
      */
     *update({payload}, {call, put}){
       const response = yield call(Update, payload);
-      yield put({
-        type: 'updateReducer',
-        payload: response,
-      });
+
+      // 增加异常处理
+      if(response.success){
+        yield put({
+          type: 'updateReducer',
+          payload: response,
+        });
+      } else {
+        if(response.error){
+          if(response.error.details) {
+            console.log(response.error.details);
+          }
+          if(response.error.message) {
+            message.error(response.error.message);
+          }
+        }
+      }
+
     },
 
 
@@ -190,6 +204,22 @@ export default {
    * @method reducers
    */
   reducers: {
+
+
+    /**
+     * @description Clear current model's state
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-28
+     * @returns 
+     */
+    clear(){
+      return {
+        data: [],
+        total: 0,
+        current: {},
+        quickSearchResult: []
+      }
+    },
 
 
     /**
@@ -249,8 +279,9 @@ export default {
 
 
     updateReducer(state, action){
-      console.log(action);
-      return state;
+      return {
+        current: action.payload
+      }
     },
 
 

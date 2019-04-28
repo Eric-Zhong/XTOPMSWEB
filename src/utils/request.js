@@ -27,6 +27,11 @@ const codeMessage = {
 
 // 对 response 进行预处理，如果正确返回200，就进行下一步操作，如果报错，给出提示信息并抛出异常信息
 const checkStatus = response => {
+
+  // 2019-04-28 Eric: 先屏蔽掉此处的异常处理方法。 因为在 ABP 中，后台已经做了很好的异常处理，它会反馈 404, 401 等 statues code，但 response 上有正确的 json 数据。
+
+  return response;
+
   if (response.status >= 200 && response.status < 300) {
     // 成功获取了服务器返回的响应数据
     return response;
@@ -63,11 +68,6 @@ const cachedSave = (response, hashcode) => {
   return response;
 };
 
-const MyDebug = (title, obj) => {
-  if(title) console.info(title);
-  console.info(obj);
-};
-
 
 /**
  * @description Parse json object to query string.
@@ -93,10 +93,6 @@ export default function request(url, option) {
 
   /* 执行 ajax 调用 */
   /* 打印输入参数 */
-  console.log('/**************** http ajax request ***************/')
-  if(url) console.log(url);
-  if(option)  console.log(option);
-
   const options = {
     expirys: isAntdPro(),
     ...option,
@@ -173,11 +169,43 @@ export default function request(url, option) {
     }
   }
 
-  MyDebug('Http Ajax Request URL (fetch): ' + url, newOptions);
-
   return fetch(url, newOptions)
     .then(response => {
       // TODO: 这里主要是参加一个 Handler，为了打印 http response 内容。 PRD 时请去掉。
+      console.log('/**************** http ajax request ***************/')
+      if(url) console.log('Web API Uri: ' + url);
+      if(newOptions) {
+        console.log('Web API Request: ')
+        console.log(newOptions);
+      } 
+      console.log('Web API Response: ');
+
+      // ! 中途想使用 response， 必须先 clone。
+      /*
+      response
+      .clone()
+      .json()
+      .then(content => {
+        if(content && content.__abp){
+          const {result} = content;
+          if(result && result.items && result.items.length>0){
+            console.log('>>>>>>>> ABP Array/List');
+            const list = result.items;
+            list.map((value, index, data)=>{
+              console.log(value);      // 输出返回类似为 List 的每外 Item
+            });
+          } else {
+            console.log('>>>>>>>> ABP Entity/Object');
+            console.log(result);       // 输出 AbP 的 Result 的内容
+          }
+        } else {
+          console.log('>>>>>>>> None ABP Object');
+          console.log(content);       // 输出 Response 中 Body 的内容
+        }
+      });
+      */
+
+
       return response;
     })
     .then(checkStatus)
@@ -190,9 +218,43 @@ export default function request(url, option) {
       }
       return response.json();
     })
+    .then(response=>{
+      console.log('>>>>>>>> ');
+      console.log(response);
+      return response;
+    })
     .catch(e => {
+
+      // ! 中途想使用 response， 必须先 clone。
+      e.response
+      .clone()
+      .json()
+      .then(content => {
+        if(content && content.__abp){
+          const result = content.error;
+          if(result && result.items && result.items.length>0){
+            console.log('>>>>>>>> ABP Array/List');
+            const list = result.items;
+            list.map((value, index, data)=>{
+              console.log(value);      // 输出返回类似为 List 的每外 Item
+            });
+          } else {
+            console.log('>>>>>>>> ABP Entity/Object');
+            console.log(result);       // 输出 AbP 的 Result 的内容
+          }
+        } else {
+          console.log('>>>>>>>> None ABP Object');
+          console.log(content);       // 输出 Response 中 Body 的内容
+        }
+      });
+
+
+      return e.response.json();
+
       console.log(e);
       // debugger;
+
+
       const status = e.name;
 
       // 2019-04-08 Eric: 在这里处理一下由于调用ABP Web API引起的权限问题返回的 403 错误。
@@ -249,5 +311,6 @@ export default function request(url, option) {
       }
 
       return;
-    });
+    }
+  );
 }

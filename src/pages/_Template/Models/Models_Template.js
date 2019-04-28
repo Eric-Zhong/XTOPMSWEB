@@ -71,7 +71,7 @@ export default {
 
 
     /**
-     * @description Delete customer
+     * @description Delete this entity.
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-10
      * @param {*} {payload}
@@ -86,6 +86,26 @@ export default {
         message.error(response.error);
       }
     },
+
+
+    /**
+     * @description Delete this entity.
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-28
+     * @param {*} {payload}
+     * @param {*} {call, put}
+     */
+    *remove({payload}, {call, put}){
+      const body = payload;
+      const response = yield call(Remove, body);
+      if(response.success){
+        const msg = body.id + ' was deleted.'
+        message.success(msg);
+      } else {
+        message.error(response.error);
+      }
+    },
+
 
 
 
@@ -133,6 +153,22 @@ export default {
    * @method reducers
    */
   reducers: {
+
+    /**
+     * @description Clear current model's state
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-28
+     * @returns 
+     */
+    clear(){
+      return {
+        data: [],
+        total: 0,
+        current: {},
+        quickSearchResult: []
+      }
+    },
+
 
 
     /**

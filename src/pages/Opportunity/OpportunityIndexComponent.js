@@ -33,6 +33,13 @@ import { snowflakeId } from '@/utils/snowflake';
 
 
 
+/**
+ * @description Opportunity management home main page.
+ * @author Eric-Zhong Xu (Tigoole)
+ * @date 2019-04-27
+ * @class OpportunityIndexComponent
+ * @extends {PureComponent}
+ */
 @connect(({
   opportunity,
   customer,
@@ -42,21 +49,13 @@ import { snowflakeId } from '@/utils/snowflake';
   opportunity,
   customer,
   user,
-  loading: loading.model,
+  loading,
 }))
 class OpportunityIndexComponent extends PureComponent{
 
-  constructor(props){
-    super(props);
-    this.state = {
-      newOpportunityId: snowflakeId(),
-      rowSelection: {},
-      selectedRowKeys: [],
-      data: [],
-      showCreationDialog: true,
-    }
-  }
-
+  SERVICE_NAMESPACE = 'opportunity';
+  CON_PAGE_TITLE = '机会登记';
+  CON_PAGE_CONTENT = '机会的创建、登记、跟踪，以及机会下创建合同，创建项目业务操作。';
 
   tableOptions = {
     rowKey: 'key',
@@ -175,16 +174,60 @@ class OpportunityIndexComponent extends PureComponent{
     }    
   ]
 
+  /** ############################################# **/
 
+  constructor(props){
+    super(props);
+    this.state = {
+      newOpportunityId: snowflakeId(),  // generate a new snowflake id.
+      rowSelection: {},                 // current selected row in the table.
+      selectedRowKeys: [],              // selected row in the table.
+      data: [],                         // table datasource.
+      editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
+      editorVisible: false,         // edit dialog visible switch.
+    }
+  }
+
+
+  /**
+   * @description Search opportunity
+   * @memberof OpportunityIndexComponent
+   */
+  handleOnSearch = () =>{
+    this.componentDidMount();
+  }
+
+
+  /**
+   * @description Open create dialog
+   * @memberof OpportunityIndexComponent
+   */
   handleOnCreate = () =>{
+    const {
+      user:{
+        currentUser
+      }
+    } = this.props;
+
     this.setState({
-      showCreationDialog: true,
+      newOpportunityId: snowflakeId(),
+      editEntity: {
+        _model: 'create',
+        id: snowflakeId(),
+        name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的机会.",
+        createUserName: currentUser.name,
+        salesId: currentUser.id,
+      },
+      editorVisible: true,
     });
   }
 
 
+  /**
+   * @description delete the selected record
+   * @memberof OpportunityIndexComponent
+   */
   handleOnDelete = () => {
-
   }
 
   /**
@@ -197,14 +240,14 @@ class OpportunityIndexComponent extends PureComponent{
 
 
   tableTitle = () => {
-
+    const {loading} = this.props;
     const {selectedRowKeys} = this.state;
     const hasSelected = selectedRowKeys.length > 0;
     return (
       <Row>
-        <Button type="default" icon="search" disabled>查询</Button>
-        <Button onClick={this.handleOnCreate} type="default" icon="file-add">新建</Button>
-        <Button onClick={this.handleOnDelete} type="danger" icon="delete">删除</Button>
+        <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+        <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
+        <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
         <Button icon="upload" disabled>导入</Button>
         <Button icon="download" disabled>导出</Button>
         <span style={{ marginLeft: 8 }}>
@@ -219,20 +262,44 @@ class OpportunityIndexComponent extends PureComponent{
    * @description Handle the event when confirm to create opp in the creation dialog.
    * @memberof OpportunityIndexComponent
    */
-  onConfirmToCreateOpportunity = (form) =>{
+  handleDoCreate = (form) =>{
     const {dispatch} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       var formData = fieldsValue;
       console.log(formData);
       dispatch({
-        type: "opportunity/create",
+        type: this.SERVICE_NAMESPACE + '/create',
         payload: formData,
       });
 
       this.setState({
         newOpportunityId: snowflakeId(),
-        showCreationDialog: false,
+        editorVisible: false,
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      // setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+
+  /**
+   * @description Update entity
+   * @memberof OpportunityIndexComponent
+   */
+  handleDoUpdate = (form) =>{
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      var formData = fieldsValue;
+      console.log(formData);
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/update',
+        payload: formData,
+      });
+
+      this.setState({
+        editorVisible: false,
       });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
       // setTimeout(() => this.componentDidMount(), 1000);
@@ -242,16 +309,32 @@ class OpportunityIndexComponent extends PureComponent{
 
   onCancelToCreateOpportunity = () =>{
     this.setState({
-      newOpportunityId: snowflakeId(),
-      showCreationDialog: false,
+      editorVisible: false,
     });
   }
+
+
+  /**
+   * @description 点击record时，弹出编辑对话框
+   * @memberof AccessTokenComponent
+   */
+  handleOnEdit = (record) => {
+    this.setState({
+      editEntity: {
+        _model: 'edit', 
+        ...record
+      },
+      editorVisible: true,
+    });
+  }
+
+
 
 
   componentDidMount = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'opportunity/getAll',
+      type: this.SERVICE_NAMESPACE + '/getAll',
       payload: {},
     });
   }
@@ -283,7 +366,7 @@ class OpportunityIndexComponent extends PureComponent{
   render() {
 
     const selectedRowKeys = this.state.selectedRowKeys;
-    const showCreationDialog = this.state.showCreationDialog;
+    const editorVisible = this.state.editorVisible;
 
     const rowSelection = {
       selectedRowKeys,
@@ -308,9 +391,9 @@ class OpportunityIndexComponent extends PureComponent{
 
     return (
       <PageHeaderWrapper
-        title="机会登记"
-        content="机会的创建、登记、跟踪，以及机会下创建合同，创建项目业务操作。"
-      >
+      title={this.CON_PAGE_TITLE}
+      content={this.CON_PAGE_CONTENT}
+    >
         <Card>
           <Table
             title={this.tableTitle}
@@ -319,13 +402,15 @@ class OpportunityIndexComponent extends PureComponent{
             dataSource={data}
             pagination={paginationOption}
             rowSelection={rowSelection}
+            onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
           <OpportunityCreationComponent
-            newId={this.state.newOpportunityId}
+            data={this.state.editEntity}
             user={currentUser}
-            visible={showCreationDialog}
-            onOk={this.onConfirmToCreateOpportunity}
+            visible={editorVisible}
+            onDoCreate={this.handleDoCreate}
+            onDoUpdate={this.handleDoUpdate}
             onCancel={this.onCancelToCreateOpportunity}
             onCustomerSearch={this.onCustomerSearch}
             customerSearchResult={customer.customerSearchResult}

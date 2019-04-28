@@ -219,7 +219,7 @@ let routes = [
           {
             "path": "/evaluation/opportunity",
             "name": "机会登记-MVP",
-            "component": dynamic({ loader: () => import('../Opportunity/Index'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "component": dynamic({ loader: () => import('../Opportunity/OpportunityIndexComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {
@@ -608,6 +608,12 @@ let routes = [
             "path": "/eai/accesstoken",
             "name": "Token 管理",
             "component": dynamic({ loader: () => import('../Background/AccessTokenComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
+            "path": "/eai/datasyncservice",
+            "name": "数据同步服务",
+            "component": dynamic({ loader: () => import('../Background/DataSyncServiceComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {

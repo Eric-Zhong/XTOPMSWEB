@@ -25,7 +25,7 @@
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
-import { Row, Col, Input, Button, Card, Table, Tag, Icon, Modal, Form } from "antd";
+import { Row, Col, Input, Button, Card, Table, Tag, Icon, Modal } from "antd";
 import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import moment from 'moment';
@@ -33,15 +33,13 @@ import AccessTokenEditorDialog from './Components/AccessTokenEditorDialog';
 const confirm = Modal.confirm;
 
 @connect(({
-  user,
   access_token,
   loading
 })=>({
-  user,
   access_token,
-  loading
+  loading: loading.model
 }))
-class AccessTokenComponent extends PureComponent{
+class DataSyncServiceComponent extends PureComponent{
 
   SERVICE_NAMESPACE = "access_token";
   CON_PAGE_TITLE = "Access Token 管理";
@@ -89,21 +87,6 @@ class AccessTokenComponent extends PureComponent{
         } else {
           return (
             <Tag color="red">No</Tag>
-          );
-        }
-      }
-    },{
-      title: 'Del?',
-      dataIndex: 'isDeleted',
-      width: 80,
-      render: (cell, record, index) => {
-        if(cell){
-          return (
-            <Tag color="red">Yes</Tag>
-          );
-        } else {
-          return (
-            <Tag color="green">No</Tag>
           );
         }
       }
@@ -188,12 +171,13 @@ class AccessTokenComponent extends PureComponent{
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
    * @param {*} props
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   constructor(props){
     super(props);
     // Declare this component's state
     this.state = {
+      newId: snowflakeId(),
       selectedRowKeys: [],
       editorVisible: false,
       editEntity: {},
@@ -205,17 +189,10 @@ class AccessTokenComponent extends PureComponent{
    * @description When components created, react will execute this function.
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   componentDidMount(){
-    console.log(this.props);
     const { dispatch } = this.props;  // Get dispatch from parent component.
-    // refresh state
-    this.setState({
-      editorVisible: false,
-      editEntity: {}
-    });
-
     // Load data
     dispatch({
       type: this.SERVICE_NAMESPACE + "/getAll",
@@ -224,36 +201,20 @@ class AccessTokenComponent extends PureComponent{
   }
 
 
-  /**
-   * @description clear the reference model state
-   * @author Eric-Zhong Xu (Tigoole)
-   * @date 2019-04-28
-   * @memberof AccessTokenComponent
-   */
-  componentWillUnmount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: this.SERVICE_NAMESPACE + '/clear',
-    });
-  }
-
-
-
-  handleOnSearch = () =>{
-    this.componentDidMount();
+  handleClick = () =>{
+    console.log('click');
   }
 
 
   tableTitleOption = () => {
-    const {loading} = this.props;
     const {selectedRowKeys} = this.state;
     const hasSelected = selectedRowKeys.length > 0;
     return (
-      <Row gutter={24}>
+      <Row>
         <Col>
-          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects['access_token/getAll']}>查询</Button>
-          <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects['access_token/create']} disabled={loading.global}>新建</Button>
-          <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects['access_token/remove']} disabled={!hasSelected || loading.global}>删除</Button>
+          <Button type="default" icon="search" disabled>查询</Button>
+          <Button onClick={this.handleOnCreate} type="default" icon="file-add">新建</Button>
+          <Button onClick={this.handleOnDelete} type="danger" icon="delete">删除</Button>
           <Button icon="upload" disabled>导入</Button>
           <Button icon="download" disabled>导出</Button>
           <span style={{ marginLeft: 8 }}>
@@ -265,19 +226,10 @@ class AccessTokenComponent extends PureComponent{
   }
 
   handleOnCreate = () => {
-    console.log(this.props);
-    const {
-      dispatch,
-      user: {currentUser},
-    } = this.props;
-
-    const newId = snowflakeId();
-
     const entity = {
       _model: 'new',
-      id: newId,
-      key: newId,
-      name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的Token.",
+      id: snowflakeId(),
+      name: 'New token',
     };
     
     this.setState({
@@ -288,7 +240,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description 当 Edit Dialog 点击 Cancel 时
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleEditorCancel = () => {
     this.setState({
@@ -298,27 +250,26 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description 当 Edit Dialog 点击 Ok 时
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleDoUpdate = (form) => {
     const {dispatch} = this.props;
     form.validateFields((err, fieldsValue) => {
-
       if (err) return;
       var formData = {
         ...this.state.editEntity,
         ...fieldsValue,
       };
-
+      console.log(formData);
       dispatch({
         type: this.SERVICE_NAMESPACE + "/update",
         payload: formData,
       });
 
       this.setState({
+        newId: snowflakeId(),
         editorVisible: false,
       });
-
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
       setTimeout(() => this.componentDidMount(), 1000);
     });
@@ -327,7 +278,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description 当 Create Dialog 点击 Create 时
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleDoCreate = (form) => {
     const {dispatch} = this.props;
@@ -343,6 +294,7 @@ class AccessTokenComponent extends PureComponent{
       });
 
       this.setState({
+        newId: snowflakeId(),
         editorVisible: false,
       });
 
@@ -353,7 +305,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description 点击record时，弹出编辑对话框
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleOnEdit = (record) => {
     this.setState({
@@ -368,7 +320,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description Init token 时调用这个方法
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleInitToken = (params) => {
     const {dispatch} = this.props;
@@ -386,7 +338,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description 执行 Delete
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleDoDelete = () => {
     const { dispatch } = this.props;
@@ -409,7 +361,7 @@ class AccessTokenComponent extends PureComponent{
 
   /**
    * @description Delete 时执行
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   handleOnDelete = () => {
     const { dispatch } = this.props;
@@ -426,7 +378,7 @@ class AccessTokenComponent extends PureComponent{
    * @description Render the html
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof AccessTokenComponent
+   * @memberof DataSyncServiceComponent
    */
   render(){
 
@@ -468,6 +420,7 @@ class AccessTokenComponent extends PureComponent{
           >
           </Table>
           <AccessTokenEditorDialog
+            newId={this.state.newId}
             visible={this.state.editorVisible}
             onCancel={this.handleEditorCancel}
             onEdit={this.handleDoUpdate}
@@ -483,4 +436,4 @@ class AccessTokenComponent extends PureComponent{
 }
 
 
-export default AccessTokenComponent;
+export default DataSyncServiceComponent;

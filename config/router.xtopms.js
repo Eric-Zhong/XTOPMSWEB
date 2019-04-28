@@ -163,7 +163,7 @@ export default [
           {
             path: '/evaluation/opportunity',
             name: '机会登记-MVP',
-            component: './Opportunity/Index',
+            component: './Opportunity/OpportunityIndexComponent',
           },
           {
             path: '/evaluation/decision',
@@ -475,6 +475,11 @@ export default [
             path: '/eai/accesstoken',
             name: 'Token 管理',
             component: './Background/AccessTokenComponent',
+          },
+          {
+            path: '/eai/datasyncservice',
+            name: '数据同步服务',
+            component: './Background/DataSyncServiceComponent',
           },
         ]
       },
