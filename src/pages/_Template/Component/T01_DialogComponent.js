@@ -39,19 +39,13 @@ class T01_DialogComponent extends PureComponent{
 
     // 从 props 中获取的参数
     const {
-      newId,
       form: {getFieldDecorator, getFieldValue},
       visible,
       onCancel,
       user,
-      onCustomerSearch,
-      onCustomerChange,
-      customerSearchResult,
     } = this.props;
 
-
     // 从 state 中获取数据
-
 
     // 定义Form样式
     const formItemLayout = {

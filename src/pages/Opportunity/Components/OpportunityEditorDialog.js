@@ -30,6 +30,8 @@ import { basename } from "path";
 import { connect } from "dva";
 import {GetBusinessCategoryTree} from '@/utils/Dictionary';
 import moment from "moment";
+import UserSelectorV1 from '@/components/UserSelector/UserSelectorV1';
+
 
 const 
   FormItem = Form.Item,
@@ -38,7 +40,7 @@ const
 
 
 @Form.create()
-class OpportunityCreationComponent extends PureComponent{
+class OpportunityEditorDialog extends PureComponent{
 
   constructor(props){
     super(props);
@@ -46,23 +48,22 @@ class OpportunityCreationComponent extends PureComponent{
 
   /**
    * @description Business category selector
-   * @memberof OpportunityCreationComponent
+   * @memberof OpportunityEditorDialog
    */
   onBizCategoryFilter = (inputValue, path) => {
     return (path.some(option => (option.label).toLowerCase().indexOf(inputValue.toLowerCase()) > -1));
   }
 
 
-  onCustomerSelected = (value, option) => {
-    console.log(value);
-    console.log(option);
-  };
+  handleSalesChange = (value) => {
+    // console.log(value);
+  }
   
   /**
    * @description render html component
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-11
-   * @memberof OpportunityCreationComponent
+   * @memberof OpportunityEditorDialog
    */
   render(){
     // 从 props 中获取的参数
@@ -74,9 +75,6 @@ class OpportunityCreationComponent extends PureComponent{
       onDoCreate,
       onDoUpdate,
       onCancel,
-      onCustomerSearch,
-      onCustomerChange,
-      customerSearchResult,
     } = this.props;
 
     // 从 state 中获取数据
@@ -103,16 +101,13 @@ class OpportunityCreationComponent extends PureComponent{
 
     const bizCategoryOption = GetBusinessCategoryTree();
 
-    const okText = (data.model === 'create'? '创建': '修改');
-    const doOk = (data.model === 'create'? onDoCreate: onDoUpdate);
+    const okText = (data._model === 'create'? '创建': '修改');
+    const doOk = (data._model === 'create'? onDoCreate: onDoUpdate);
 
     const onOk = () => {
       const {form} = this.props;
       if(doOk) doOk(form);
     };
-
-    const salesData = [];
-    const customerData = [];
 
     return (
       <Modal
@@ -166,21 +161,18 @@ class OpportunityCreationComponent extends PureComponent{
               <Row>
                 <Col span={8}>
                   <FormItem {...formItemLayoutHorizontal} label="销售代表" help="">
-                    { 
-                      getFieldDecorator(
-                        'salesName' , {initialValue: data.salesName} 
-                      )(<Select
-                          showSearch={true}
-                          placeholder="选择销售"
-                          labelInValue={true}
-                          filterOption={true}
-                          notFoundContent="无法匹配"
-                          style={{ width: '100%' }}
-                          onSearch={onCustomerSearch}
-                          >
-                            {customerSearchResult.map(d => <Option key={d.key}>{d.name}</Option>)}
-                          </Select>)
-                    }
+                  { 
+                    getFieldDecorator(
+                      'sales' , {
+                        initialValue: {key: data.salesId, label: data.salesName, userId: data.salesId, userName: data.salesName},
+                      } 
+                    )(<UserSelectorV1
+                        {...this.props}
+                        onChange={this.handleSalesChange}
+                        placeholder="选择销售"
+                      ></UserSelectorV1>
+                    )
+                  }
                   </FormItem>
                 </Col>
                 <Col span={8}>
@@ -325,4 +317,38 @@ class OpportunityCreationComponent extends PureComponent{
 }
 
 
-export default OpportunityCreationComponent;
+export default OpportunityEditorDialog;
+
+
+/*
+
+                  <FormItem {...formItemLayoutHorizontal} label="销售代表" help="">
+                    { 
+                      getFieldDecorator(
+                        'salesName' , {
+                          initialValue: {key: data.salesId, label: data.salesName},
+                          valuePropName: 'defaultValue'
+                        } 
+                      )(<Select
+                          showSearch={true}
+                          placeholder="选择销售"
+                          labelInValue={true}
+                          filterOption={true}
+                          notFoundContent="无法匹配"
+                          style={{ width: '100%' }}
+                          onSearch={onCustomerSearch}
+                          >
+                            {
+                              <Option key={user.id}>{user.name}</Option>
+                            }
+                            {
+                              customerSearchResult.map(d => {
+                                return <Option key={d.key}>{d.name}</Option>
+                              })
+                            }
+                          </Select>)
+                    }
+                  </FormItem>
+
+
+*/                  

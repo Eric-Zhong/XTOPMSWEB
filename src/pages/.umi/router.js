@@ -219,7 +219,7 @@ let routes = [
           {
             "path": "/evaluation/opportunity",
             "name": "机会登记-MVP",
-            "component": dynamic({ loader: () => import('../Opportunity/OpportunityIndexComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "component": dynamic({ loader: () => import('../Opportunity/OpportunityComponent'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
             "exact": true
           },
           {

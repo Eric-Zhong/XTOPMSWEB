@@ -163,7 +163,7 @@ export default [
           {
             path: '/evaluation/opportunity',
             name: '机会登记-MVP',
-            component: './Opportunity/OpportunityIndexComponent',
+            component: './Opportunity/OpportunityComponent',
           },
           {
             path: '/evaluation/decision',

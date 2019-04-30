@@ -21,6 +21,7 @@ app.model({ namespace: 'project', ...(require('/Work/Dotnet/XTOPMSWEB/src/models
 app.model({ namespace: 'setting', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/setting.js').default) });
 app.model({ namespace: 'testwebapi', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/testwebapi.js').default) });
 app.model({ namespace: 'user', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/user.js').default) });
+app.model({ namespace: 'userQuickSearchModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/userQuickSearchModel.js').default) });
 app.model({ namespace: 'xtouser', ...(require('/Work/Dotnet/XTOPMSWEB/src/models/xtouser.js').default) });
 app.model({ namespace: 'register', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/User/models/register.js').default) });
 app.model({ namespace: 'error', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Exception/models/error.js').default) });

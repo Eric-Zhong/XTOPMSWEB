@@ -1,10 +1,18 @@
 /* 定义业务实体 Model, 使用了 dva https://dvajs.com */
 
 // 引用针对自己的 Service/Api 定义
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { 
+  query as queryUsers
+  , queryCurrent 
+} from '@/services/user';
 
 // * 从 XTOPMS 中获取当前登录的帐号信息
-import { getCurrentUser } from "@/services/xtouser";
+import { 
+  getCurrentUser
+  ,QuickSearch
+} from "@/services/xtouser";
+
+import { message } from 'antd';
 
 /*
 ! Ant Design 支持的数据格式如下
@@ -125,6 +133,7 @@ export default {
         });
       }
     },
+
   },
 
   reducers: {

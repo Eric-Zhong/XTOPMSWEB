@@ -22,7 +22,7 @@ export default {
   state: {
     data: [],
     total: 0,
-    customerSearchResult: []
+    quickSearchResult: []
   },
 
   /**
@@ -45,7 +45,7 @@ export default {
     },
 
     /**
-     * @description Get customer list data
+     * @description Get list data
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-08
      * @param {*} {payload}
@@ -60,7 +60,7 @@ export default {
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
-          type: "getAllReducer",
+          type: 'getAllReducer',
           payload: response,
         });
       } else {
@@ -110,7 +110,7 @@ export default {
 
 
     /**
-     * @description Get an customer data
+     * @description Get an entity
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-10
      * @param {*} {payload}
@@ -132,7 +132,7 @@ export default {
 
 
     /**
-     * @description Quick search user by key.
+     * @description Quick search entity by key.
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-15
      * @param {*} {payload}
@@ -155,7 +155,7 @@ export default {
   reducers: {
 
     /**
-     * @description Clear current model's state
+     * @description Clear model's state
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-28
      * @returns 
@@ -189,7 +189,7 @@ export default {
     },
   
     /**
-     * @description Update state when customer created.
+     * @description Update state when created.
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-07
      * @param {*} state
@@ -203,7 +203,7 @@ export default {
 
 
     /**
-     * @description get customers data and refresh table view
+     * @description get entity and refresh table view
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-08
      * @param {*} state
@@ -228,7 +228,7 @@ export default {
 
 
     /**
-     * @description Update state after customer searched.
+     * @description Update state after entity searched.
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-15
      * @param {*} state

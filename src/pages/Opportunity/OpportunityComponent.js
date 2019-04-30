@@ -28,7 +28,7 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import {Card, Button, Table, Tag, Modal, Row, Rate} from 'antd';
 import { connect } from "dva";
 import moment from 'moment';
-import OpportunityCreationComponent from './Components/OpportunityCreationComponent';
+import OpportunityEditorDialog from './Components/OpportunityEditorDialog';
 import { snowflakeId } from '@/utils/snowflake';
 
 
@@ -37,27 +37,29 @@ import { snowflakeId } from '@/utils/snowflake';
  * @description Opportunity management home main page.
  * @author Eric-Zhong Xu (Tigoole)
  * @date 2019-04-27
- * @class OpportunityIndexComponent
+ * @class OpportunityComponent
  * @extends {PureComponent}
  */
 @connect(({
   opportunity,
   customer,
-  user, 
+  user,
+  userQuickSearch,
   loading
 })=>({
   opportunity,
   customer,
   user,
+  userQuickSearch,
   loading,
 }))
-class OpportunityIndexComponent extends PureComponent{
+class OpportunityComponent extends PureComponent{
 
   SERVICE_NAMESPACE = 'opportunity';
   CON_PAGE_TITLE = '机会登记';
   CON_PAGE_CONTENT = '机会的创建、登记、跟踪，以及机会下创建合同，创建项目业务操作。';
 
-  tableOptions = {
+  CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,
     size: 'small',
@@ -67,12 +69,13 @@ class OpportunityIndexComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 2500,
+      x: 2000,
       y: 450,
     },
   }
 
-  tablePagination = {
+
+  CON_TABLE_PAGINATION_OPTION = {
     current: 1,
     pageSize: 10,
     defaultPageSize: 10,
@@ -84,11 +87,11 @@ class OpportunityIndexComponent extends PureComponent{
     }
   }
 
-  tableColumns = [
+  CON_COLUMNS_OPTION = [
     {
       title: '机会名称',
       dataIndex: 'name',
-      width: 150,
+      width: 300,
       fixed: 'left',
     },{
       title: '预计金额',
@@ -121,7 +124,7 @@ class OpportunityIndexComponent extends PureComponent{
     },{
       title: '业主方',
       dataIndex: 'ownerId',
-      width: 200,
+      // width: 200,
       render: (cell, record, index) => {
         return (
           <Tag>{cell}</Tag>
@@ -179,7 +182,6 @@ class OpportunityIndexComponent extends PureComponent{
   constructor(props){
     super(props);
     this.state = {
-      newOpportunityId: snowflakeId(),  // generate a new snowflake id.
       rowSelection: {},                 // current selected row in the table.
       selectedRowKeys: [],              // selected row in the table.
       data: [],                         // table datasource.
@@ -191,7 +193,7 @@ class OpportunityIndexComponent extends PureComponent{
 
   /**
    * @description Search opportunity
-   * @memberof OpportunityIndexComponent
+   * @memberof OpportunityComponent
    */
   handleOnSearch = () =>{
     this.componentDidMount();
@@ -200,7 +202,7 @@ class OpportunityIndexComponent extends PureComponent{
 
   /**
    * @description Open create dialog
-   * @memberof OpportunityIndexComponent
+   * @memberof OpportunityComponent
    */
   handleOnCreate = () =>{
     const {
@@ -209,11 +211,13 @@ class OpportunityIndexComponent extends PureComponent{
       }
     } = this.props;
 
+    const newId = snowflakeId();
+
     this.setState({
-      newOpportunityId: snowflakeId(),
       editEntity: {
         _model: 'create',
-        id: snowflakeId(),
+        id: newId,
+        key: newId,
         name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的机会.",
         createUserName: currentUser.name,
         salesId: currentUser.id,
@@ -225,7 +229,7 @@ class OpportunityIndexComponent extends PureComponent{
 
   /**
    * @description delete the selected record
-   * @memberof OpportunityIndexComponent
+   * @memberof OpportunityComponent
    */
   handleOnDelete = () => {
   }
@@ -239,6 +243,10 @@ class OpportunityIndexComponent extends PureComponent{
   }
 
 
+  /**
+   * @description the content in the table header.
+   * @memberof OpportunityComponent
+   */
   tableTitle = () => {
     const {loading} = this.props;
     const {selectedRowKeys} = this.state;
@@ -260,21 +268,58 @@ class OpportunityIndexComponent extends PureComponent{
 
   /**
    * @description Handle the event when confirm to create opp in the creation dialog.
-   * @memberof OpportunityIndexComponent
+   * @memberof OpportunityComponent
    */
   handleDoCreate = (form) =>{
     const {dispatch} = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      var formData = fieldsValue;
-      console.log(formData);
+      const formData = fieldsValue;
+      const createOpportunityContent 
+        = Object.assign(
+          formData,
+          {
+            salesId: formData.sales.userId
+          }
+        );
+      // console.log(createOpportunityContent);
+      // return;
       dispatch({
         type: this.SERVICE_NAMESPACE + '/create',
-        payload: formData,
+        payload: createOpportunityContent,
       });
 
       this.setState({
-        newOpportunityId: snowflakeId(),
+        editorVisible: false,
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+
+  /**
+   * @description Update entity
+   * @memberof OpportunityComponent
+   */
+  handleDoUpdate = (form) =>{
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      const formData = fieldsValue;
+      const createOpportunityContent 
+        = Object.assign(
+          formData,
+          {
+            salesId: formData.sales.userId
+          }
+        );
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/update',
+        payload: createOpportunityContent,
+      });
+
+      this.setState({
         editorVisible: false,
       });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
@@ -284,30 +329,10 @@ class OpportunityIndexComponent extends PureComponent{
 
 
   /**
-   * @description Update entity
-   * @memberof OpportunityIndexComponent
+   * @description close editor dialog
+   * @memberof OpportunityComponent
    */
-  handleDoUpdate = (form) =>{
-    const {dispatch} = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      var formData = fieldsValue;
-      console.log(formData);
-      dispatch({
-        type: this.SERVICE_NAMESPACE + '/update',
-        payload: formData,
-      });
-
-      this.setState({
-        editorVisible: false,
-      });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      // setTimeout(() => this.componentDidMount(), 1000);
-    });
-  }
-
-
-  onCancelToCreateOpportunity = () =>{
+  handleOnCloseEditorDialog = () =>{
     this.setState({
       editorVisible: false,
     });
@@ -319,6 +344,7 @@ class OpportunityIndexComponent extends PureComponent{
    * @memberof AccessTokenComponent
    */
   handleOnEdit = (record) => {
+    console.log(record);
     this.setState({
       editEntity: {
         _model: 'edit', 
@@ -335,36 +361,20 @@ class OpportunityIndexComponent extends PureComponent{
     const { dispatch } = this.props;
     dispatch({
       type: this.SERVICE_NAMESPACE + '/getAll',
-      payload: {},
+      payload: this.CON_TABLE_PAGINATION_OPTION,
     });
   }
 
-
-  /**
-   * @description User selector.
-   * @memberof OpportunityIndexComponent
-   */
-  onCustomerSearch = (value) => {
-    console.log(value);
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'customer/search',
-      payload: {
-        value: value,
-        count: 20
-      },
-    });
-  }
 
   /**
    * @description Output html
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-10
    * @returns html
-   * @memberof OpportunityIndexComponent
+   * @memberof OpportunityComponent
    */
   render() {
-
+    // console.log(this.props);
     const selectedRowKeys = this.state.selectedRowKeys;
     const editorVisible = this.state.editorVisible;
 
@@ -381,11 +391,11 @@ class OpportunityIndexComponent extends PureComponent{
       }
     } = this.props;
 
-    const data = (opportunity.data? opportunity.data.items: []);
-    const totalCount = (opportunity.data? opportunity.data.totalCount: 0);
+    const dataSource = opportunity.data;
+    const totalCount = opportunity.total;
 
     const paginationOption = {
-      ...this.tablePagination,
+      ...this.CON_TABLE_PAGINATION_OPTION,
       total: totalCount,
     }
 
@@ -397,24 +407,23 @@ class OpportunityIndexComponent extends PureComponent{
         <Card>
           <Table
             title={this.tableTitle}
-            columns={this.tableColumns}
-            {...this.tableOptions}
-            dataSource={data}
+            columns={this.CON_COLUMNS_OPTION}
+            {...this.CON_TABLE_OPTION}
+            dataSource={dataSource}
             pagination={paginationOption}
             rowSelection={rowSelection}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
-          <OpportunityCreationComponent
+          <OpportunityEditorDialog
+            {...this.props}
             data={this.state.editEntity}
             user={currentUser}
             visible={editorVisible}
             onDoCreate={this.handleDoCreate}
             onDoUpdate={this.handleDoUpdate}
-            onCancel={this.onCancelToCreateOpportunity}
-            onCustomerSearch={this.onCustomerSearch}
-            customerSearchResult={customer.customerSearchResult}
-          ></OpportunityCreationComponent>
+            onCancel={this.handleOnCloseEditorDialog}
+          ></OpportunityEditorDialog>
         </Card>
       </PageHeaderWrapper>
     );
@@ -422,4 +431,4 @@ class OpportunityIndexComponent extends PureComponent{
 
 }
 
-export default OpportunityIndexComponent;
+export default OpportunityComponent;

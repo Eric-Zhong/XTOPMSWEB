@@ -167,7 +167,6 @@ export default {
           }
         }
       }
-
     },
 
 
@@ -196,8 +195,6 @@ export default {
         });
       }
     }
-
-
   },
 
   /**
@@ -210,7 +207,7 @@ export default {
      * @description Clear current model's state
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-28
-     * @returns 
+     * @returns null
      */
     clear(){
       return {

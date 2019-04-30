@@ -219,7 +219,7 @@ class AccessTokenComponent extends PureComponent{
     // Load data
     dispatch({
       type: this.SERVICE_NAMESPACE + "/getAll",
-      payload: {current: 1, pageSize: 20}
+      payload: this.CON_TABLE_PAGINATION_OPTION,
     })
   }
 
@@ -433,7 +433,12 @@ class AccessTokenComponent extends PureComponent{
     const state = this.state;
 
     // 从 Model 中获取 State 中记录的数据
-    const {access_token, data} = this.props;
+    const {
+      access_token, 
+      data,
+      user,
+    } = this.props;
+
     const dataSource = access_token.data;
     const totalCount = access_token.total; // 需要从 api 中拿到数据后，得到数据的数量。
 
