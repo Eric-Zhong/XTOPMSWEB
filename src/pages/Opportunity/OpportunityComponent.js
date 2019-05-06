@@ -41,15 +41,15 @@ import { snowflakeId } from '@/utils/snowflake';
  * @extends {PureComponent}
  */
 @connect(({
+  user,
   opportunity,
   customer,
-  user,
   userQuickSearch,
   loading
 })=>({
+  user,
   opportunity,
   customer,
-  user,
   userQuickSearch,
   loading,
 }))
@@ -69,7 +69,7 @@ class OpportunityComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 2000,
+      x: 2240,
       y: 450,
     },
   }
@@ -99,12 +99,10 @@ class OpportunityComponent extends PureComponent{
       width: 100,
     },{
       title: '销售代表',
-      dataIndex: 'salesId',
+      dataIndex: 'sales',
       width: 100,
       render: (cell, record, index) => {
-        return (
-          <Tag>{cell}</Tag>
-        );
+        return cell.name;
       }
     },{
       title: '激活',
@@ -160,15 +158,31 @@ class OpportunityComponent extends PureComponent{
         if(cell){
           const v = moment(cell).fromNow();
           return v;
-          }
+        }
+      }
+    },{
+      title: '更新人',
+      dataIndex: 'lastModifierUser',
+      width: 120,
+      render: (cell, record, index) => {
+        return cell ? cell.name : "";
       }
     },{
       title: '创建时间',
       dataIndex: 'creationTime',
       width: 120,
       render: (cell, raw, index) => {
-        const v = moment(cell).fromNow();
-        return v;
+        if(cell){
+          const v = moment(cell).fromNow();
+          return v;
+        }
+      }
+    },{
+      title: '创建人',
+      dataIndex: 'creatorUser',
+      width: 120,
+      render: (cell, record, index) => {
+        return cell ? cell.name : "";
       }
     },{
       title: '系统编号',
@@ -186,7 +200,7 @@ class OpportunityComponent extends PureComponent{
       selectedRowKeys: [],              // selected row in the table.
       data: [],                         // table datasource.
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
-      editorVisible: false,         // edit dialog visible switch.
+      editorVisible: false,             // edit dialog visible switch.
     }
   }
 
@@ -232,7 +246,36 @@ class OpportunityComponent extends PureComponent{
    * @memberof OpportunityComponent
    */
   handleOnDelete = () => {
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    const onOk = this.handleDeleteConfirmOk; 
+    confirm({
+      title: '请确认是否删除',
+      content: '请确认真的要删除吗？',
+      onOk,
+      onCancel() {},
+    });
   }
+
+
+  handleDeleteConfirmOk = () =>{
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    customerIds.map((element, index)=>{
+      const customerId = element;
+      console.log(customerId);
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/delete',
+        payload: customerId,
+      });          
+    });
+    this.setState({
+      selectedRowKeys: []
+    });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => this.componentDidMount(), 500);
+  }
+
 
   /**
    * @description The event on selected some item in the table.
@@ -275,18 +318,16 @@ class OpportunityComponent extends PureComponent{
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       const formData = fieldsValue;
-      const createOpportunityContent 
+      const entityData 
         = Object.assign(
           formData,
           {
             salesId: formData.sales.userId
           }
         );
-      // console.log(createOpportunityContent);
-      // return;
       dispatch({
         type: this.SERVICE_NAMESPACE + '/create',
-        payload: createOpportunityContent,
+        payload: entityData,
       });
 
       this.setState({
@@ -311,7 +352,11 @@ class OpportunityComponent extends PureComponent{
         = Object.assign(
           formData,
           {
-            salesId: formData.sales.userId
+            sales: undefined,
+            creatorUser: undefined,
+            lastModiferUser: undefined,
+            deleterUser: undefined,
+            salesId: formData.sales.userId,
           }
         );
       dispatch({
@@ -344,7 +389,6 @@ class OpportunityComponent extends PureComponent{
    * @memberof AccessTokenComponent
    */
   handleOnEdit = (record) => {
-    console.log(record);
     this.setState({
       editEntity: {
         _model: 'edit', 
@@ -378,7 +422,7 @@ class OpportunityComponent extends PureComponent{
     const selectedRowKeys = this.state.selectedRowKeys;
     const editorVisible = this.state.editorVisible;
 
-    const rowSelection = {
+    const rowSelectionOption = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };
@@ -406,12 +450,12 @@ class OpportunityComponent extends PureComponent{
     >
         <Card>
           <Table
-            title={this.tableTitle}
-            columns={this.CON_COLUMNS_OPTION}
             {...this.CON_TABLE_OPTION}
+            columns={this.CON_COLUMNS_OPTION}
+            title={this.tableTitle}
             dataSource={dataSource}
             pagination={paginationOption}
-            rowSelection={rowSelection}
+            rowSelection={rowSelectionOption}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>

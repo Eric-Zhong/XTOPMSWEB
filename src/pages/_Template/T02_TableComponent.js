@@ -36,9 +36,18 @@ import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 
 
-@connect(({access_token, loading})=>({
+@connect(({           // Model
   access_token,
-  loading: loading.model
+  userQuickSearch,
+  customer,
+  opportunity,
+  loading
+})=>({                // Mapping to properties
+  access_token,
+  userQuickSearch,
+  customer,
+  opportunity,
+  loading: loading
 }))
 class T02_TableComponent extends PureComponent{
   SERVICE_NAMESPACE = "access_token";   // Service 中定义的 reducer & effector
@@ -58,6 +67,20 @@ class T02_TableComponent extends PureComponent{
       y: 450,
     },
   };
+
+  CON_TABLE_PAGINATION_OPTION = {
+    current: 1,
+    pageSize: 10,
+    defaultPageSize: 10,
+    pageSizeOptions: ['10','20','50','100','500'],
+    showQuickJumper: true,
+    showSizeChanger: true,
+    position: 'both',
+    showTotal: (total, range) => {
+      return '总计: ' + total + ' 条';
+    }
+  };
+
   CON_COLUMNS_OPTION = [
     {
       title: 'Name',
@@ -120,18 +143,6 @@ class T02_TableComponent extends PureComponent{
       width: 280,
     }    
   ]
-  CON_TABLE_PAGINATION_OPTION = {
-    current: 1,
-    pageSize: 10,
-    defaultPageSize: 10,
-    pageSizeOptions: ['10','20','50','100','500'],
-    showQuickJumper: true,
-    showSizeChanger: true,
-    showTotal: (total, range) => {
-      return '总计: ' + total + ' 条';
-    }
-  };
-
 
   /**
    * @description The event on selected some item in the table.
@@ -153,8 +164,11 @@ class T02_TableComponent extends PureComponent{
     super(props);
     // Declare this component's state
     this.state = {
-      newId: snowflakeId(),
+      rowSelection: {},
       selectedRowKeys: [],
+      editorVisible: false,
+      data:[],
+      count: 0,
     };
   }
 
@@ -174,30 +188,127 @@ class T02_TableComponent extends PureComponent{
     })
   }
 
+  handleOnSearch = () =>{
+    this.componentDidMount();
+  }
 
-  handleClick = () =>{
-    console.log('click');
+  handleOnEdit = (record) => {
+    this.setState({
+      editEntity: {
+        _model: 'edit', 
+        ...record
+      },
+      editorVisible: true,
+    });
+  }
+
+
+  handleDoCreate = (form) =>{
+    const {dispatch} = this.props;
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      const formData = fieldsValue;
+      const entityData 
+        = Object.assign(
+          {_model: 'create'},
+          formData,
+          {salesId: formData.sales.userId}
+        );
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/create',
+        payload: entityData,
+      });
+
+      this.setState({
+        editorVisible: false,
+      });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      setTimeout(() => this.componentDidMount(), 1000);
+    });
+  }
+
+
+  handleOnDelete = () => {
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    const onOk = this.handleDeleteConfirmOk; 
+    confirm({
+      title: '请确认是否删除',
+      content: '请确认真的要删除吗？',
+      onOk,
+      onCancel() {},
+    });
+  }
+
+
+  handleDeleteConfirmOk = () =>{
+    const { dispatch } = this.props;
+    const customerIds = this.state.selectedRowKeys;
+    customerIds.map((element, index)=>{
+      const customerId = element;
+      console.log(customerId);
+      dispatch({
+        type: this.SERVICE_NAMESPACE + '/delete',
+        payload: customerId,
+      });          
+    });
+    this.setState({
+      selectedRowKeys: []
+    });
+      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => this.componentDidMount(), 500);
   }
 
 
   tableTitleOption = () => {
+    const {loading} = this.props;
     const {selectedRowKeys} = this.state;
     const hasSelected = selectedRowKeys.length > 0;
     return (
-      <Row>
-        <Button type="default" icon="search" disabled>查询</Button>
-        <Button onClick={this.handleClick} type="default" icon="file-add">新建</Button>
-        <Button onClick={this.handleClick} type="danger" icon="delete">删除</Button>
-        <Button icon="upload" disabled>导入</Button>
-        <Button icon="download" disabled>导出</Button>
-        <span style={{ marginLeft: 8 }}>
-          {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
-        </span>
+      <Row gutter={24}>
+        <Col>
+          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+          <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
+          <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
+          <Button icon="upload" disabled>导入</Button>
+          <Button icon="download" disabled>导出</Button>
+          <span style={{ marginLeft: 8 }}>
+            {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
+          </span>
+        </Col>
       </Row>
     );
   }
 
 
+  handleTableOnChange = (pagination, filters, sorter, extra) => {
+
+    const { dispatch } = this.props;
+
+    /*
+    console.log('Table on changed.');
+    console.log(pagination);
+    console.log(filters);
+    console.log(sorter);
+    */
+
+    // Set new pagination to state.
+    this.setState({
+      pagination: pagination
+    });
+
+    const params = {
+      current: pagination.current, 
+      pageSize: pagination.pageSize,
+    };
+    
+    dispatch({
+      type: this.SERVICE_NAMESPACE + '/getAll',
+      payload: params
+    })
+
+  }
+  
   /**
    * @description Render the html
    * @author Eric-Zhong Xu (Tigoole)
@@ -207,11 +318,21 @@ class T02_TableComponent extends PureComponent{
   render(){
 
     const selectedRowKeys = this.state.selectedRowKeys;
+    const editorVisible = this.state.editorVisible;
 
     // ! 这里要用自己的代码替换
     // const dataSrouce = myModel.data;
-    const dataSource = [];
-    var totalCount = 0; // 需要从 api 中拿到数据后，得到数据的数量。
+    const {
+      userQuickSearch,// Model 0
+      opportunity,    // Model 1
+      customer,       // Model 2
+      user: {
+        currentUser
+      }
+    } = this.props;
+
+    const dataSource = opportunity.data;
+    const totalCount = opportunity.total;
 
     // 分页
     const paginationOption = {
@@ -235,9 +356,11 @@ class T02_TableComponent extends PureComponent{
             {...this.CON_TABLE_OPTION}
             columns={this.CON_COLUMNS_OPTION}
             title={this.tableTitleOption}
+            dataSource={dataSource}
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
-            dataSource={dataSource}
+            onChange={this.handleTableOnChange}
+            onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
         </Card>

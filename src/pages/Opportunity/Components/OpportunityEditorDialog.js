@@ -129,7 +129,7 @@ class OpportunityEditorDialog extends PureComponent{
                       getFieldDecorator(
                         'createUserName',
                         {
-                          initialValue: data.createUserName
+                          initialValue: data.creatorUser ? data.creatorUser.name: ""
                         }
                       )(<Input readOnly></Input>) 
                     }
@@ -164,7 +164,11 @@ class OpportunityEditorDialog extends PureComponent{
                   { 
                     getFieldDecorator(
                       'sales' , {
-                        initialValue: {key: data.salesId, label: data.salesName, userId: data.salesId, userName: data.salesName},
+                        initialValue: {
+                          key: data.sales ? data.sales.id: "", 
+                          label: data.sales ? data.sales.name: "", 
+                          userId: data.sales ? data.sales.id: "", 
+                          userName: data.sales ? data.sales.name: ""},
                       } 
                     )(<UserSelectorV1
                         {...this.props}
@@ -318,37 +322,3 @@ class OpportunityEditorDialog extends PureComponent{
 
 
 export default OpportunityEditorDialog;
-
-
-/*
-
-                  <FormItem {...formItemLayoutHorizontal} label="销售代表" help="">
-                    { 
-                      getFieldDecorator(
-                        'salesName' , {
-                          initialValue: {key: data.salesId, label: data.salesName},
-                          valuePropName: 'defaultValue'
-                        } 
-                      )(<Select
-                          showSearch={true}
-                          placeholder="选择销售"
-                          labelInValue={true}
-                          filterOption={true}
-                          notFoundContent="无法匹配"
-                          style={{ width: '100%' }}
-                          onSearch={onCustomerSearch}
-                          >
-                            {
-                              <Option key={user.id}>{user.name}</Option>
-                            }
-                            {
-                              customerSearchResult.map(d => {
-                                return <Option key={d.key}>{d.name}</Option>
-                              })
-                            }
-                          </Select>)
-                    }
-                  </FormItem>
-
-
-*/                  

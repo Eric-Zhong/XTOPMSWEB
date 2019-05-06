@@ -38,15 +38,11 @@ const columns = [
     width: 150,
   },{
     title: '类型',
-    dataIndex: 'category',
-    render: tags => (
+    dataIndex: 'customerCategorySettings',
+    render: (record, index, data) => (
       <span>
-        {tags.map(tag => {
-          let color = tag.length > 2 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return <Tag color={color} key={tag}>{tag.toUpperCase()}</Tag>;
+        {record.map(item => {
+          return <Tag color="geekblue" key={item.key}>{item.categoryName}</Tag>;
         })}
       </span>
     ),
@@ -126,114 +122,6 @@ class CustomerComponent extends PureComponent {
   }
 
 
-  // 定义表格的 Data
-  data = [
-    {
-      id: '1',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '2',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '3',
-      name: 'Dell',
-      category: ["供货方"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '4',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '5',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '6',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      erpid: 50001234,
-      status: ["禁用"]
-    },{
-      id: '7',
-      name: 'Dell',
-      category: ["供货方"],
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '8',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      erpid: 50001234,
-      status: ["禁用"]
-    },{
-      id: '9',
-      name: 'ABB',
-      category: ["业主", "总包主", "供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '10',
-      name: 'Schneider',
-      category: ["业主", "总包主", "设计院"],
-      erpid: 50001234,
-      status: ["可用"]
-    },{
-      id: '11',
-      name: 'Dell',
-      category: ["供货方"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可疑"]
-    },{
-      id: '12',
-      name: 'Microsoft',
-      category: ["供货方", "设计院"],
-      region: '华南',
-      contact: '张三',
-      phone: '+86 13612345678',
-      email: 'sales@abc.com',
-      erpid: 50001234,
-      status: ["可疑"]
-    },
-  ];
 
   handleCancel = () => {
     this.setState({

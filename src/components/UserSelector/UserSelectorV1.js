@@ -12,15 +12,16 @@ class UserSelectorV1 extends PureComponent{
   constructor(props){
     super(props);
     const {value} = this.props;
-    
-    console.log(value);
-
     this.state = {
       key: value? value.userId: null,
       label: value? value.userName: null,
-      userId: value? value.userId: null,
-      userName: value? value.userName: null,
+      id: value? value.userId: null,
+      name: value? value.userName: null,
     };
+  }
+
+
+  componentDidMount() {
   }
 
   /**
@@ -81,8 +82,8 @@ class UserSelectorV1 extends PureComponent{
     this.setState({
       key: value.key,
       label: value.label,
-      userId: value.key,
-      userName: value.label,
+      id: value.key,
+      name: value.label,
     });
     this.triggerChange(value);
   }
@@ -101,22 +102,18 @@ class UserSelectorV1 extends PureComponent{
     } = this.props;
 
     const state = this.state;
-    const defaultDataSource = [{
-      id: user.id, name: name
-    },{
-      id: state.userId, name: state.userName
-    }];
-
-    const dataSource = (userQuickSearch.result ? userQuickSearch.result: []); // 从 user model 中获取查询后的数据
+    const dataSource = (userQuickSearch.result && userQuickSearch.result.length > 0 ? userQuickSearch.result: [state]); // 从 user model 中获取查询后的数据
 
     return (
       <Select
+        allowClear={false}
+        showArrow={true}
         showSearch={true}
         placeholder={this.props.placeholder}
         labelInValue={true}
         filterOption={false}
         notFoundContent="无法匹配"
-        defaultValue={{key: state.userId, label: state.userName}}
+        defaultValue={{key: state.id + ''}}
         style={{ width: '100%' }}
         onSelect={this.props.onSelect}
         onChange={this.handleOnChange}
@@ -124,7 +121,7 @@ class UserSelectorV1 extends PureComponent{
         >
           {
             dataSource.map(item => {
-              return <Option key={item.id}>{item.name}</Option>
+              return <Option key={item.id} title={item.name}>{item.name}</Option>
             })
           }
       </Select>

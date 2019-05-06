@@ -5,105 +5,80 @@
  * @createDate 2019-04-06 21:35:00
  */
 
+
+/*
+* Description: Common API Template
+* Author: Eric-Zhong Xu
+* Creation: 2019-04-22 15:51:41
+* Version: 1.0.0
+* Copyright (c) 2019 Tigoole
+ */
+
+
 import request from '@/utils/request';
 
+const CON_API_NAME = 'customer';
+const CON_API_URI = '/api/services/app/' + CON_API_NAME + '/';
 
-/**
- * Query customer data.
- *
- * @export
- * @param {object} params The query filter arguments by table component.
- * @returns JSON object
- */
-export async function getAll(params) {
-    const restParams = params; // 在这里得到需要传递给 web api 的实际参数
-    const option = {
-        method: "GET",
-        body: restParams,
-    }
+export const ServiceName = CON_API_NAME;
 
-    // Call web api.
-    return request('/api/services/app/customer/getall', option);
+export async function GetAll(params) {
+    const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+    const option = {method: "GET", body: restParams, }
+    return request(CON_API_URI + 'getall', option);
 }
 
-/**
- * Create a new customer
- * @param {object} params JSON object from customer creation dialog form.
- * @summary 
- {
-  "id": 6520338186470686720,
-  "name": "北京钛谷诚泽网络通讯科技有限公司",
-  "parentCompanyId": 0,
-  "companyCode": "91110228691683137R",
-  "shortName": "string",
-  "bankName": "北京农村商业银行密云支行营业部",
-  "bankAccount": "1201000103000034917",
-  "person": "徐中",
-  "phone": "18611178188",
-  "fax": "010-66747443",
-  "email": "xu.zhong@hotmail.com",
-  "regionData": "",
-  "address": "北京市密云县西大桥路69号密云县投资促进局办公楼305室-10",
-  "rate": 5,
-  "rateReason": ""
+export async function Get(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'getall', option);
 }
- */
-export async function create(params) {
-    var category = params.category;           // 客户分类: ['100010001', '100010002',...]
-    const categoryString = category.join();     // Change to string value: '100010001','100010002',..... 
-    const restParams = {
-        ...params,
-        category: categoryString,
-    }; // 在这里得到需要传递给 web api 的实际参数
 
-    const option = {
-            method: "POST",
-            body: restParams,
-        }
-        // Call web api.
-    return request('/api/services/app/customer/create', option);
+export async function GetMyAll(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'getmyall', option);
+}
+
+export async function Create(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'create', option);
+}
+
+export async function Update(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "PUT", body: restParams, }
+  return request(CON_API_URI + 'update', option);
 }
 
 
-/**
- * @description Delete customer
- * @author Eric-Zhong Xu (Tigoole)
- * @date 2019-04-15
- * @export Component
- * @param {*} params
- * @returns JSON
- */
-export async function deleteCustomer(params){
-    // Realize web api params
-    const restParams = {
-        id: params
-    }; // 在这里得到需要传递给 web api 的实际参数
-
-    const option = {
-        method: "DELETE",
-        body: restParams,
-    }
-    // Call web api.
-    return request('/api/services/app/customer/delete', option);
+export async function Delete(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "DELETE", body: restParams, }
+  return request(CON_API_URI + 'delete', option);
 }
 
+export async function QuickSearch(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'quicksearch', option);
+}
 
+export async function GetDetailV1(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'getdetailv1', option);
+}
 
-/**
- * @description Quick search customer
- * @author Eric-Zhong Xu (Tigoole)
- * @date 2019-04-15
- * @export
- * @param {*} params {value:'', count:20}
- * @returns customer
- */
-export async function quickSearch(params) {
-    const restParams = params; // 在这里得到需要传递给 web api 的实际参数
-    const option = {
-        method: "POST",
-        body: restParams,
-    }
+export async function Remove(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'remove', option);
+}
 
-    // Call web api.
-    return request('/api/services/app/customer/quicksearch', option);
+export async function GetAllWithFullAudited(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'getallwithfullaudited', option);
 }

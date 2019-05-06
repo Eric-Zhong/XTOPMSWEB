@@ -88,11 +88,11 @@ class AccessTokenEditorDialog extends PureComponent{
     };
 
     const onConfirmOk = () => {
-      const {form, onEdit, onCreate, data} = this.props;
+      const {form, onDoUpdate, onCreate, data} = this.props;
       if(data._model === 'new'){
         if(onCreate) onCreate(form);  
       } else if (data._model === 'edit'){
-        if(onEdit) onEdit(form);
+        if(onDoUpdate) onDoUpdate(form);
       }
     };
 

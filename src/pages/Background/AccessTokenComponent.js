@@ -435,8 +435,8 @@ class AccessTokenComponent extends PureComponent{
     // 从 Model 中获取 State 中记录的数据
     const {
       access_token, 
-      data,
-      user,
+      user: {currentUser},
+      loading,
     } = this.props;
 
     const dataSource = access_token.data;
@@ -473,12 +473,14 @@ class AccessTokenComponent extends PureComponent{
           >
           </Table>
           <AccessTokenEditorDialog
-            visible={this.state.editorVisible}
-            onCancel={this.handleEditorCancel}
-            onEdit={this.handleDoUpdate}
-            onCreate={this.handleDoCreate}
-            onInitToken={this.handleInitToken}
+            {...this.props}
+            user={currentUser}
             data={this.state.editEntity}
+            visible={this.state.editorVisible}
+            onCreate={this.handleDoCreate}
+            onDoUpdate={this.handleDoUpdate}
+            onCancel={this.handleEditorCancel}
+            onInitToken={this.handleInitToken}
           >
           </AccessTokenEditorDialog>
         </Card>

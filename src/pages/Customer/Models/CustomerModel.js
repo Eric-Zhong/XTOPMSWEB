@@ -15,34 +15,47 @@
  */
 /*
 *
-* Copyright (c) 2019 Tigoole
-*
+* Description: Customer Model
 * Author: Eric-Zhong Xu
-*
 * Creation: 2019-04-07 09:16:27
+* Copyright (c) 2019 Tigoole
  */
 
 
-import { 
-  get as Get,
-  getAll as GetAllApi, 
-  create as createApi,
-  deleteCustomer as Delete,
-  quickSearch as QuickSearch
-} from '@/services/CustomerService';
+/*
+* Description: Common model template
+* Author: Eric-Zhong Xu
+* Creation: 2019-05-06 09:38:44
+* Copyright (c) 2019 Tigoole
+ */
 
+import {
+  ServiceName,
+  Get,
+  GetAll, 
+  GetAllWithFullAudited,
+  Create,
+  Delete,
+  Remove,
+  Update,
+  GetMyAll,
+  QuickSearch,
+  GetDetailV1
+  } from '@/services/CustomerService'; // TODO: modify the service name.
+
+import {message} from 'antd';
 
 export default {
 
-  namespace: 'customer',
+  namespace: ServiceName, // the service api's name.
 
   /** 
    * @property state
    */
   state: {
-    data: [],
-    total: 0,
-    customerSearchResult: []
+    data: [],           // storage the list after getall
+    total: 0,           // total count
+    search: [],         // quick search result
   },
 
   /**
@@ -50,98 +63,96 @@ export default {
    */
   effects: {
 
-    /**
-     * @description create new customer by web api.
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-07
-     * @param {*} {payload}
-     * @param {*} {call, put}
-     */
-    *create({payload}, {call, put}){
-      const response = yield call(createApi, payload);
-      if(response && response.success){     // 创建customer成功后的处理
-        // 将创建后的customer回传给前端进行重新处理
-        const payload = response.result;
+    *get({payload}, {call, put}){
+      const customerId = payload;
+      const response = yield call(Get, customerId);
+      if(response.success){
         yield put({
-          type: 'customerCreated',
-          payload: payload,
+          type: 'getReducer',
+          payload: response,
         });
-      }
-      else {                                // 创建customer失败后的处理
-        // TODO: 这里需要写点代码，来处理创建Customer失败后的处理逻辑。
-        // src/utils/request.js 返回 response 的定义见此 js 文件
-        console.log(response);
+        } else {
+        message.error(response.error);
+
       }
     },
 
-    /**
-     * @description Get customer list data
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-08
-     * @param {*} {payload}
-     * @param {*} {call, put}
-     */
     *getAll({payload}, {call, put}){
       const {current, pageSize} = payload;
       var params = {
         skipCount: (current -1) * pageSize,
         maxResultCount: pageSize,
       };
-
-      console.log(params);
-
-      const response = yield call(GetAllApi, params);
-      
-      yield put({
-        type: "customerGetAll",
-        payload: response,
-      });
+      const response = yield call(GetAll, params);
+      if(response.success){
+        yield put({
+          type: 'getAllReducer',
+          payload: response,
+        });
+      } else {
+        message.error(response.error);
+      }
     },
 
+    *create({payload}, {call, put}){
+      const response = yield call(Create, payload);
+      if(response && response.success){
+        const payload = response.result;
+        yield put({
+          type: 'createOrUpdateReducer',
+          payload: payload,
+        });
+      }
+      else {
+        console.log(response);
+      }
+    },
 
+    *update({payload}, {call, put}){
+      const response = yield call(Update, payload);
+      if(response && response.success){
+        message.success('已经更新成功');
+        const payload = response.result;
+        yield put({
+          type: 'createOrUpdateReducer',
+          payload: payload,
+        });
+      }
+      else {
+      }
+    },
 
-    /**
-     * @description Delete customer
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-10
-     * @param {*} {payload}
-     * @param {*} {call, put}
-     */
     *delete({payload}, {call, put}){
       const customerId = payload;
       const response = yield call(Delete, customerId);
-      console.log(response);
-      // TODO: 要不要通知前台界面？
+      if(response.success){
+
+      } else {
+        message.error(response.error);
+      }
     },
 
 
-
-    /**
-     * @description Get an customer data
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-10
-     * @param {*} {payload}
-     * @param {*} {call, put}
-     */
-    *get({payload}, {call, put}){
-      const customerId = payload;
-      const response = yield call(Get, customerId);
-      // TODO: 传递给前端
-      console.log(response);
+    *remove({payload}, {call, put}){
+      const body = payload;
+      const response = yield call(Remove, body);
+      if(response.success){
+        const msg = body.id + ' was deleted.'
+        message.success(msg);
+      } else {
+        message.error(response.error);
+      }
     },
 
-
-    /**
-     * @description Quick search user by key.
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-15
-     * @param {*} {payload}
-     * @param {*} {call, put}
-     */
-    *search({payload}, {call, put}){
-      const response = yield call(QuickSearch, payload);
+    *quickSearch({payload}, {call, put}){
+      // init the request value.
+      const params = {
+        value: payload.value? payload.value: '',
+        count: payload.count? payload.count: 20,
+      };
+      const response = yield call(QuickSearch, params);
       yield put({
-        type: 'updateCustomerSearchResult',
+        type: 'quickSearchReducer',
         payload: response,
       });
     }
@@ -153,45 +164,36 @@ export default {
    * @method reducers
    */
   reducers: {
-  
-    /**
-     * @description Update state when customer created.
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-07
-     * @param {*} state
-     * @param {*} action
-     * @returns null
-     */
-    customerCreated(state, action){
-      // 通过 Customer Creation Dialog 创建完 Customer 后，会回调这个函数
-      // 但因为是在 Dialog 中执行的创建操作，而且创建完成后，Dialog 会销毁
-      // 这里写的方法基本就不会有什么执行后的效果了。
-      // ! 从设计的角色看，这个Model应该写在 Index 上，而不是写在 Dialog 上进行调用会更合理一些。
-      // 此时先屏蔽掉
-      return state;
-      
-      var newData = state.data;
-      newData.push(action.payload);
+
+    clear(){
       return {
-        ...state,
-        data: newData,
-        visible: {
-          creation: false,
-        }
+        data: [],
+        total: 0,
+        current: {},
+        search: []
       }
     },
 
+    getReducer(state, action){
+      const payload = action.payload;
+      const created = payload ? payload.result : null;
+      return {
+        ...state,
+        current: created
+      };
+    },
 
-    /**
-     * @description get customers data and refresh table view
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-08
-     * @param {*} state
-     * @param {*} action
-     */
-    customerGetAll(state, action){
-      // 处理ajax返回值
-      const {result:{totalCount, items}, success} = action.payload;
+
+    getAllReducer(state, action){
+      // XTOPMS api > XTOPMS UI
+      const {
+        result:{
+          totalCount, 
+          items
+        }, 
+        success
+      } = action.payload;
+
       return {
         ...state,
         data: items,
@@ -200,19 +202,22 @@ export default {
     },
 
 
-    /**
-     * @description Update state after customer searched.
-     * @author Eric-Zhong Xu (Tigoole)
-     * @date 2019-04-15
-     * @param {*} state
-     * @param {*} action
-     */
-    updateCustomerSearchResult(state, action){
-      // 处理ajax返回值
-      const data = action.payload.result;
+    quickSearchReducer(state, action){
+      const payload = action.payload;
+      const data = payload ? payload.result : [];
       return {
         ...state,
-        customerSearchResult: data
+        search: data
+      };
+    },
+
+
+    createOrUpdateReducer(state, action){
+      const payload = action.payload;
+      const created = payload ? payload.result : null;
+      return {
+        ...state,
+        current: created
       };
     },
 

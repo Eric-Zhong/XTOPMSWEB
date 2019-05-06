@@ -69,6 +69,29 @@ export default {
       }
     },
 
+    *update({payload}, {call, put}){
+      const response = yield call(Update, payload);
+      if(response && response.success){
+        // const payload = response.result;
+        // yield put({
+        //   type: 'updateReducer',
+        //   payload: payload,
+        // });
+        const resp = yield call(GetAll, undefined);
+        if(resp.success){
+          yield put({
+            type: "getAllReducer",
+            payload: resp,
+          });
+        } else {
+          message.error(resp.error);
+        }
+      }
+      else {
+        console.log(response);
+      }
+    },
+
     *getAll({payload}, {call, put}){
       const {current, pageSize} = payload;
       var params = {
@@ -82,6 +105,7 @@ export default {
           payload: response,
         });
       } else {
+        console.log(response);
         message.error(response.error);
       }
     },
@@ -212,6 +236,19 @@ export default {
      * @returns null
      */
     createReducer(state, action){
+      const payload = action.payload;
+      return state;
+    },
+
+    /**
+     * @description Update state when customer created.
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-04-28
+     * @param {*} state
+     * @param {*} action
+     * @returns null
+     */
+    updateReducer(state, action){
       const payload = action.payload;
       return state;
     },

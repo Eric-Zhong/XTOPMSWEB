@@ -14,20 +14,22 @@
 * limitations under the License.
  */
 /*
-*
-* Copyright (c) 2019 Tigoole
-*
+* Description: Common API Template
 * Author: Eric-Zhong Xu
-*
 * Creation: 2019-04-22 15:51:41
+* Version: 1.0.0
+* Copyright (c) 2019 Tigoole
  */
 
 
 
 import request from '@/utils/request';
 
-const CON_API_NAMED = 'accesstoken';
-const CON_API_URI = '/api/services/app/' + CON_API_NAMED + '/';
+// TODO: modify the api name.
+const CON_API_NAME = 'api_name';
+const CON_API_URI = '/api/services/app/' + CON_API_NAME + '/';
+
+export const ServiceName = CON_API_NAME;
 
 export async function GetAll(params) {
     const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
@@ -70,4 +72,22 @@ export async function QuickSearch(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "POST", body: restParams, }
   return request(CON_API_URI + 'quicksearch', option);
+}
+
+export async function GetDetailV1(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'getdetailv1', option);
+}
+
+export async function Remove(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "GET", body: restParams, }
+  return request(CON_API_URI + 'remove', option);
+}
+
+export async function GetAllWithFullAudited(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'getallwithfullaudited', option);
 }
