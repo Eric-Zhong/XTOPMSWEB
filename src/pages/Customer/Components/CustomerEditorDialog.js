@@ -26,7 +26,8 @@
 import { PureComponent } from "react";
 import { connect } from 'dva';
 import { Modal } from "antd";
-import { Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col, Tabs, Rate } from 'antd';
+import { Card, Form, Input, Button, Checkbox, InputNumber, DatePicker, Row, Col, Tabs, Rate, Switch, Icon } from 'antd';
+import DescriptionList from '@/components/DescriptionList';
 import moment from 'moment';
 import {snowflakeId} from '@/utils/snowflake';
 
@@ -34,6 +35,7 @@ const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const { RangePicker } = DatePicker;
 const { Meta } = Card;
+const { Description } = DescriptionList;
 
 
 /**
@@ -87,6 +89,7 @@ class CustomerEditorDialog extends PureComponent{
 
     const okText = (data._model === 'create'? '创建': '修改');
     const doOk = (data._model === 'create'? onDoCreate: onDoUpdate);
+    const title = data._model === 'create'? '新建客户': '编辑 - ' + data.name;
 
     const handleOnOk = () => {
       const {form} = this.props;
@@ -100,7 +103,7 @@ class CustomerEditorDialog extends PureComponent{
 
     return (
       <Modal
-        title="新建客户"
+        title={title}
         destroyOnClose
         visible={visible}
         okText={okText}
@@ -108,6 +111,12 @@ class CustomerEditorDialog extends PureComponent{
         onOk={handleOnOk}
         width={800}
         >
+        <DescriptionList col="2" size="small" title="" style={{ marginBottom: 32 }}>
+          <Description term="创建人">{data.creatorUser ? data.creatorUser.name: ''}</Description>
+          <Description term="修改人">{data.lastModifierUser ? data.lastModifierUser.name: ''}</Description>
+          <Description term="创建时间">{data.creationTime ? moment(data.creationTime).fromNow() : ''}</Description>
+          <Description term="修改时间">{data.lastModificationTime ? moment(data.lastModificationTime).fromNow() : ''}</Description>
+        </DescriptionList>
         <Form onSubmit={this.handleSubmit}>
           <Tabs type="card">
             <TabPane tab="基本信息" key="basic">
@@ -185,8 +194,8 @@ class CustomerEditorDialog extends PureComponent{
                   )
                 }
               </FormItem>
-              <FormItem {...formItemLayout} label="公司地址">
-                { getFieldDecorator('address', { initialValue: data.address } )(<Input placeholder=""></Input>) }
+              <FormItem {...formItemLayout} label="激活/禁用" help="">
+                {getFieldDecorator( 'isActive',{ valuePropName: 'checked', initialValue: data.isActive })(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch>)}
               </FormItem>
             </TabPane>
             <TabPane tab="银行信息" key="bank">
@@ -198,6 +207,9 @@ class CustomerEditorDialog extends PureComponent{
               </FormItem>
             </TabPane>
             <TabPane tab="联系方式" key="contact">
+              <FormItem {...formItemLayout} label="公司地址">
+                { getFieldDecorator('address', { initialValue: data.address } )(<Input placeholder=""></Input>) }
+              </FormItem>
               <FormItem {...formItemLayout} label="联系人">
                 { getFieldDecorator('person', { initialValue: data.person } )(<Input placeholder="客户方沟通协调人名称"></Input>) }
               </FormItem>
@@ -211,7 +223,7 @@ class CustomerEditorDialog extends PureComponent{
                 { getFieldDecorator('email', { initialValue: data.email } )(<Input placeholder=""></Input>) }
               </FormItem>
             </TabPane>
-            <TabPane tab="相关文件" key="files">
+            <TabPane tab="企业证件" key="files">
               <Row>
                 <Col span={4}>
                   <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
@@ -220,17 +232,7 @@ class CustomerEditorDialog extends PureComponent{
                 </Col>
                 <Col span={4}>
                   <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                    <Meta title="营业执照" description="" />
-                  </Card>
-                </Col>
-                <Col span={4}>
-                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                    <Meta title="营业执照" description="" />
-                  </Card>
-                </Col>
-                <Col span={4}>
-                  <Card hoverable  style={{ width: 100 }} cover={<img alt="example" src="https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png" />}>
-                    <Meta title="营业执照" description="" />
+                    <Meta title="银行开户" description="" />
                   </Card>
                 </Col>
                 <Col span={4}>
@@ -245,9 +247,6 @@ class CustomerEditorDialog extends PureComponent{
                 </Col>
               </Row>
             </TabPane>
-            <TabPane tab="扩展字段" key="extension">
-              <span>开发中...</span>
-            </TabPane>
             <TabPane tab="信誉等级" key="rate">
               <FormItem {...formItemLayout} label="信誉评定">
                 { getFieldDecorator('rate', { initialValue: data.rate, allowClear: false } )(<Rate placeholder=""></Rate>) }
@@ -255,6 +254,12 @@ class CustomerEditorDialog extends PureComponent{
               <FormItem {...formItemLayout} label="评定理由">
                 { getFieldDecorator('rateReason', { initialValue: data.reateReason } )(<Input placeholder=""></Input>) }
               </FormItem>
+            </TabPane>
+            <TabPane tab="扩展字段" key="extension">
+              <span>敬请期待...</span>
+            </TabPane>
+            <TabPane tab="历史记录" key="history">
+              <span>敬请期待...</span>
             </TabPane>
           </Tabs>
         </Form>

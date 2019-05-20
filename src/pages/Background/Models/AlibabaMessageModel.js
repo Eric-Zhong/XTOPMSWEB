@@ -15,19 +15,13 @@
  */
 /*
 *
-* Description: Customer Model
-* Author: Eric-Zhong Xu
-* Creation: 2019-04-07 09:16:27
 * Copyright (c) 2019 Tigoole
+*
+* Author: Eric-Zhong Xu
+*
+* Creation: 2019-05-17 11:06:43
  */
 
-
-/*
-* Description: Common model template
-* Author: Eric-Zhong Xu
-* Creation: 2019-05-06 09:38:44
-* Copyright (c) 2019 Tigoole
- */
 
 import {
   ServiceName,
@@ -40,11 +34,13 @@ import {
   Update,
   GetMyAll,
   QuickSearch,
-  GetDetailV1
-  } from '@/services/CustomerService'; // TODO: modify the service name.
+  GetDetailV1,
+  Retry
+  } from '@/services/AlibabaCallbackMessageService'; // TODO: modify the service name.
 
 import {message} from 'antd';
 
+export const ModelName = ServiceName;
 export default {
 
   namespace: ServiceName, // the service api's name.
@@ -56,11 +52,6 @@ export default {
     data: [],           // storage the list after getall
     total: 0,           // total count
     search: [],         // quick search result
-    query: {         // query payload
-      current: 1,
-      pageSize: 10,
-      sorting: undefined,
-    },
   },
 
   /**
@@ -82,23 +73,17 @@ export default {
       }
     },
 
-    *getAll({payload}, {call, put, select}){
-      const state = yield select(state=>state.customer);
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const {current, pageSize, sorting} = payload? payload: state.query;
+    *getAll({payload}, {call, put}){
+      const {current, pageSize} = payload;
       var params = {
         skipCount: (current -1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting ?? '',
       };
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
           type: 'getAllReducer',
-          payload: {
-            ...response,
-            query: payload
-          },
+          payload: response,
         });
       } else {
         message.error(response.message);
@@ -119,44 +104,38 @@ export default {
       }
     },
 
-    *update({payload}, {select, call, put, take}){
+    *update({payload}, {call, put}){
       const response = yield call(Update, payload);
       if(response && response.success){
         const payload = response.result;
-        const state = yield select(state=>state.customer);
-        const query = state.query;
         yield put({
-          type: 'getAll', 
-          payload: query
-        })
-        yield take('getAll/@@end');
-        message.success('操作成功');
+          type: 'createOrUpdateReducer',
+          payload: payload,
+        });
       }
       else {
-        message.error('操作失败');
+        console.log(response);
       }
     },
 
     *delete({payload}, {call, put}){
       const customerId = payload;
       const response = yield call(Delete, customerId);
-      if(response && response.success){
-        message.success('删除成功');
+      if(response.success){
+
       } else {
-        message.error(response.error);
+        message.error(response.message);
       }
     },
-
 
     *remove({payload}, {call, put}){
       const body = payload;
       const response = yield call(Remove, body);
       if(response.success){
-        const msg = body.id + ' 删除成功。'
+        const msg = body.id + ' was deleted.'
         message.success(msg);
       } else {
-        const msg = body.id + ' 删除失败。\n' + response.message;
-        message.error(msg);
+        message.error(response.message);
       }
     },
 
@@ -171,7 +150,18 @@ export default {
         type: 'quickSearchReducer',
         payload: response,
       });
-    }
+    },
+
+    *retry({payload}, {call, put}){
+      const body = payload;
+      const response = yield call(Retry, body);
+      if(response.success){
+        const msg = 'Retry success.'
+        message.success(msg);
+      } else {
+        message.error(response.message);
+      }
+    },
 
 
   },
@@ -207,15 +197,13 @@ export default {
           totalCount, 
           items
         }, 
-        success,
-        query,
+        success
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
-        query: query,
       };
     },
 

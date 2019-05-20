@@ -91,6 +91,9 @@ const parseQuery = (obj) => {
  */
 export default function request(url, option) {
 
+  // url = 'http://xtoapi.biztalkgroup.com' + url;
+  // debugger;
+
   /* 执行 ajax 调用 */
   /* 打印输入参数 */
   const options = {
@@ -151,7 +154,7 @@ export default function request(url, option) {
     };
   }
 
-    const expirys = options.expirys && 60;
+  const expirys = options.expirys && 60;
   // options.expirys !== false, return the cache,
   if (options.expirys !== false) {
     const cached = sessionStorage.getItem(hashcode);
@@ -180,32 +183,6 @@ export default function request(url, option) {
       } 
       console.log('Web API Response: ');
 
-      // ! 中途想使用 response， 必须先 clone。
-      /*
-      response
-      .clone()
-      .json()
-      .then(content => {
-        if(content && content.__abp){
-          const {result} = content;
-          if(result && result.items && result.items.length>0){
-            console.log('>>>>>>>> ABP Array/List');
-            const list = result.items;
-            list.map((value, index, data)=>{
-              console.log(value);      // 输出返回类似为 List 的每外 Item
-            });
-          } else {
-            console.log('>>>>>>>> ABP Entity/Object');
-            console.log(result);       // 输出 AbP 的 Result 的内容
-          }
-        } else {
-          console.log('>>>>>>>> None ABP Object');
-          console.log(content);       // 输出 Response 中 Body 的内容
-        }
-      });
-      */
-
-
       return response;
     })
     .then(checkStatus)
@@ -225,31 +202,47 @@ export default function request(url, option) {
     })
     .catch(e => {
 
-      // ! 中途想使用 response， 必须先 clone。
-      e.response
-      .clone()
-      .json()
-      .then(content => {
-        if(content && content.__abp){
-          const result = content.error;
-          if(result && result.items && result.items.length>0){
-            console.log('>>>>>>>> ABP Array/List');
-            const list = result.items;
-            list.map((value, index, data)=>{
-              console.log(value);      // 输出返回类似为 List 的每外 Item
-            });
-          } else {
-            console.log('>>>>>>>> ABP Entity/Object');
-            console.log(result);       // 输出 AbP 的 Result 的内容
-          }
-        } else {
-          console.log('>>>>>>>> None ABP Object');
-          console.log(content);       // 输出 Response 中 Body 的内容
-        }
+      console.log(e);
+
+      notification.error({
+        message: `接口调用异常`,
+        description: e.message,
       });
+    
+      // ! 中途想使用 response， 必须先 clone。
+      if(e.response){
+        e.response
+        .clone()
+        .json()
+        .then(content => {
+          if(content && content.__abp){
+            const result = content.error;
+            if(result && result.items && result.items.length>0){
+              console.log('>>>>>>>> ABP Array/List');
+              const list = result.items;
+              list.map((value, index, data)=>{
+                console.log(value);      // 输出返回类似为 List 的每外 Item
+              });
+            } else {
+              console.log('>>>>>>>> ABP Entity/Object');
+              console.log(result);       // 输出 AbP 的 Result 的内容
+            }
+          } else {
+            console.log('>>>>>>>> None ABP Object');
+            console.log(content);       // 输出 Response 中 Body 的内容
+          }
+        });
+      }
 
-
-      return e.response.json();
+      if(e.response){
+        return e.response.json();
+      } else {
+        return {
+          success: false,
+          message: e.message,
+          error: e.message
+        };
+      }
 
       console.log(e);
       // debugger;

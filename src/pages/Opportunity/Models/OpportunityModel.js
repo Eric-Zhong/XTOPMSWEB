@@ -106,7 +106,9 @@ export default {
         });
       } else {
         console.log(response);
-        message.error(response.error);
+        if(response && response.error){
+          message.error(response.error.message);
+        }
       }
     },
 
@@ -197,7 +199,7 @@ export default {
      * @description Clear current model's state
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-28
-     * @returns 
+     * @returns NULL
      */
     clear(){
       return {

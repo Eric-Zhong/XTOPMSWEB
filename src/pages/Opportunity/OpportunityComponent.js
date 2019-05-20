@@ -69,7 +69,7 @@ class OpportunityComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 2240,
+      x: 2440,
       y: 450,
     },
   }
@@ -118,6 +118,15 @@ class OpportunityComponent extends PureComponent{
             <Tag color="red">未激活</Tag>
           );
         }
+      }
+    },{
+      title: '行业分类',
+      dataIndex: 'businessCategory',
+      width: 200,
+      render: (cell, record, index) => {
+        return (
+          <Tag>{cell ? cell.name : '未分类'}</Tag>
+        );
       }
     },{
       title: '业主方',
@@ -234,7 +243,7 @@ class OpportunityComponent extends PureComponent{
         key: newId,
         name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的机会.",
         createUserName: currentUser.name,
-        salesId: currentUser.id,
+        sales: currentUser,
       },
       editorVisible: true,
     });
@@ -346,19 +355,17 @@ class OpportunityComponent extends PureComponent{
   handleDoUpdate = (form) =>{
     const {dispatch} = this.props;
     form.validateFields((err, fieldsValue) => {
+      
       if (err) return;
       const formData = fieldsValue;
-      const createOpportunityContent 
-        = Object.assign(
-          formData,
-          {
-            sales: undefined,
-            creatorUser: undefined,
-            lastModiferUser: undefined,
-            deleterUser: undefined,
-            salesId: formData.sales.userId,
-          }
-        );
+      const categoryId = formData.bizCategory ? formData.bizCategory.pop() : null;
+      const createOpportunityContent = Object.assign(
+        formData,
+        {
+          salesId: formData.sales.userId,
+          businessCategoryId: categoryId,
+        }
+      );
       dispatch({
         type: this.SERVICE_NAMESPACE + '/update',
         payload: createOpportunityContent,

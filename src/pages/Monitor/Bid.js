@@ -23,21 +23,21 @@ const havePermissionAsync = new Promise(resolve => {
 });
 
 @Secured(havePermissionAsync)
-@connect(({ monitor, loading }) => ({
-  monitor,
-  loading: loading.models.monitor,
+@connect(({ bid, loading }) => ({
+  bid,
+  loading: loading.models.bid,
 }))
 class BidComponent extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'monitor/fetchTags',
+      type: 'bid/fetchTags',
     });
   }
 
   render() {
-    const { monitor, loading } = this.props;
-    const { tags } = monitor;
+    const { bid, loading } = this.props;
+    const { tags } = bid;
 
     return (
       <GridContent>

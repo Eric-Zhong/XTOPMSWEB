@@ -38,13 +38,10 @@ class CustomerIndexComponent extends PureComponent {
     rowKey: 'key',
     bordered: true,
     size: 'small',
-    // expandedRowRender,
     showHeader: true,
-    // footer,
-    // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 3800,
+      x: 3500,
       // y: 450,
     },
   };
@@ -64,15 +61,22 @@ class CustomerIndexComponent extends PureComponent {
     {
       title: '客户简称',
       dataIndex: 'shortName',
-      width: 150,
+      width: 180,
       fixed: 'left',
+      sorter: true,
     },{
       title: '客户名称',
       dataIndex: 'name',
+      sorter: true,
     },{
       title: '激活',
       dataIndex: 'isActive',
-      width: 80,
+      width: 100,
+      sorter: true,
+      filters: [
+        {text: '已激活', value: true},
+        {text: '未激活', value: false},
+      ],
       render: (cell, record, index) => {
         if(cell){
           return (
@@ -88,6 +92,7 @@ class CustomerIndexComponent extends PureComponent {
       title: '机会状态',
       dataIndex: 'status',
       width: 100,
+      sorter: true,
       render: (cell, record, index) => {
         const status = QueryCustomerStatus(cell);
         if(status){
@@ -100,6 +105,14 @@ class CustomerIndexComponent extends PureComponent {
       title: '评级',
       dataIndex: 'rate',
       width: 180,
+      sorter: true,
+      filters: [
+        {text: '五星', value: 5},
+        {text: '四星', value: 4},
+        {text: '三星', value: 3},
+        {text: '二星', value: 2},
+        {text: '一星', value: 1},
+      ],
       render: (cell, record, index) => {
         if(cell){
           return (
@@ -149,6 +162,7 @@ class CustomerIndexComponent extends PureComponent {
       title: '更新时间',
       dataIndex: 'lastModificationTime',
       width: 120,
+      sorter: true,
       render: (cell, raw, index) => {
         if(cell){
           const v = moment(cell).fromNow();
@@ -159,6 +173,7 @@ class CustomerIndexComponent extends PureComponent {
       title: '创建时间',
       dataIndex: 'creationTime',
       width: 120,
+      sorter: true,
       render: (cell, raw, index) => {
         const v = moment(cell).fromNow();
         return v;
@@ -166,7 +181,8 @@ class CustomerIndexComponent extends PureComponent {
     },{
       title: '系统编号',
       dataIndex: 'key',
-      width: 280,
+      width: 220,
+      sorter: true,
     }
   ];
 
@@ -220,8 +236,7 @@ class CustomerIndexComponent extends PureComponent {
         id: newId,
         key: newId,
         name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的客户.",
-        createUserName: currentUser.name,
-        salesId: currentUser.id,
+        creatorUser: currentUser,
       },
       editorVisible: true,
     });
@@ -249,18 +264,19 @@ class CustomerIndexComponent extends PureComponent {
     const { dispatch } = this.props;
     const customerIds = this.state.selectedRowKeys;
     customerIds.map((element, index)=>{
-      const customerId = element;
-      console.log(customerId);
+      const id = element;
       dispatch({
-        type: this.SERVICE_NAMESPACE + '/delete',
-        payload: customerId,
+        type: this.SERVICE_NAMESPACE + '/remove',
+        payload: {id: id},
       });          
     });
     this.setState({
       selectedRowKeys: []
     });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-    setTimeout(() => this.componentDidMount(), 500);
+    setTimeout(() => dispatch({
+      type: this.SERVICE_NAMESPACE + '/getall'
+    }), 500);
   }
   
 
@@ -269,7 +285,6 @@ class CustomerIndexComponent extends PureComponent {
    * @memberof CustomerIndexComponent
    */
   onSelectChange = (selectedRowKeys) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   }
 
@@ -297,10 +312,7 @@ class CustomerIndexComponent extends PureComponent {
       const formData = fieldsValue;
       const entityData 
         = Object.assign(
-          formData,
-          {
-            salesId: formData.sales.userId
-          }
+          formData
         );
       // console.log(createOpportunityContent);
       // return;
@@ -365,9 +377,15 @@ class CustomerIndexComponent extends PureComponent {
       pagination: pagination
     });
 
+    // caculate sort setting
+    const sortField = sorter.field ? sorter.field : 'id';
+    const sortOrder = sorter.order ? sorter.order : 'descend';
+    const sorting = sortField + ' ' + (sortOrder === 'descend' ? 'desc' : 'asc');
+    
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
+      sorting: sorting,
     };
     
     dispatch({
@@ -449,8 +467,7 @@ class CustomerIndexComponent extends PureComponent {
       const entityData 
         = Object.assign(
           {_model: 'create'},
-          formData,
-          {salesId: formData.sales.userId}
+          formData
         );
       dispatch({
         type: this.SERVICE_NAMESPACE + '/create',

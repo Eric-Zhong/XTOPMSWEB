@@ -14,19 +14,18 @@
 * limitations under the License.
  */
 /*
-* Description: Common API Template
-* Author: Eric-Zhong Xu
-* Creation: 2019-04-22 15:51:41
-* Version: 1.0.0
+*
 * Copyright (c) 2019 Tigoole
+*
+* Author: Eric-Zhong Xu
+*
+* Creation: 2019-05-12 17:41:30
  */
-
 
 
 import request from '@/utils/request';
 
-// TODO: modify the api name.
-const CON_API_NAME = 'api_name';
+const CON_API_NAME = 'datasyncservice';
 const CON_API_URI = '/api/services/app/' + CON_API_NAME + '/';
 
 export const ServiceName = CON_API_NAME;
@@ -60,7 +59,6 @@ export async function Update(params) {
   const option = {method: "PUT", body: restParams, }
   return request(CON_API_URI + 'update', option);
 }
-
 
 export async function Delete(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。

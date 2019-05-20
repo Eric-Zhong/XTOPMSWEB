@@ -66,7 +66,7 @@ export default {
           payload: response,
         });
       } else {
-        message.error(response.error);
+        message.error(response.message);
       }
     },
 

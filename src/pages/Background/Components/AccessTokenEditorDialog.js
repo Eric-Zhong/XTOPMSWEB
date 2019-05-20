@@ -89,7 +89,7 @@ class AccessTokenEditorDialog extends PureComponent{
 
     const onConfirmOk = () => {
       const {form, onDoUpdate, onCreate, data} = this.props;
-      if(data._model === 'new'){
+      if(data._model === 'create'){
         if(onCreate) onCreate(form);  
       } else if (data._model === 'edit'){
         if(onDoUpdate) onDoUpdate(form);
@@ -135,7 +135,7 @@ class AccessTokenEditorDialog extends PureComponent{
 
     // Dialog button name
     var buttonOkName = '';
-    if(data._model === 'new') buttonOkName = '创建';
+    if(data._model === 'create') buttonOkName = '创建';
     if(data._model === 'edit') buttonOkName = '更新';
 
     return (
@@ -205,17 +205,17 @@ class AccessTokenEditorDialog extends PureComponent{
               <FormItem {...formItemLayout} label="ID" help="">
                 {getFieldDecorator( 'id',{ initialValue: data.key })(<Input readOnly></Input>)}
               </FormItem>
-              <FormItem {...formItemLayout} label="Creator User ID" help="">
-                {getFieldDecorator( '_creatorUserId',{ initialValue: data.creatorUserId })(<Input readOnly></Input>)}
+              <FormItem {...formItemLayout} label="Creator User" help="">
+                {getFieldDecorator( '_creatorUserId',{ initialValue: data.creatorUser ? data.creatorUser.name : '' })(<Input readOnly></Input>)}
               </FormItem>
               <FormItem {...formItemLayout} label="Creation Time" help="">
                 {getFieldDecorator( '_creationTime',{ initialValue: data.creationTime })(<Input readOnly></Input>)}
               </FormItem>
+              <FormItem {...formItemLayout} label="Modifier User" help="">
+                {getFieldDecorator( '_lastModifierUserId',{ initialValue: data.lastModifierUser ? data.lastModifierUser.name : '' })(<Input readOnly></Input>)}
+              </FormItem>
               <FormItem {...formItemLayout} label="Modification Time" help="">
                 {getFieldDecorator( '_lastModificationTime',{ initialValue: data.lastModificationTime })(<Input readOnly></Input>)}
-              </FormItem>
-              <FormItem {...formItemLayout} label="Modifier User ID" help="">
-                {getFieldDecorator( '_lastModifierUserId',{ initialValue: data.lastModifierUserId })(<Input readOnly></Input>)}
               </FormItem>
             </TabPanel>
             <TabPanel tab="Initiate" key="tabInitiate">

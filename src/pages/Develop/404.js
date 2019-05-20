@@ -9,11 +9,11 @@ class NotFoundLayoutComponent extends PureComponent {
   render() {
     return (
       <PageHeaderWrapper
-        title="此页面正在设计中"
+        title="此功能未公开"
         content=""
       >
         <Card>
-          如果你有很明确的业务需求，请将业务需求内容发送到<a href='mailto:xu.zhong@hotmail.com'>xu.zhong@hotmail.com</a>
+          如果您期望了解此项功能的内容细节，请发邮箱到 <a href='mailto:zhong.xu@biztalkgroup.com'>zhong.xu@biztalkgroup.com</a>，稍后会有工作人员与您联系。
         </Card>
       </PageHeaderWrapper>
     );

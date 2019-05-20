@@ -73,7 +73,7 @@ export async function GetDetailV1(params) {
 
 export async function Remove(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
-  const option = {method: "GET", body: restParams, }
+  const option = {method: "DELETE", body: restParams, }
   return request(CON_API_URI + 'remove', option);
 }
 

@@ -609,7 +609,6 @@ class TableList extends PureComponent {
   }
 
   render() {
-    debugger;
     const {
       rule: { data },
       loading,

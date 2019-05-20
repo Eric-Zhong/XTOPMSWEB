@@ -481,9 +481,14 @@ export default [
             name: '数据同步服务',
             component: './Background/DataSyncServiceComponent',
           },
+          {
+            path: '/eai/alibabacallbackhome',
+            name: '数据回传',
+            component: './Background/AlibabaCallbackMessageHome',
+          },
         ]
       },
-      ...ant_router,
+      // ...ant_router,
       // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)
       {
         component: '404',

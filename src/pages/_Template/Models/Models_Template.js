@@ -49,7 +49,7 @@ export default {
           payload: response,
         });
         } else {
-        message.error(response.error);
+        message.error(response.message);
 
       }
     },
@@ -67,7 +67,7 @@ export default {
           payload: response,
         });
       } else {
-        message.error(response.error);
+        message.error(response.message);
       }
     },
 
@@ -105,7 +105,7 @@ export default {
       if(response.success){
 
       } else {
-        message.error(response.error);
+        message.error(response.message);
       }
     },
 
@@ -117,7 +117,7 @@ export default {
         const msg = body.id + ' was deleted.'
         message.success(msg);
       } else {
-        message.error(response.error);
+        message.error(response.message);
       }
     },
 

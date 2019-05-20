@@ -49,7 +49,6 @@ export async function create(params) {
 * 猎取当前登录用户信息
 */
 export async function getCurrentUser(){
-  // let url = 'http://localhost:21021/api/services/app/Session/GetCurrentLoginInformations';
   let url = '/api/services/app/Session/GetCurrentLoginInformations';
   let option = {
     method: 'GET'

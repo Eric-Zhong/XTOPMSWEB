@@ -19,7 +19,7 @@
 *
 * Author: Eric-Zhong Xu
 *
-* Creation: 2019-04-22 15:45:42
+* Creation: 2019-05-12 17:43:54
  */
 
 
@@ -29,21 +29,21 @@ import { Row, Col, Input, Button, Card, Table, Tag, Icon, Modal } from "antd";
 import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import moment from 'moment';
-import AccessTokenEditorDialog from './Components/AccessTokenEditorDialog';
+import DataSyncServiceEditorDialog from './Components/DataSyncServiceEditorDialog';
 const confirm = Modal.confirm;
 
 @connect(({
-  access_token,
+  datasyncservice,
   loading
 })=>({
-  access_token,
-  loading: loading.model
+  datasyncservice,
+  loading
 }))
 class DataSyncServiceComponent extends PureComponent{
 
-  SERVICE_NAMESPACE = "access_token";
-  CON_PAGE_TITLE = "Access Token 管理";
-  CON_PAGE_CONTENT = "XTOPMS 与外系统对接时，需要配置相关的应用 Account 和 Token，统一在这里进行管理";
+  SERVICE_NAMESPACE = "datasyncservice";
+  CON_PAGE_TITLE = "数据同步后台服务管理";
+  CON_PAGE_CONTENT = "XTOPMS与外系统进行数据对接时所创建的后台服务程序管理";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,
@@ -54,13 +54,13 @@ class DataSyncServiceComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 3400,
+      x: 1800,
       y: 450,
     },
   };
   CON_COLUMNS_OPTION = [
     {
-      title: 'Name',
+      title: '服务名称',
       dataIndex: 'name',
       width: 300,
       fixed: 'left',
@@ -68,15 +68,19 @@ class DataSyncServiceComponent extends PureComponent{
         return cell;
       }
     },{
+      title: 'Access Token',
+      dataIndex: 'accessTokenInfo.name',
+      // width: 150,
+    },{
       title: 'App Key',
-      dataIndex: 'app_Key',
-      width: 150,
+      dataIndex: 'accessTokenInfo.app_Key',
+      width: 100,
     },{
-      title: 'app_Secret',
-      dataIndex: 'app_Secret',
-      width: 150,
+      title: '服务代码',
+      dataIndex: 'code',
+      width: 100,
     },{
-      title: 'Is Active',
+      title: '激活',
       dataIndex: 'isActive',
       width: 80,
       render: (cell, record, index) => {
@@ -91,55 +95,29 @@ class DataSyncServiceComponent extends PureComponent{
         }
       }
     },{
-      title: 'System ID',
-      dataIndex: 'aliId',
-      width: 150,
-    },{
-      title: 'Resource Owner',
-      dataIndex: 'resource_Owner',
-      width: 150,
-    },{
-      title: 'Access Token',
-      dataIndex: 'access_Token',
-      width: 400,
-    },{
-      title: 'Timeout',
-      dataIndex: 'expires_In',
-      width: 300,
-      render: (cell, record, index) => {
-        return moment().to(cell);
-      }
-    },{
-      title: 'Refresh Token',
-      dataIndex: 'refresh_Token',
-      width: 400,
-    },{
-      title: 'Timeout',
-      dataIndex: 'refresh_Token_Timeout',
-      width: 300,
-      render: (cell, record, index) => {
-        return moment().to(cell);
-      }
+      title: '内部编号',
+      dataIndex: 'erpId',
+      width: 250,
     },{
       title: 'Status',
       dataIndex: 'status',
       width: 120,
     },{
-      title: 'Last Modification',
+      title: '最后更新时间',
       dataIndex: 'lastModificationTime',
-      width: 300,
+      width: 150,
       render: (cell, record, index) => {
         return moment(cell).fromNow();
       }
     },{
-      title: 'Creation Time',
+      title: '创建时间',
       dataIndex: 'creationTime',
-      width: 300,
+      width: 150,
       render: (cell, record, index) => {
         return moment(cell).fromNow();
       }
     },{
-      title: 'System ID',
+      title: '系统编号',
       dataIndex: 'key',
       width: 200,
     }    
@@ -177,10 +155,11 @@ class DataSyncServiceComponent extends PureComponent{
     super(props);
     // Declare this component's state
     this.state = {
-      newId: snowflakeId(),
-      selectedRowKeys: [],
-      editorVisible: false,
-      editEntity: {},
+      rowSelection: {},                 // current selected row in the table.
+      selectedRowKeys: [],              // selected row in the table.
+      data: [],                         // table datasource.
+      editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
+      editorVisible: false,             // edit dialog visible switch.
     };
   }
 
@@ -193,43 +172,63 @@ class DataSyncServiceComponent extends PureComponent{
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
-    // Load data
+
+    this.setState({
+      pagination: this.CON_TABLE_PAGINATION_OPTION
+    });
+
+    const payload = {
+      current: this.CON_TABLE_PAGINATION_OPTION.current,
+      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+    }
+
+    // load data
     dispatch({
       type: this.SERVICE_NAMESPACE + "/getAll",
-      payload: {current: 1, pageSize: 20}
+      payload: payload,
     })
   }
 
 
-  handleClick = () =>{
-    console.log('click');
-  }
 
-
-  tableTitleOption = () => {
+  /**
+   * @description the content in the table header.
+   * @memberof OpportunityComponent
+   */
+  tableTitle = () => {
+    const {loading} = this.props;
     const {selectedRowKeys} = this.state;
     const hasSelected = selectedRowKeys.length > 0;
     return (
       <Row>
-        <Col>
-          <Button type="default" icon="search" disabled>查询</Button>
-          <Button onClick={this.handleOnCreate} type="default" icon="file-add">新建</Button>
-          <Button onClick={this.handleOnDelete} type="danger" icon="delete">删除</Button>
-          <Button icon="upload" disabled>导入</Button>
-          <Button icon="download" disabled>导出</Button>
-          <span style={{ marginLeft: 8 }}>
-            {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
-          </span>
-        </Col>
+        <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+        <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
+        <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
+        <Button icon="upload" disabled>导入</Button>
+        <Button icon="download" disabled>导出</Button>
+        <span style={{ marginLeft: 8 }}>
+          {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ''}
+        </span>
       </Row>
     );
   }
 
+
+  handleOnSearch = () => {
+    this.componentDidMount();
+  }
+
+
   handleOnCreate = () => {
     const entity = {
-      _model: 'new',
+      _model: 'create',
       id: snowflakeId(),
-      name: 'New token',
+      name: '新建数据同步服务',
+      code: '请咨询XTOPMS，录入分配的服务编号',
+      status: 0,
+      retryCount: 0,
+      nextRunTime: moment().add('days',1).format('YYYY-MM-DD') + ' 01:00:00',
+      interval: 3600,
     };
     
     this.setState({
@@ -267,7 +266,6 @@ class DataSyncServiceComponent extends PureComponent{
       });
 
       this.setState({
-        newId: snowflakeId(),
         editorVisible: false,
       });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
@@ -385,9 +383,9 @@ class DataSyncServiceComponent extends PureComponent{
     const state = this.state;
 
     // 从 Model 中获取 State 中记录的数据
-    const {access_token, data} = this.props;
-    const dataSource = access_token.data;
-    const totalCount = access_token.total; // 需要从 api 中拿到数据后，得到数据的数量。
+    const {datasyncservice, data} = this.props;
+    const dataSource = datasyncservice.data;
+    const totalCount = datasyncservice.total; // 需要从 api 中拿到数据后，得到数据的数量。
 
     const selectedRowKeys = this.state.selectedRowKeys;
 
@@ -412,23 +410,22 @@ class DataSyncServiceComponent extends PureComponent{
           <Table
             {...this.CON_TABLE_OPTION}
             columns={this.CON_COLUMNS_OPTION}
-            title={this.tableTitleOption}
+            title={this.tableTitle}
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
             dataSource={dataSource}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
-          <AccessTokenEditorDialog
-            newId={this.state.newId}
+          <DataSyncServiceEditorDialog
             visible={this.state.editorVisible}
             onCancel={this.handleEditorCancel}
-            onEdit={this.handleDoUpdate}
+            onDoUpdate={this.handleDoUpdate}
             onCreate={this.handleDoCreate}
             onInitToken={this.handleInitToken}
             data={this.state.editEntity}
           >
-          </AccessTokenEditorDialog>
+          </DataSyncServiceEditorDialog>
         </Card>
       </PageHeaderWrapper>
     );

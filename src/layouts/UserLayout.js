@@ -59,7 +59,7 @@ class UserLayout extends React.PureComponent {
                 <span className={styles.title}>XTOPMS</span>
               </Link>
             </div>
-            <div className={styles.desc}>中国区最具影响力的离散制造智能制造管理平台</div>
+            <div className={styles.desc}>电商+工厂 - 智能制造SaaS平台</div>
           </div>
           {children}
         </div>

@@ -22,7 +22,6 @@
 * Creation: 2019-04-22 15:45:42
  */
 
-
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
 import { Row, Col, Input, Button, Card, Table, Tag, Icon, Modal, Form } from "antd";
@@ -56,7 +55,7 @@ class AccessTokenComponent extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 3400,
+      x: 3500,
       y: 450,
     },
   };
@@ -72,7 +71,7 @@ class AccessTokenComponent extends PureComponent{
     },{
       title: 'App Key',
       dataIndex: 'app_Key',
-      width: 150,
+      // width: 150,
     },{
       title: 'app_Secret',
       dataIndex: 'app_Secret',
@@ -208,7 +207,6 @@ class AccessTokenComponent extends PureComponent{
    * @memberof AccessTokenComponent
    */
   componentDidMount(){
-    console.log(this.props);
     const { dispatch } = this.props;  // Get dispatch from parent component.
     // refresh state
     this.setState({
@@ -274,7 +272,7 @@ class AccessTokenComponent extends PureComponent{
     const newId = snowflakeId();
 
     const entity = {
-      _model: 'new',
+      _model: 'create',
       id: newId,
       key: newId,
       name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的Token.",

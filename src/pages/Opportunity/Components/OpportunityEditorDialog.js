@@ -25,12 +25,14 @@
 
 
 import { PureComponent } from "react";
-import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete} from "antd";
+import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete, Switch, Icon} from "antd";
 import { basename } from "path";
 import { connect } from "dva";
 import {GetBusinessCategoryTree} from '@/utils/Dictionary';
 import moment from "moment";
 import UserSelectorV1 from '@/components/UserSelector/UserSelectorV1';
+import DescriptionList from '@/components/DescriptionList';
+const { Description } = DescriptionList;
 
 
 const 
@@ -51,12 +53,24 @@ class OpportunityEditorDialog extends PureComponent{
    * @memberof OpportunityEditorDialog
    */
   onBizCategoryFilter = (inputValue, path) => {
-    return (path.some(option => (option.label).toLowerCase().indexOf(inputValue.toLowerCase()) > -1));
+    return (
+      path.some(
+        option => 
+          (option.label).toLowerCase().indexOf(inputValue.toLowerCase()) > -1
+        )
+      );
   }
 
 
   handleSalesChange = (value) => {
     // console.log(value);
+  }
+
+
+  bizCategoryCascaderSearchOpption = {
+    filter: this.onBizCategoryFilter,
+    limit: 10,
+    matchInputWidth: true,
   }
   
   /**
@@ -109,6 +123,7 @@ class OpportunityEditorDialog extends PureComponent{
       if(doOk) doOk(form);
     };
 
+
     return (
       <Modal
       title="新建机会"
@@ -119,45 +134,22 @@ class OpportunityEditorDialog extends PureComponent{
       onOk={onOk}
       width={800}
       >
+        <DescriptionList col="2" size="small" title="" style={{ marginBottom: 32 }}>
+          <Description term="创建人">{data.creatorUser ? data.creatorUser.name: user.name}</Description>
+          <Description term="修改人">{data.lastModifierUser ? data.lastModifierUser.name: ''}</Description>
+          <Description term="创建时间">{data.creationTime ? moment(data.creationTime).fromNow() : ''}</Description>
+          <Description term="修改时间">{data.lastModificationTime ? moment(data.lastModificationTime).fromNow() : ''}</Description>
+        </DescriptionList>
         <Form>
+          { 
+            getFieldDecorator(
+              'id',{
+                initialValue: data.key
+              }
+            )(<Input type="hidden" readOnly></Input>) 
+          }
           <Tabs type="card">
             <TabPanel tab="基本信息" key="tabBasic">
-              <Row>
-                <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="创建人" help="">
-                    { 
-                      getFieldDecorator(
-                        'createUserName',
-                        {
-                          initialValue: data.creatorUser ? data.creatorUser.name: ""
-                        }
-                      )(<Input readOnly></Input>) 
-                    }
-                  </FormItem>
-                </Col>
-                <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="创建时间" help="">
-                    { 
-                      getFieldDecorator(
-                        'creationTime', {
-                          initialValue: moment().format('YYYY-MM-DD hh:mm')
-                        }
-                      )(<Input readOnly></Input>) 
-                    }
-                  </FormItem>
-                </Col>
-                <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="机会编号" help="">
-                    { 
-                      getFieldDecorator(
-                        'id',{
-                          initialValue: data.key
-                        }
-                      )(<Input readOnly></Input>) 
-                    }
-                  </FormItem>
-                </Col>
-              </Row>
               <Row>
                 <Col span={8}>
                   <FormItem {...formItemLayoutHorizontal} label="销售代表" help="">
@@ -192,7 +184,7 @@ class OpportunityEditorDialog extends PureComponent{
                   </FormItem>
                 </Col>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="统一编号" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="内部编号" help="">
                     { 
                       getFieldDecorator(
                         'erpId',
@@ -206,24 +198,24 @@ class OpportunityEditorDialog extends PureComponent{
               </Row>
               <Row>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="销售方" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="业主" help="">
                     { 
                       getFieldDecorator(
-                        'soldToName',
+                        'ownerId',
                         {
-                          initialValue: user.name
+                          initialValue: data.owner? data.owner.name: ''
                         }
-                      )(<Input placeholder="合同签订的甲方"></Input>)
+                      )(<Input placeholder="项目业权单位"></Input>)
                     }
                   </FormItem>
                 </Col>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="收货方" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="总包方" help="">
                     { 
                       getFieldDecorator(
-                        'shipToName',
+                        'generalContractorId',
                         {
-                          initialValue: data.shipToName
+                          initialValue: data.generalContractor? data.generalContractor.name: ''
                         }
                       )(<AutoComplete
                           placeholder="收货方"
@@ -234,12 +226,12 @@ class OpportunityEditorDialog extends PureComponent{
                   </FormItem>
                 </Col>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="合作方" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="代理方" help="">
                     { 
                       getFieldDecorator(
-                        'partnerName',
+                        'agencyId',
                         {
-                          initialValue: data.partnerName
+                          initialValue: data.agency? data.agency.name: ''
                         }
                       )(<Input placeholder=""></Input>) 
                     }
@@ -274,19 +266,34 @@ class OpportunityEditorDialog extends PureComponent{
                   <FormItem {...formItemLayout} label="所属行业" help="">
                     { 
                       getFieldDecorator(
-                        'bizCategory', { initialValue: data.bizCategory, valuePropName: 'defaultValue'}
+                        'bizCategory', { 
+                          initialValue: data.bizCategory, 
+                          valuePropName: 'defaultValue',
+                          rules: [
+                            {type: 'array', required: false, message: '请选择所属行业'}
+                          ]
+                        }
                       )(<Cascader
                           options={bizCategoryOption}
+                          fieldNames={{label:'label', value:'value', children:'children'}}
                           placeholder="项目所属行业"
-                          showSearch={this.onBizCategoryFilter}
+                          notFoundContent="没找到匹配项"
+                          showSearch={this.bizCategoryCascaderSearchOpption}
                           popupPlacement="topLeft"
                           expandTrigger="hover"
                           popupClassName=""
+                          size="default"
+                          allowClear={true}
                           changeOnSelect={true}
                         ></Cascader>) 
                     }
                   </FormItem>
                 </Col>
+              </Row>
+              <Row>
+                <FormItem {...formItemLayout} label="激活/禁用" help="">
+                  {getFieldDecorator( 'isActive',{ valuePropName: 'checked', initialValue: data.isActive })(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch>)}
+                </FormItem>
               </Row>
             </TabPanel>
             <TabPanel tab="产品信息" key="tabProduction"></TabPanel>

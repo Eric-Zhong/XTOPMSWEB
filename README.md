@@ -26,7 +26,36 @@ API based at ABP asp.net core.
 ## Web API 后端运行方式
 ```
 >dotnet build
->dotnet run
+>dotnet publish -c release
+>supervisord -c /etc/supervisord.conf
+```
+
+## Supervisord 守护进程运行
+```
+>supervisorctl stop all
+>supervisorctl start all
+>supervisorctl shutdown
+>supervisord -c /etc/supervisord.conf
+
+supervisorctl status
+supervisorctl stop tomcat
+supervisorctl start tomcat
+supervisorctl restart tomcat
+supervisorctl reread
+supervisorctl update
+
+
+[program:XTOPMSWEBHOST]
+command=dotnet XTOPMS.Web.Host.dll
+directory=/home/git/XTOPMSCORE/src/XTOPMS.Web.Host/bin/release/netcoreapp2.1/publish
+environment=ASPNETCORE__ENVIRONMENT=Production
+user=root
+stopsignal=INT
+autostart=true
+autorestart=true
+startsecs=1
+stderr_logfile=/var/log/XTOPMS.Web.Host.err.log
+stdout_logfile=/var/log/XTOPMS.Web.Host.out.log
 ```
 
 # 开发日志
