@@ -31,4 +31,5 @@ app.model({ namespace: 'CustomerModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/
 app.model({ namespace: 'OpportunityModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Opportunity/models/OpportunityModel.js').default) });
 app.model({ namespace: 'AccessTokenModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AccessTokenModel.js').default) });
 app.model({ namespace: 'AlibabaMessageModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AlibabaMessageModel.js').default) });
+app.model({ namespace: 'AlibabaProductCategoryModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AlibabaProductCategoryModel.js').default) });
 app.model({ namespace: 'DataSyncServiceModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/DataSyncServiceModel.js').default) });

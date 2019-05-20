@@ -617,6 +617,12 @@ let routes = [
             "exact": true
           },
           {
+            "path": "/eai/productcategory",
+            "name": "商品货号",
+            "component": dynamic({ loader: () => import('../Background/AlibabaProductCategoryHome'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),
+            "exact": true
+          },
+          {
             "path": "/eai/alibabacallbackhome",
             "name": "数据回传",
             "component": dynamic({ loader: () => import('../Background/AlibabaCallbackMessageHome'), loading: require('/Work/Dotnet/XTOPMSWEB/src/components/PageLoading/index').default }),

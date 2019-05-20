@@ -19,15 +19,8 @@
 *
 * Author: Eric-Zhong Xu
 *
-* Creation: 2019-04-22 14:54:17
+* Creation: 2019-05-20 14:43:00
  */
-
-
-/*
-
-T02_TableComponent: 换成真实 Page 的名称
-
-*/
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
@@ -36,29 +29,22 @@ import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import moment from 'moment';
 
-// TODO: 替换这里的Service名称
-import { ServiceName } from '@/services/_TemplateService';
-import EditorDialog from './Component/T01_DialogComponent';
-// TODO: 使用最终需要用到的model名称来远的这里
+import { ServiceName } from '@/services/AlibabaProductCategoryService';
+import AlibabaProductCategoryEditorDialog from './Components/AlibabaProductCategoryEditorDialog';
+
 @connect(({           // Model
   user,
-  access_token,
-  userQuickSearch,
-  customer,
-  opportunity,
+  alibabaproductcategory,
   loading
 })=>({                // Mapping to properties
   user,
-  access_token,
-  userQuickSearch,
-  customer,
-  opportunity,
+  alibabaproductcategory,
   loading: loading
 }))
-class T02_TableComponent extends PureComponent{
+class AlibabaProductCategoryHome extends PureComponent{
   SERVICE_NAMESPACE = ServiceName;   // Service 中定义的 reducer & effector
-  CON_PAGE_TITLE = "页面名称";
-  CON_PAGE_CONTENT = "页面描述";
+  CON_PAGE_TITLE = "商品货号";
+  CON_PAGE_CONTENT = "配置商品货号，如果该商品货号设置成激活状态，那么收到含此商品的订单将推送给Salesforce。";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,
@@ -86,25 +72,12 @@ class T02_TableComponent extends PureComponent{
 
   CON_COLUMNS_OPTION = [
     {
-      title: 'Name',
-      dataIndex: 'name',
+      title: '商品货号',
+      dataIndex: 'code',
       width: 150,
       fixed: 'left',
     },{
-      title: 'Id',
-      dataIndex: 'id',
-      width: 100,
-    },{
-      title: 'Code',
-      dataIndex: 'code',
-      width: 100,
-      render: (cell, record, index) => {
-        return (
-          <Tag>{cell}</Tag>
-        );
-      }
-    },{
-      title: 'Active?',
+      title: '状态',
       dataIndex: 'isActive',
       width: 80,
       render: (cell, record, index) => {
@@ -119,9 +92,8 @@ class T02_TableComponent extends PureComponent{
         }
       }
     },{
-      title: 'ERP#',
-      dataIndex: 'erpId',
-      width: 200,
+      title: '名称',
+      dataIndex: 'name',
     },{
       title: '更新时间',
       dataIndex: 'lastModificationTime',
@@ -161,7 +133,7 @@ class T02_TableComponent extends PureComponent{
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
    * @param {*} props
-   * @memberof T02_TableComponent
+   * @memberof AlibabaProductCategoryHome
    */
   constructor(props){
     super(props);
@@ -180,43 +152,50 @@ class T02_TableComponent extends PureComponent{
    * @description When components created, react will execute this function.
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof T02_TableComponent
+   * @memberof AlibabaProductCategoryHome
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
+
+    this.setState({
+      pagination: this.CON_TABLE_PAGINATION_OPTION
+    });
+
+    const payload = {
+      current: this.CON_TABLE_PAGINATION_OPTION.current,
+      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+    }
+
     // load data
     dispatch({
       type: this.SERVICE_NAMESPACE + "/getAll",
-      payload: {current: 1, pageSize: 20}
+      payload: payload,
     })
   }
+
 
   handleOnSearch = () =>{
     this.componentDidMount();
   }
 
   handleOnCreate = () => {
-
     const {
       dispatch,
       user: {currentUser},          // Get current user data.
     } = this.props;
-
     const newId = snowflakeId();    // Generate a new id for new entity.
-
     const entity = {
       _model: 'create',
       id: newId,
       key: newId,
-      name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的",
+      name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的商品货号",
     };
-    
     this.setState({
       editEntity: entity,
       editorVisible: true,
     });
   }
-
+  
   handleOnEdit = (record) => {
     this.setState({
       editEntity: {
@@ -255,6 +234,7 @@ class T02_TableComponent extends PureComponent{
     });
   }
 
+
   handleDoCreate = (form) =>{
     const {dispatch} = this.props;
     form.validateFields((err, fieldsValue) => {
@@ -264,7 +244,6 @@ class T02_TableComponent extends PureComponent{
         = Object.assign(
           {_model: 'create'},
           formData,
-          {salesId: formData.sales.userId}
         );
       dispatch({
         type: this.SERVICE_NAMESPACE + '/create',
@@ -365,7 +344,7 @@ class T02_TableComponent extends PureComponent{
    * @description Render the html
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof T02_TableComponent
+   * @memberof AlibabaProductCategoryHome
    */
   render(){
 
@@ -375,15 +354,13 @@ class T02_TableComponent extends PureComponent{
     // ! 这里要用自己的代码替换
     // const dataSrouce = myModel.data;
     const {
-      userQuickSearch,// Model 0
-      opportunity,    // Model 1
-      customer,       // Model 2
+      alibabaproductcategory,
       user: {
         currentUser
       }
     } = this.props;
 
-    const model = opportunity;
+    const model = alibabaproductcategory;
 
     const dataSource = model.data;
     const totalCount = model.total;
@@ -417,13 +394,13 @@ class T02_TableComponent extends PureComponent{
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
-          <EditorDialog
+          <AlibabaProductCategoryEditorDialog
             visible={this.state.editorVisible}
             onCancel={this.handleEditorCancel}
             onDoUpdate={this.handleDoUpdate}
             onCreate={this.handleDoCreate}
             data={this.state.editEntity}
-          ></EditorDialog>
+          ></AlibabaProductCategoryEditorDialog>
         </Card>
       </PageHeaderWrapper>
     );
@@ -433,4 +410,4 @@ class T02_TableComponent extends PureComponent{
 }
 
 
-export default T02_TableComponent;
+export default AlibabaProductCategoryHome;

@@ -482,6 +482,11 @@ export default [
             component: './Background/DataSyncServiceComponent',
           },
           {
+            path: '/eai/productcategory',
+            name: '商品货号',
+            component: './Background/AlibabaProductCategoryHome',
+          },
+          {
             path: '/eai/alibabacallbackhome',
             name: '数据回传',
             component: './Background/AlibabaCallbackMessageHome',

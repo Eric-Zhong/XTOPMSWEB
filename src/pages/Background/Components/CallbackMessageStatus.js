@@ -55,10 +55,9 @@ const CON_MESSAGE_STATUS = [
 ];
 
 class CallbackMessageStatus extends PureComponent{
-
   render() {
     const {value, data} = this.props;
-    if(value && value !== ""){
+    if(value != undefined && value !== ""){           // 测试发现， value=0 时， if(value) 为 false.
       const text = CON_MESSAGE_STATUS[value].text;
       const color = CON_MESSAGE_STATUS[value].color;
       if(value != 0 && value != 1 && value != 2){
@@ -72,6 +71,9 @@ class CallbackMessageStatus extends PureComponent{
           <Tag color={color}>{text}</Tag>
         );      
       }
+    } else {
+      debugger;
+      return '';
     }
   }
 }
