@@ -93,25 +93,23 @@ export default {
     },
 
     *getAll({payload}, {call, put}){
-      const {current, pageSize} = payload;
+      const {current, pageSize, sorting, filters} = payload;
       var params = {
         skipCount: (current -1) * pageSize,
         maxResultCount: pageSize,
+        sorting: sorting ?? '',
+        filters,
       };
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
-          type: "getAllReducer",
+          type: 'getAllReducer',
           payload: response,
         });
       } else {
-        console.log(response);
-        if(response && response.error){
-          message.error(response.error.message);
-        }
+        message.error(response.message);
       }
     },
-
 
 
     /**

@@ -352,6 +352,8 @@ class T02_TableComponent extends PureComponent{
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
+      sorter: sorter,
+      filters: filters,
     };
     
     dispatch({

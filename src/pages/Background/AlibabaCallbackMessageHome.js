@@ -424,10 +424,12 @@ class AlibabaCallbackMessageHome extends PureComponent{
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
+      sorter: sorter,
+      filters: filters
     };
     
     dispatch({
-      type: this.SERVICE_NAMESPACE + '/getAll',
+      type: this.SERVICE_NAMESPACE + '/query',
       payload: params
     })
 

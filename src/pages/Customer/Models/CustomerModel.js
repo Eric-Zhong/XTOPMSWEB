@@ -40,7 +40,8 @@ import {
   Update,
   GetMyAll,
   QuickSearch,
-  GetDetailV1
+  GetDetailV1,
+  Query
   } from '@/services/CustomerService'; // TODO: modify the service name.
 
 import {message} from 'antd';
@@ -56,10 +57,11 @@ export default {
     data: [],           // storage the list after getall
     total: 0,           // total count
     search: [],         // quick search result
-    query: {         // query payload
+    query: {            // query payload
       current: 1,
       pageSize: 10,
-      sorting: undefined,
+      sorting: '',
+      filters: [],
     },
   },
 
@@ -82,14 +84,16 @@ export default {
       }
     },
 
-    *getAll({payload}, {call, put, select}){
-      const state = yield select(state=>state.customer);
+    *getAll({payload}, {call, put, select, take}){
       // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const {current, pageSize, sorting} = payload? payload: state.query;
+      const state = yield select(state=>state.customer);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
-        skipCount: (current -1) * pageSize,
+        skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting ?? '',
+        sorting: sorting,
+        filters,
       };
       const response = yield call(GetAll, params);
       if(response.success){
@@ -147,7 +151,6 @@ export default {
       }
     },
 
-
     *remove({payload}, {call, put}){
       const body = payload;
       const response = yield call(Remove, body);
@@ -171,22 +174,48 @@ export default {
         type: 'quickSearchReducer',
         payload: response,
       });
-    }
+    },
 
-
+    *query({payload}, {call, put, select, take}){
+      const state = yield select(state=>state.customer);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+      var params = {
+        skipCount: (current - 1) * pageSize,
+        maxResultCount: pageSize,
+        sorting: sorting,
+        filters,
+      };
+      const response = yield call(Query, params);
+      if(response.success){
+        yield put({
+          type: 'getAllReducer',
+          payload: {
+            ...response,
+            query: payload
+          },
+        });
+      } else {
+        message.error(response.message);
+      }
+    },
   },
 
   /**
    * @method reducers
    */
   reducers: {
-
     clear(){
       return {
-        data: [],
-        total: 0,
-        current: {},
-        search: []
+        data: [],           // storage the list after getall
+        total: 0,           // total count
+        search: [],         // quick search result
+        query: {            // query payload
+          current: 1,
+          pageSize: 10,
+          sorting: '',
+          filters: [],
+        },
       }
     },
 
@@ -198,7 +227,6 @@ export default {
         current: created
       };
     },
-
 
     getAllReducer(state, action){
       // XTOPMS api > XTOPMS UI
@@ -219,7 +247,6 @@ export default {
       };
     },
 
-
     quickSearchReducer(state, action){
       const payload = action.payload;
       const data = payload ? payload.result : [];
@@ -228,7 +255,6 @@ export default {
         search: data
       };
     },
-
 
     createOrUpdateReducer(state, action){
       const payload = action.payload;

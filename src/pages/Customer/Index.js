@@ -367,29 +367,19 @@ class CustomerIndexComponent extends PureComponent {
 
     const { dispatch } = this.props;
 
-    // console.log('Table on changed.');
-    // console.log(pagination);
-    // console.log(filters);
-    // console.log(sorter);
-
-    // Set new pagination to state.
     this.setState({
       pagination: pagination
     });
 
-    // caculate sort setting
-    const sortField = sorter.field ? sorter.field : 'id';
-    const sortOrder = sorter.order ? sorter.order : 'descend';
-    const sorting = sortField + ' ' + (sortOrder === 'descend' ? 'desc' : 'asc');
-    
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
-      sorting: sorting,
+      sorter: sorter,
+      filters: filters,
     };
     
     dispatch({
-      type: this.SERVICE_NAMESPACE + '/getAll',
+      type: this.SERVICE_NAMESPACE + '/query',
       payload: params
     })
 

@@ -43,8 +43,8 @@ const confirm = Modal.confirm;
 class AccessTokenComponent extends PureComponent{
 
   SERVICE_NAMESPACE = "access_token";
-  CON_PAGE_TITLE = "Access Token 管理";
-  CON_PAGE_CONTENT = "XTOPMS 与外系统对接时，需要配置相关的应用 Account 和 Token，统一在这里进行管理";
+  CON_PAGE_TITLE = "Alibaba Application 管理";
+  CON_PAGE_CONTENT = "XTOPMS与Alibaba电商平台应用对接的帐号配置管理。帐号请在open.1688.com上进行申请。";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,

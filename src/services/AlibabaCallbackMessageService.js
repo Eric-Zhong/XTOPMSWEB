@@ -96,3 +96,10 @@ export async function Retry(params) {
   const option = {method: "POST", body: restParams, }
   return request(CON_API_URI + 'retry', option);
 }
+
+export async function Query(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'query', option);
+}
+

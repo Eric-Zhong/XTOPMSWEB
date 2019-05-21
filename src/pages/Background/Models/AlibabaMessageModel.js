@@ -35,11 +35,11 @@ import {
   GetMyAll,
   QuickSearch,
   GetDetailV1,
-  Retry
+  Retry,
+  Query
   } from '@/services/AlibabaCallbackMessageService'; // TODO: modify the service name.
 
 import {message} from 'antd';
-
 export const ModelName = ServiceName;
 export default {
 
@@ -52,8 +52,13 @@ export default {
     data: [],           // storage the list after getall
     total: 0,           // total count
     search: [],         // quick search result
+    query: {            // query payload
+      current: 1,
+      pageSize: 10,
+      sorting: '',
+      filters: [],
+    },
   },
-
   /**
    * @method effects
    */
@@ -73,22 +78,31 @@ export default {
       }
     },
 
-    *getAll({payload}, {call, put}){
-      const {current, pageSize} = payload;
+    *getAll({payload}, {call, put, select, take}){
+      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
+      const state = yield select(state=>state.alibabamessage);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
-        skipCount: (current -1) * pageSize,
+        skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
+        sorting: sorting,
+        filters: filters ?? {},
       };
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
           type: 'getAllReducer',
-          payload: response,
+          payload: {
+            ...response,
+            query: payload
+          },
         });
       } else {
         message.error(response.message);
       }
     },
+
 
     *create({payload}, {call, put}){
       const response = yield call(Create, payload);
@@ -163,6 +177,31 @@ export default {
       }
     },
 
+    *query({payload}, {call, put, select, take}){
+      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
+      const state = yield select(state=>state.alibabamessage);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+      var params = {
+        skipCount: (current - 1) * pageSize,
+        maxResultCount: pageSize,
+        sorting: sorting,
+        filters,
+      };
+      const response = yield call(Query, params);
+      if(response.success){
+        yield put({
+          type: 'getAllReducer',
+          payload: {
+            ...response,
+            query: payload
+          },
+        });
+      } else {
+        message.error(response.message);
+      }
+    },
+
 
   },
 
@@ -197,13 +236,15 @@ export default {
           totalCount, 
           items
         }, 
-        success
+        success,
+        query,
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
+        query: query,
       };
     },
 

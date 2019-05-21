@@ -20,10 +20,15 @@ export default {
    * @property state
    */
   state: {
-    data: [],
-    total: 0,
-    current: {},
-    quickSearchResult: []
+    data: [],           // storage the list after getall
+    total: 0,           // total count
+    search: [],         // quick search result
+    query: {            // query payload
+      current: 1,
+      pageSize: 10,
+      sorting: '',
+      filters: [],
+    },
   },
 
   /**
@@ -54,21 +59,24 @@ export default {
      * @param {*} {call, put}
      */
     *getAll({payload}, {call, put}){
-      const {current, pageSize} = payload;
+      const {current, pageSize, sorting, filters} = payload;
       var params = {
         skipCount: (current -1) * pageSize,
         maxResultCount: pageSize,
+        sorting: sorting ?? '',
+        filters,
       };
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
-          type: "getAllReducer",
+          type: 'getAllReducer',
           payload: response,
         });
       } else {
         message.error(response.message);
       }
     },
+
 
 
 
