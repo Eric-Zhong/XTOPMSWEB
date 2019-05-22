@@ -12,12 +12,14 @@ class CustomerSelectorV1 extends PureComponent{
   constructor(props){
     super(props);
     const {value} = this.props;
-    this.state = {
-      key: value? value.customerId: null,
-      label: value? value.customerName: null,
-      id: value? value.customerId: null,
-      name: value? value.customerName: null,
-    };
+    if(value!=null){
+      this.state = {
+        key: value? value.key: null,
+        label: value? value.label: null,
+        id: value? value.customerId: null,
+        name: value? value.customerName: null,
+      };
+    }
   }
 
 
@@ -35,7 +37,7 @@ class CustomerSelectorV1 extends PureComponent{
     // Should be a controlled component.
     if ('value' in nextProps) {
       const value = nextProps.value;
-      this.setState(value);
+      // this.setState(value);
     }
   }
 
@@ -101,7 +103,9 @@ class CustomerSelectorV1 extends PureComponent{
     } = this.props;
 
     const state = this.state;
-    const dataSource = (customer.quickSearch && customer.quickSearch.length > 0 ? customer.quickSearch: [state]); 
+    const defaultValue = state != null ? [state] : [];        // 判断有没有初始化时输入了默认值
+    const defaultKey = state != null ? state.id + '' : '';    // 判断有没有初始化时输入了默认值
+    const dataSource = (customer.search && customer.search.length > 0 ? customer.search: defaultValue);   // 从 QuickSearch 中获取数据
 
     return (
       <Select
@@ -112,7 +116,7 @@ class CustomerSelectorV1 extends PureComponent{
         labelInValue={true}
         filterOption={false}
         notFoundContent="无法匹配"
-        defaultValue={{key: state.id + ''}}
+        defaultValue={{key: defaultKey}}
         style={{ width: '100%' }}
         onSelect={this.props.onSelect}
         onChange={this.handleOnChange}
@@ -120,7 +124,7 @@ class CustomerSelectorV1 extends PureComponent{
         >
           {
             dataSource.map(item => {
-              return <Option key={item.id} title={item.name}>{item.name}</Option>
+              return <Option key={item.key} title={item.name}>{item.name}</Option>
             })
           }
       </Select>

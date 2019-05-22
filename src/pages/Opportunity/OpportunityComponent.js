@@ -25,7 +25,7 @@
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
-import {Card, Button, Table, Tag, Modal, Row, Rate} from 'antd';
+import {Card, Button, Table, Tag, Modal, Row, Rate, Tooltip} from 'antd';
 import { connect } from "dva";
 import moment from 'moment';
 import OpportunityEditorDialog from './Components/OpportunityEditorDialog';
@@ -130,29 +130,29 @@ class OpportunityComponent extends PureComponent{
       }
     },{
       title: '业主方',
-      dataIndex: 'ownerId',
-      // width: 200,
+      dataIndex: 'owner',
+      width: 100,
       render: (cell, record, index) => {
         return (
-          <Tag>{cell}</Tag>
+          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
         );
       }
     },{
       title: '总包方',
-      dataIndex: 'generalContractorId',
-      width: 200,
+      dataIndex: 'generalContractor',
+      width: 100,
       render: (cell, record, index) => {
         return (
-          <Tag>{cell}</Tag>
+          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
         );
       }
     },{
       title: '代理方',
-      dataIndex: 'agencyId',
-      width: 200,
+      dataIndex: 'agency',
+      width: 100,
       render: (cell, record, index) => {
         return (
-          <Tag>{cell}</Tag>
+          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
         );
       }
     },{
@@ -331,7 +331,11 @@ class OpportunityComponent extends PureComponent{
         = Object.assign(
           formData,
           {
-            salesId: formData.sales.userId
+            salesId: formData.sales.userId,
+            ownerId: formData.owner.ownerId,
+            generalContractorId: formData.generalContractor.generalContractorId,
+            agencyId: formData.agency.agencyId,
+            businessCategoryId: categoryId,
           }
         );
       dispatch({
@@ -363,6 +367,9 @@ class OpportunityComponent extends PureComponent{
         formData,
         {
           salesId: formData.sales.userId,
+          ownerId: formData.owner ? formData.owner.customerId : null,
+          generalContractorId: formData.generalContractor ? formData.generalContractor.customerId : null,
+          agencyId: formData.agency ? formData.agency.customerId : null,
           businessCategoryId: categoryId,
         }
       );

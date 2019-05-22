@@ -76,8 +76,8 @@ export default {
       pathRewrite: { '^/server': '' },
     },
     '/api/': {
-      target: 'http://xtoapi.biztalkgroup.com/',
-      // target: 'http://localhost:21021/',
+      // target: 'http://xtoapi.biztalkgroup.com/',
+      target: 'http://localhost:21021/',
       changeOrigin: true,
       // pathRewrite: { '^/api': '/api' },
       // secure: false,

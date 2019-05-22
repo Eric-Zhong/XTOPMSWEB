@@ -31,6 +31,7 @@ import { connect } from "dva";
 import {GetBusinessCategoryTree} from '@/utils/Dictionary';
 import moment from "moment";
 import UserSelectorV1 from '@/components/UserSelector/UserSelectorV1';
+import CustomerSelectorV1 from '@/pages/Customer/Components/CustomerSelectorV1';
 import DescriptionList from '@/components/DescriptionList';
 const { Description } = DescriptionList;
 
@@ -160,7 +161,8 @@ class OpportunityEditorDialog extends PureComponent{
                           key: data.sales ? data.sales.id: "", 
                           label: data.sales ? data.sales.name: "", 
                           userId: data.sales ? data.sales.id: "", 
-                          userName: data.sales ? data.sales.name: ""},
+                          userName: data.sales ? data.sales.name: ""
+                        },
                       } 
                     )(<UserSelectorV1
                         {...this.props}
@@ -201,11 +203,19 @@ class OpportunityEditorDialog extends PureComponent{
                   <FormItem {...formItemLayoutHorizontal} label="业主" help="">
                     { 
                       getFieldDecorator(
-                        'ownerId',
-                        {
-                          initialValue: data.owner? data.owner.name: ''
-                        }
-                      )(<Input placeholder="项目业权单位"></Input>)
+                        'owner' , {
+                          initialValue: data.owner ? {
+                            key: data.owner ? data.owner.key: "", 
+                            label: data.owner ? data.owner.name: "", 
+                            customerId: data.owner ? data.owner.key: "", 
+                            customerName: data.owner ? data.owner.name: ""
+                          } : null,
+                        } 
+                        )(<CustomerSelectorV1
+                            {...this.props}
+                            onChange={this.handleSalesChange}
+                            placeholder=""
+                          ></CustomerSelectorV1>)
                     }
                   </FormItem>
                 </Col>
@@ -213,15 +223,19 @@ class OpportunityEditorDialog extends PureComponent{
                   <FormItem {...formItemLayoutHorizontal} label="总包方" help="">
                     { 
                       getFieldDecorator(
-                        'generalContractorId',
-                        {
-                          initialValue: data.generalContractor? data.generalContractor.name: ''
-                        }
-                      )(<AutoComplete
-                          placeholder="收货方"
-                          style={{ width: '100%' }}
-                          optionLabelProp="name"
-                        ></AutoComplete>) 
+                        'generalContractor' , {
+                          initialValue: data.generalContractor ? {
+                            key: data.generalContractor ? data.generalContractor.key: "", 
+                            label: data.generalContractor ? data.generalContractor.name: "", 
+                            customerId: data.generalContractor ? data.generalContractor.key: "", 
+                            customerName: data.generalContractor ? data.generalContractor.name: ""
+                          } : null,
+                        } 
+                        )(<CustomerSelectorV1
+                            {...this.props}
+                            onChange={this.handleSalesChange}
+                            placeholder=""
+                          ></CustomerSelectorV1>)
                     }
                   </FormItem>
                 </Col>
@@ -229,11 +243,20 @@ class OpportunityEditorDialog extends PureComponent{
                   <FormItem {...formItemLayoutHorizontal} label="代理方" help="">
                     { 
                       getFieldDecorator(
-                        'agencyId',
-                        {
-                          initialValue: data.agency? data.agency.name: ''
-                        }
-                      )(<Input placeholder=""></Input>) 
+                        'agency' , {
+                          initialValue: data.agency ? {
+                            key: data.agency ? data.agency.key: "", 
+                            label: data.agency ? data.agency.name: "", 
+                            customerId: data.agency ? data.agency.key: "", 
+                            customerName: data.agency ? data.agency.name: ""
+                          } : null,
+                        } 
+                      )(<CustomerSelectorV1
+                          {...this.props}
+                          onChange={this.handleSalesChange}
+                          placeholder=""
+                        ></CustomerSelectorV1>
+                      )
                     }
                   </FormItem>
                 </Col>
