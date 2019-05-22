@@ -27,7 +27,7 @@ const links = [
 
 const copyright = (
   <Fragment>
-    Copyright <Icon type="copyright" /> 2018 北京钛谷诚泽网络通讯科技有限公司
+    Copyright <Icon type="copyright" /> 2019 www.biztalkgroup.com
   </Fragment>
 );
 

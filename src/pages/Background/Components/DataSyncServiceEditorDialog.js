@@ -104,7 +104,7 @@ class AccessTokenEditorDialog extends PureComponent{
 
     return (
       <Modal
-      title="Access Token Editor"
+      title="后台服务配置"
       destroyOnClose
       visible={visible}
       okText={buttonOkName}

@@ -124,6 +124,11 @@ export default [
             name: '质量分析',
             component: './Develop/404',
           },
+          {
+            path: 'http://xtoapi.biztalkgroup.com/hangfire',
+            name: '后台服务',
+            // component: './Develop/404',
+          },
         ]
       },
       // ################### 市场阶段 ##################
@@ -493,7 +498,7 @@ export default [
           },
         ]
       },
-      // ...ant_router,
+      ...ant_router,
       // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)
       {
         component: '404',

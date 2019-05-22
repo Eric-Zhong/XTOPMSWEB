@@ -25,13 +25,14 @@
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
-import { Row, Col, Button, Card, Table, Tag, Modal } from "antd";
+import { Row, Col, Button, Card, Table, Tag, Modal, message } from "antd";
 import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import { CallbackMessageStatus, CON_MESSAGE_STATUS } from './Components/CallbackMessageStatus';
 import { ServiceName } from "@/services/AlibabaCallbackMessageService";
 import AlibabaOrderHeaderSummary from "./Components/AlibabaOrderHeaderSummary";
 import AlibabaOrderProductSummary from "./Components/AlibabaOrderProductSummary";
+import AlibabaTradeInfoDialog from "./Components/AlibabaTradeInforDialog";
 const confirm = Modal.confirm;
 import moment from 'moment';
 
@@ -59,7 +60,7 @@ class AlibabaCallbackMessageHome extends PureComponent{
     hasData: false,
     scroll: {
       x: 2300,
-      y: 550,
+      // y: 550,
     },
   };
 
@@ -251,11 +252,12 @@ class AlibabaCallbackMessageHome extends PureComponent{
     super(props);
     // Declare this component's state
     this.state = {
-      rowSelection: {},
-      selectedRowKeys: [],
-      editorVisible: false,
-      data:[],
-      count: 0,
+      rowSelection: {},                 // current selected row in the table.
+      selectedRowKeys: [],              // selected row in the table.
+      data: [],                         // table datasource.
+      editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
+      editorVisible: false,             // edit dialog visible switch.
+      pagination: this.CON_TABLE_PAGINATION_OPTION,
     };
   }
 
@@ -280,40 +282,24 @@ class AlibabaCallbackMessageHome extends PureComponent{
   }
 
   handleOnEdit = (record) => {
-    this.setState({
-      editEntity: {
-        _model: 'edit', 
-        ...record
-      },
-      editorVisible: true,
-    });
-  }
-
-
-  handleDoCreate = (form) =>{
-    const {dispatch} = this.props;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      const formData = fieldsValue;
-      const entityData 
-        = Object.assign(
-          {_model: 'create'},
-          formData,
-          {salesId: formData.sales.userId}
-        );
-      dispatch({
-        type: this.SERVICE_NAMESPACE + '/create',
-        payload: entityData,
-      });
-
+    if(record.type === 'ORDER_PAY'){
       this.setState({
-        editorVisible: false,
+        editEntity: {
+          _model: 'edit', 
+          ...record
+        },
+        editorVisible: true,
       });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      setTimeout(() => this.componentDidMount(), 1000);
-    });
+    } else {
+      message.warn('对不起，暂时只支持查看ORDER_PAY类型数据');
+    }
   }
 
+  handleOnCloseEditorDialog = () =>{
+    this.setState({
+      editorVisible: false,
+    });
+  }
 
   handleOnDelete = () => {
     const { dispatch } = this.props;
@@ -326,7 +312,6 @@ class AlibabaCallbackMessageHome extends PureComponent{
       onCancel() {},
     });
   }
-
 
   handleOnRetry = () => {
     const { dispatch } = this.props;
@@ -363,7 +348,6 @@ class AlibabaCallbackMessageHome extends PureComponent{
     setTimeout(() => this.componentDidMount(), 500);
   }
 
-
   handleDeleteConfirmOk = () =>{
     const { dispatch } = this.props;
     const customerIds = this.state.selectedRowKeys;
@@ -381,7 +365,6 @@ class AlibabaCallbackMessageHome extends PureComponent{
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
     setTimeout(() => this.componentDidMount(), 500);
   }
-
 
   tableTitleOption = () => {
     const {loading} = this.props;
@@ -406,33 +389,21 @@ class AlibabaCallbackMessageHome extends PureComponent{
 
 
   handleTableOnChange = (pagination, filters, sorter, extra) => {
-
     const { dispatch } = this.props;
-
-    /*
-    */
-   console.log('Table on changed.');
-   console.log(pagination);
-   console.log(filters);
-   console.log(sorter);
-
     // Set new pagination to state.
     this.setState({
       pagination: pagination
     });
-
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
       sorter: sorter,
       filters: filters
-    };
-    
+    };    
     dispatch({
       type: this.SERVICE_NAMESPACE + '/query',
       payload: params
-    })
-
+    });
   }
   
   /**
@@ -464,7 +435,7 @@ class AlibabaCallbackMessageHome extends PureComponent{
 
     // 分页
     const paginationOption = {
-      ...this.CON_TABLE_PAGINATION_OPTION,
+      ...this.state.pagination,
       total: totalCount,
     }
 
@@ -491,6 +462,12 @@ class AlibabaCallbackMessageHome extends PureComponent{
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
+          <AlibabaTradeInfoDialog
+            {...this.props}
+            data={this.state.editEntity}
+            visible={editorVisible}
+            onCancel={this.handleOnCloseEditorDialog}
+          ></AlibabaTradeInfoDialog>
         </Card>
       </PageHeaderWrapper>
     );

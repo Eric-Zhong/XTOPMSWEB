@@ -56,7 +56,15 @@ export default {
      */
     clear(){
       return {
-        result: []
+        data: [],           // storage the list after getall
+        total: 0,           // total count
+        search: [],         // quick search result
+        query: {            // query payload
+          current: 1,
+          pageSize: 10,
+          sorting: '',
+          filters: [],
+        },
       }
     },
 

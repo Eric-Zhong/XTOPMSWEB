@@ -1,10 +1,26 @@
+
+ /* Demo
+
+<CustomerEditorDialog
+  onCreated={this.handleCustomerCreationDialogOnCreated}
+  {...this.props}
+  data={this.state.editEntity}
+  user={currentUser}
+  visible={editorVisible}
+  onDoCreate={this.handleDoCreate}
+  onDoUpdate={this.handleDoUpdate}
+  onCancel={this.handleOnCloseEditorDialog}
+></CustomerEditorDialog>
+
+*/
+
 import { PureComponent } from "react";
 import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete} from "antd";
-import { basename } from "path";
 import { connect } from "dva";
-import User from '@/models/user';
-import {GetBusinessCategoryTree} from '@/utils/Dictionary';
 import moment from "moment";
+
+import DescriptionList from '@/components/DescriptionList';
+const { Description } = DescriptionList;
 
 const 
   FormItem = Form.Item,

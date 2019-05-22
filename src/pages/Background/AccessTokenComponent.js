@@ -29,34 +29,33 @@ import { snowflakeId } from '@/utils/snowflake';
 import { connect } from "dva";
 import moment from 'moment';
 import AccessTokenEditorDialog from './Components/AccessTokenEditorDialog';
+import {ServiceName} from '@/services/AccessTokenService';
+
 const confirm = Modal.confirm;
 
 @connect(({
   user,
-  access_token,
+  accesstoken,
   loading
 })=>({
   user,
-  access_token,
+  accesstoken,
   loading
 }))
 class AccessTokenComponent extends PureComponent{
 
-  SERVICE_NAMESPACE = "access_token";
-  CON_PAGE_TITLE = "Alibaba Application 管理";
+  SERVICE_NAMESPACE = ServiceName;
+  CON_PAGE_TITLE = "Alibaba 应用程序管理";
   CON_PAGE_CONTENT = "XTOPMS与Alibaba电商平台应用对接的帐号配置管理。帐号请在open.1688.com上进行申请。";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,
     size: 'small',
-    // expandedRowRender,
     showHeader: true,
-    // footer,
-    // scroll: undefined,
     hasData: false,
     scroll: {
       x: 3500,
-      y: 450,
+      // y: 450,
     },
   };
   CON_COLUMNS_OPTION = [
@@ -92,7 +91,7 @@ class AccessTokenComponent extends PureComponent{
         }
       }
     },{
-      title: 'Del?',
+      title: 'Deleted',
       dataIndex: 'isDeleted',
       width: 80,
       render: (cell, record, index) => {
@@ -193,9 +192,12 @@ class AccessTokenComponent extends PureComponent{
     super(props);
     // Declare this component's state
     this.state = {
-      selectedRowKeys: [],
-      editorVisible: false,
-      editEntity: {},
+      rowSelection: {},                 // current selected row in the table.
+      selectedRowKeys: [],              // selected row in the table.
+      data: [],                         // table datasource.
+      editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
+      editorVisible: false,             // edit dialog visible switch.
+      pagination: this.CON_TABLE_PAGINATION_OPTION,
     };
   }
 
@@ -208,19 +210,24 @@ class AccessTokenComponent extends PureComponent{
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
-    // refresh state
-    this.setState({
-      editorVisible: false,
-      editEntity: {}
-    });
-
-    // Load data
+    const payload = {
+      current: this.CON_TABLE_PAGINATION_OPTION.current,
+      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+    }
+    // load data
     dispatch({
-      type: this.SERVICE_NAMESPACE + "/getAll",
-      payload: this.CON_TABLE_PAGINATION_OPTION,
+      type: this.SERVICE_NAMESPACE + "/query",
+      payload: payload,
     })
   }
 
+  componentWillUnmount(){
+    const { dispatch } = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/clear",
+      payload: null,
+    });
+  }
 
   /**
    * @description clear the reference model state
@@ -235,12 +242,9 @@ class AccessTokenComponent extends PureComponent{
     });
   }
 
-
-
   handleOnSearch = () =>{
     this.componentDidMount();
   }
-
 
   tableTitleOption = () => {
     const {loading} = this.props;
@@ -249,9 +253,9 @@ class AccessTokenComponent extends PureComponent{
     return (
       <Row gutter={24}>
         <Col>
-          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects['access_token/getAll']}>查询</Button>
-          <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects['access_token/create']} disabled={loading.global}>新建</Button>
-          <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects['access_token/remove']} disabled={!hasSelected || loading.global}>删除</Button>
+          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/query']}>查询</Button>
+          <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
+          <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE +'/remove']} disabled={!hasSelected || loading.global}>删除</Button>
           <Button icon="upload" disabled>导入</Button>
           <Button icon="download" disabled>导出</Button>
           <span style={{ marginLeft: 8 }}>
@@ -262,6 +266,23 @@ class AccessTokenComponent extends PureComponent{
     );
   }
 
+  handleTableOnChange = (pagination, filters, sorter, extra) => {
+    const { dispatch } = this.props;
+    this.setState({
+      pagination: pagination
+    });
+    const params = {
+      current: pagination.current, 
+      pageSize: pagination.pageSize,
+      sorter: sorter,
+      filters: filters,
+    };    
+    dispatch({
+      type: this.SERVICE_NAMESPACE + '/query',
+      payload: params
+    });
+  }
+  
   handleOnCreate = () => {
     console.log(this.props);
     const {
@@ -432,19 +453,20 @@ class AccessTokenComponent extends PureComponent{
 
     // 从 Model 中获取 State 中记录的数据
     const {
-      access_token, 
+      accesstoken, 
       user: {currentUser},
       loading,
     } = this.props;
 
-    const dataSource = access_token.data;
-    const totalCount = access_token.total; // 需要从 api 中拿到数据后，得到数据的数量。
+    const model = accesstoken;
+    const dataSource = model.data;
+    const totalCount = model.total; // 需要从 api 中拿到数据后，得到数据的数量。
 
     const selectedRowKeys = this.state.selectedRowKeys;
 
     // 分页
     const paginationOption = {
-      ...this.CON_TABLE_PAGINATION_OPTION,
+      ...this.state.pagination,
       total: totalCount,
     }
 
@@ -464,9 +486,10 @@ class AccessTokenComponent extends PureComponent{
             {...this.CON_TABLE_OPTION}
             columns={this.CON_COLUMNS_OPTION}
             title={this.tableTitleOption}
+            dataSource={dataSource}
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
-            dataSource={dataSource}
+            onChange={this.handleTableOnChange}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>

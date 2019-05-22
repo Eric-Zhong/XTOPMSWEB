@@ -394,19 +394,13 @@ class CustomerIndexComponent extends PureComponent {
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
-
-    this.setState({
-      pagination: this.CON_TABLE_PAGINATION_OPTION
-    });
-
     const payload = {
       current: this.CON_TABLE_PAGINATION_OPTION.current,
       pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
     }
-
     // load data
     dispatch({
-      type: this.SERVICE_NAMESPACE + "/getAll",
+      type: this.SERVICE_NAMESPACE + "/query",
       payload: payload,
     })
   }
@@ -512,8 +506,9 @@ class CustomerIndexComponent extends PureComponent {
       loading
     } = this.props;
 
-    const dataSource = customer.data;
-    const totalCount = customer.total;
+    const model = customer;
+    const dataSource = model.data;
+    const totalCount = model.total;
 
     // 分页
     const paginationOption = {

@@ -1854,12 +1854,12 @@ export function QueryCustomerStatus(key) {
 
 
 /**
- * @description Business category
+ * @description Business category '{key, parent, name, tip}'
  * @author Eric-Zhong Xu (Tigoole)
  * @date 2019-04-12
  * @export
  * @param {*} key
- * @returns {key, parent, name, tip}
+ * @returns object
  */
 export function QueryBusinessCategory(key) {
   const findIndex = BusinessCategoryLib.findIndex(item => item.key == key);

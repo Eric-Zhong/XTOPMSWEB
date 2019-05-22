@@ -45,9 +45,15 @@ export default {
    * @property state
    */
   state: {
-    data: [],
-    total: 0,
-    quickSearchResult: []
+    data: [],           // storage the list after getall
+    total: 0,           // total count
+    search: [],         // quick search result
+    query: {            // query payload
+      current: 1,
+      pageSize: 10,
+      sorting: '',
+      filters: [],
+    },
   },
 
   /**
@@ -129,7 +135,6 @@ export default {
       }
     },
 
-
     /**
      * @description Delete this entity.
      * @author Eric-Zhong Xu (Tigoole)
@@ -201,14 +206,17 @@ export default {
      */
     clear(){
       return {
-        data: [],
-        total: 0,
-        current: {},
-        quickSearchResult: []
+        data: [],           // storage the list after getall
+        total: 0,           // total count
+        search: [],         // quick search result
+        query: {            // query payload
+          current: 1,
+          pageSize: 10,
+          sorting: '',
+          filters: [],
+        },
       }
     },
-
-
 
     /**
      * @description Reducer for get entity.
@@ -253,7 +261,6 @@ export default {
       return state;
     },
 
-
     /**
      * @description get customers data and refresh table view
      * @author Eric-Zhong Xu (Tigoole)
@@ -278,7 +285,6 @@ export default {
       };
     },
 
-
     /**
      * @description Update state after customer searched.
      * @author Eric-Zhong Xu (Tigoole)
@@ -294,6 +300,5 @@ export default {
         quickSearchResult: data
       };
     },
-
   }
 }

@@ -210,13 +210,15 @@ export default {
           totalCount, 
           items
         }, 
-        success
+        success,
+        query,
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
+        query: query,
       };
     },
 

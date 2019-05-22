@@ -2,6 +2,7 @@
 /* React effects reduces 中的概念 https://blog.csdn.net/zwp438123895/article/details/69374940 */
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
+import { notification } from 'antd';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
@@ -124,6 +125,11 @@ export default {
         // yield put(routerRedux.push(redirect));
       }
       else {
+        console.log(response);
+        notification.error({
+          message: '登录失败',
+          description: (response.status ? response.status : '') + ' ' + response.message,
+        });
       }
     },
 

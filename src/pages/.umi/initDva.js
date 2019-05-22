@@ -33,3 +33,12 @@ app.model({ namespace: 'AccessTokenModel', ...(require('/Work/Dotnet/XTOPMSWEB/s
 app.model({ namespace: 'AlibabaMessageModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AlibabaMessageModel.js').default) });
 app.model({ namespace: 'AlibabaProductCategoryModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/AlibabaProductCategoryModel.js').default) });
 app.model({ namespace: 'DataSyncServiceModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Background/models/DataSyncServiceModel.js').default) });
+app.model({ namespace: 'UserCenterModel', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/System/models/UserCenterModel.js').default) });
+app.model({ namespace: 'activities', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/activities.js').default) });
+app.model({ namespace: 'chart', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/chart.js').default) });
+app.model({ namespace: 'monitor', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Dashboard/models/monitor.js').default) });
+app.model({ namespace: 'form', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Forms/models/form.js').default) });
+app.model({ namespace: 'rule', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/List/models/rule.js').default) });
+app.model({ namespace: 'profile', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Profile/models/profile.js').default) });
+app.model({ namespace: 'geographic', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/Account/Settings/models/geographic.js').default) });
+app.model({ namespace: 'Models_Template', ...(require('/Work/Dotnet/XTOPMSWEB/src/pages/_Template/models/Models_Template.js').default) });

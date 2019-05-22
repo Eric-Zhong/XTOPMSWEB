@@ -172,6 +172,7 @@ class T02_TableComponent extends PureComponent{
       data: [],                         // table datasource.
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
       editorVisible: false,             // edit dialog visible switch.
+      pagination: this.CON_TABLE_PAGINATION_OPTION,
     };
   }
 
@@ -184,11 +185,23 @@ class T02_TableComponent extends PureComponent{
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
+    const payload = {
+      current: this.CON_TABLE_PAGINATION_OPTION.current,
+      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+    }
     // load data
     dispatch({
-      type: this.SERVICE_NAMESPACE + "/getAll",
-      payload: {current: 1, pageSize: 20}
+      type: this.SERVICE_NAMESPACE + "/query",
+      payload: payload,
     })
+  }
+
+  componentWillUnmount(){
+    const { dispatch } = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/clear",
+      payload: null,
+    });
   }
 
   handleOnSearch = () =>{
@@ -334,33 +347,27 @@ class T02_TableComponent extends PureComponent{
 
 
   handleTableOnChange = (pagination, filters, sorter, extra) => {
-
     const { dispatch } = this.props;
-
     /*
     console.log('Table on changed.');
     console.log(pagination);
     console.log(filters);
     console.log(sorter);
     */
-
     // Set new pagination to state.
     this.setState({
       pagination: pagination
     });
-
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
       sorter: sorter,
       filters: filters,
-    };
-    
+    };    
     dispatch({
-      type: this.SERVICE_NAMESPACE + '/getAll',
+      type: this.SERVICE_NAMESPACE + '/query',
       payload: params
-    })
-
+    });
   }
   
   /**
@@ -377,12 +384,11 @@ class T02_TableComponent extends PureComponent{
     // ! 这里要用自己的代码替换
     // const dataSrouce = myModel.data;
     const {
-      userQuickSearch,// Model 0
-      opportunity,    // Model 1
       customer,       // Model 2
       user: {
         currentUser
-      }
+      },
+      loading,
     } = this.props;
 
     const model = opportunity;
@@ -392,7 +398,7 @@ class T02_TableComponent extends PureComponent{
 
     // 分页
     const paginationOption = {
-      ...this.CON_TABLE_PAGINATION_OPTION,
+      ...this.state.pagination,
       total: totalCount,
     }
 

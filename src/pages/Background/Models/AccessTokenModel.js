@@ -1,4 +1,5 @@
-import { 
+import {
+  ServiceName,
   Get,
   GetAll, 
   Create,
@@ -7,6 +8,7 @@ import {
   Update,
   GetMyAll,
   QuickSearch,
+  Query,
   InitializeAccessToken
   } from '@/services/AccessTokenService';
 
@@ -14,7 +16,7 @@ import {message, Modal} from 'antd';
 
 export default {
 
-  namespace: 'access_token',
+  namespace: ServiceName,
 
   /** 
    * @property state
@@ -58,19 +60,24 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *getAll({payload}, {call, put}){
-      const {current, pageSize, sorting, filters} = payload;
+    *getAll({payload}, {call, put, select, take}){
+      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
+      const state = yield select(state=>state.accesstoken);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
-        skipCount: (current -1) * pageSize,
+        skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting ?? '',
-        filters,
+        sorting: sorting,
       };
       const response = yield call(GetAll, params);
       if(response.success){
         yield put({
           type: 'getAllReducer',
-          payload: response,
+          payload: {
+            ...response,
+            query: payload
+          },
         });
       } else {
         message.error(response.message);
@@ -148,7 +155,6 @@ export default {
       });
     },
 
-
     /**
      * @description Update token data.
      * @author Eric-Zhong Xu (Tigoole)
@@ -177,6 +183,29 @@ export default {
       }
     },
 
+    *query({payload}, {call, put, select, take}){
+      const state = yield select(state=>state.accesstoken);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+      var params = {
+        skipCount: (current - 1) * pageSize,
+        maxResultCount: pageSize,
+        sorting: sorting,
+        filters,
+      };
+      const response = yield call(Query, params);
+      if(response.success){
+        yield put({
+          type: 'getAllReducer',
+          payload: {
+            ...response,
+            query: payload
+          },
+        });
+      } else {
+        message.error(response.message);
+      }
+    },
 
     /**
      * @description Init access token
@@ -219,13 +248,17 @@ export default {
      */
     clear(){
       return {
-        data: [],
-        total: 0,
-        current: {},
-        quickSearchResult: []
+        data: [],           // storage the list after getall
+        total: 0,           // total count
+        search: [],         // quick search result
+        query: {            // query payload
+          current: 1,
+          pageSize: 10,
+          sorting: '',
+          filters: [],
+        },
       }
     },
-
 
     /**
      * @description Reducer for get entity.
@@ -272,16 +305,17 @@ export default {
           totalCount, 
           items
         }, 
-        success
+        success,
+        query,
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
+        query: query,
       };
     },
-
 
     updateReducer(state, action){
       return {

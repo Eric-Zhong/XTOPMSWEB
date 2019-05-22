@@ -52,8 +52,8 @@ class AlibabaProductCategoryHome extends PureComponent{
     showHeader: true,
     hasData: false,
     scroll: {
-      x: 2500,
-      y: 450,
+      x: 1200,
+      // y: 450,
     },
   };
 
@@ -76,6 +76,7 @@ class AlibabaProductCategoryHome extends PureComponent{
       dataIndex: 'code',
       width: 150,
       fixed: 'left',
+      sorter: true,
     },{
       title: '状态',
       dataIndex: 'isActive',
@@ -115,7 +116,7 @@ class AlibabaProductCategoryHome extends PureComponent{
     },{
       title: '系统编号',
       dataIndex: 'key',
-      width: 280,
+      width: 100,
     }    
   ]
 
@@ -144,6 +145,7 @@ class AlibabaProductCategoryHome extends PureComponent{
       data: [],                         // table datasource.
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
       editorVisible: false,             // edit dialog visible switch.
+      pagination: this.CON_TABLE_PAGINATION_OPTION,
     };
   }
 
@@ -313,31 +315,21 @@ class AlibabaProductCategoryHome extends PureComponent{
 
 
   handleTableOnChange = (pagination, filters, sorter, extra) => {
-
     const { dispatch } = this.props;
-
-    /*
-    console.log('Table on changed.');
-    console.log(pagination);
-    console.log(filters);
-    console.log(sorter);
-    */
-
     // Set new pagination to state.
     this.setState({
       pagination: pagination
     });
-
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
-    };
-    
+      sorter: sorter,
+      filters: filters
+    };    
     dispatch({
-      type: this.SERVICE_NAMESPACE + '/getAll',
+      type: this.SERVICE_NAMESPACE + '/query',
       payload: params
-    })
-
+    });
   }
   
   /**
@@ -367,7 +359,7 @@ class AlibabaProductCategoryHome extends PureComponent{
 
     // 分页
     const paginationOption = {
-      ...this.CON_TABLE_PAGINATION_OPTION,
+      ...this.state.pagination,
       total: totalCount,
     }
 

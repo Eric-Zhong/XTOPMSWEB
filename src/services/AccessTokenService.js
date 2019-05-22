@@ -26,8 +26,10 @@
 
 import request from '@/utils/request';
 
-const CON_API_NAMED = 'accesstoken';
-const CON_API_URI = '/api/services/app/' + CON_API_NAMED + '/';
+const CON_API_NAME = 'accesstoken';
+const CON_API_URI = '/api/services/app/' + CON_API_NAME + '/';
+
+export const ServiceName = CON_API_NAME;
 
 export async function GetAll(params) {
     const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
@@ -75,6 +77,12 @@ export async function QuickSearch(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "POST", body: restParams, }
   return request(CON_API_URI + 'QuickSearch', option);
+}
+
+export async function Query(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'Query', option);
 }
 
 /**

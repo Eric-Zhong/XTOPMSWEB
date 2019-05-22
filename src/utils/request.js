@@ -190,6 +190,16 @@ export default function request(url, option) {
     .then(response => {
       // DELETE and 204 do not return data by default
       // using .json will report an error.
+      // TODO 这里需要增加对 http status 的判断
+      if(!response.ok){
+        return {
+          success: false,
+          status: response.status,
+          statusText: response.statusText,
+          error: response.statusText,
+          message: response.statusText,
+        };
+      }
       if (newOptions.method === 'DELETE' || response.status === 204) {
         return response.text();
       }
@@ -201,14 +211,11 @@ export default function request(url, option) {
       return response;
     })
     .catch(e => {
-
       console.log(e);
-
       notification.error({
-        message: `接口调用异常`,
-        description: e.message,
+        message: '系统接口调用返回异常',
+        description: e.message ? e.message : e,
       });
-    
       // ! 中途想使用 response， 必须先 clone。
       if(e.response){
         e.response
@@ -239,8 +246,8 @@ export default function request(url, option) {
       } else {
         return {
           success: false,
-          message: e.message,
-          error: e.message
+          message: e.message ? e.message : e,
+          error: e.message ? e.message : e,
         };
       }
 
