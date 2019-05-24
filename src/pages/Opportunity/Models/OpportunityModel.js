@@ -23,23 +23,24 @@
  */
 
 
-import { 
+import {
+  ServiceName,
   Get,
   GetAll, 
   Create,
   Delete,
   Update,
   GetMyAll,
-  QuickSearch
+  QuickSearch,
+  Query,
   } from '@/services/OpportunityService';
 
-import {message} from 'antd';
+import { message } from 'antd';
 import { stat } from 'fs';
-
 
 export default {
 
-  namespace: 'opportunity',
+  namespace: ServiceName,
 
   /** 
    * @property state
@@ -52,7 +53,7 @@ export default {
       current: 1,
       pageSize: 10,
       sorting: '',
-      filters: [],
+      filters: null,
     },
   },
 
@@ -94,7 +95,7 @@ export default {
         }
       }
       else {
-        console.log(response);
+        message.error('更新失败了！');
       }
     },
 
@@ -103,7 +104,7 @@ export default {
       var params = {
         skipCount: (current -1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting ?? '',
+        sorting: sorting ? sorting : '',
         filters,
       };
       const response = yield call(GetAll, params);
@@ -188,10 +189,34 @@ export default {
         type: 'quickSearchReducer',
         payload: response,
       });
-    }
+    },
 
-
+    *query({payload}, {call, put, select, take}){
+      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
+      const state = yield select(state=>state.opportunity);
+      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+      var params = {
+        skipCount: (current - 1) * pageSize,
+        maxResultCount: pageSize,
+        sorting: sorting,
+        filters,
+      };
+      const response = yield call(Query, params);
+      if(response.success){
+        yield put({
+          type: 'getAllReducer',
+          payload: {
+            ...response,
+            query: payload
+          },
+        });
+      } else {
+        message.error(response.message);
+      }
+    },
   },
+
 
   /**
    * @method reducers
@@ -213,7 +238,7 @@ export default {
           current: 1,
           pageSize: 10,
           sorting: '',
-          filters: [],
+          filters: null,
         },
       }
     },

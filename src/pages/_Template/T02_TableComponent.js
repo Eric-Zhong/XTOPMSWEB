@@ -185,9 +185,12 @@ class T02_TableComponent extends PureComponent{
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
+    const { pagination, filters, sorter } = this.state;
     const payload = {
-      current: this.CON_TABLE_PAGINATION_OPTION.current,
-      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
     }
     // load data
     dispatch({
@@ -308,20 +311,30 @@ class T02_TableComponent extends PureComponent{
 
   handleDeleteConfirmOk = () =>{
     const { dispatch } = this.props;
-    const customerIds = this.state.selectedRowKeys;
-    customerIds.map((element, index)=>{
+    const selectedIds = this.state.selectedRowKeys;
+    selectedIds.map((element, index)=>{
       const customerId = element;
       console.log(customerId);
       dispatch({
-        type: this.SERVICE_NAMESPACE + '/delete',
-        payload: customerId,
+        type: this.SERVICE_NAMESPACE + '/remove',
+        payload: {id: id},
       });          
     });
     this.setState({
       selectedRowKeys: []
     });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-    setTimeout(() => this.componentDidMount(), 500);
+    const { pagination, filters, sorter } = this.state;
+    const payload = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+    }
+    // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => dispatch({
+      type: this.SERVICE_NAMESPACE + '/query',
+      payload: payload,
+    }), 500);
   }
 
 

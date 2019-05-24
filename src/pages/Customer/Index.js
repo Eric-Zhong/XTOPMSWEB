@@ -205,6 +205,8 @@ class CustomerIndexComponent extends PureComponent {
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
       editorVisible: false,             // edit dialog visible switch.
       pagination: this.CON_TABLE_PAGINATION_OPTION,
+      filters: {},
+      sorter: '',
     };
   }
 
@@ -262,8 +264,8 @@ class CustomerIndexComponent extends PureComponent {
 
   handleDeleteConfirmOk = () =>{
     const { dispatch } = this.props;
-    const customerIds = this.state.selectedRowKeys;
-    customerIds.map((element, index)=>{
+    const selectedIds = this.state.selectedRowKeys;
+    selectedIds.map((element, index)=>{
       const id = element;
       dispatch({
         type: this.SERVICE_NAMESPACE + '/remove',
@@ -273,9 +275,17 @@ class CustomerIndexComponent extends PureComponent {
     this.setState({
       selectedRowKeys: []
     });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    const { pagination, filters, sorter } = this.state;
+    const payload = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+    }
+    // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
     setTimeout(() => dispatch({
-      type: this.SERVICE_NAMESPACE + '/getall'
+      type: this.SERVICE_NAMESPACE + '/query',
+      payload: payload,
     }), 500);
   }
   
@@ -356,6 +366,8 @@ class CustomerIndexComponent extends PureComponent {
       // setTimeout(() => this.componentDidMount(), 1000);
     });
   }
+
+
   /**
    * @description Handle table on change.
    * @author Eric-Zhong Xu
@@ -364,25 +376,22 @@ class CustomerIndexComponent extends PureComponent {
    * @memberof CustomerIndexComponent
    */
   handleTableOnChange = (pagination, filters, sorter, extra) => {
-
     const { dispatch } = this.props;
-
     this.setState({
-      pagination: pagination
+      pagination: pagination,
+      filters: filters,
+      sorter: sorter,
     });
-
     const params = {
       current: pagination.current, 
       pageSize: pagination.pageSize,
       sorter: sorter,
       filters: filters,
-    };
-    
+    };    
     dispatch({
       type: this.SERVICE_NAMESPACE + '/query',
       payload: params
     })
-
   }
 
 
@@ -394,15 +403,18 @@ class CustomerIndexComponent extends PureComponent {
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
+    const { pagination, filters, sorter } = this.state;
     const payload = {
-      current: this.CON_TABLE_PAGINATION_OPTION.current,
-      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
     }
     // load data
     dispatch({
       type: this.SERVICE_NAMESPACE + "/query",
       payload: payload,
-    })
+    });
   }
 
 

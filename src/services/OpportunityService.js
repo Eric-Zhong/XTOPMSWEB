@@ -29,6 +29,8 @@ import request from '@/utils/request';
 const CON_API_NAMED = 'opportunity';
 const CON_API_URI = '/api/services/app/' + CON_API_NAMED + '/';
 
+export const ServiceName = CON_API_NAMED;
+
 export async function GetAll(params) {
     const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
     const option = {method: "GET", body: restParams, }
@@ -70,4 +72,10 @@ export async function QuickSearch(params) {
   const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
   const option = {method: "POST", body: restParams, }
   return request(CON_API_URI + 'quicksearch', option);
+}
+
+export async function Query(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'query', option);
 }

@@ -55,7 +55,7 @@ export default {
       current: 1,
       pageSize: 10,
       sorting: '',
-      filters: [],
+      filters: null,
     },
   },
 
@@ -201,7 +201,7 @@ export default {
           current: 1,
           pageSize: 10,
           sorting: '',
-          filters: [],
+          filters: null,
         },
       }
     },

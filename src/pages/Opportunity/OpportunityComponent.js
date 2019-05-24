@@ -30,7 +30,7 @@ import { connect } from "dva";
 import moment from 'moment';
 import OpportunityEditorDialog from './Components/OpportunityEditorDialog';
 import { snowflakeId } from '@/utils/snowflake';
-
+import Ellipsis from "@/components/Ellipsis";
 
 
 /**
@@ -51,7 +51,7 @@ import { snowflakeId } from '@/utils/snowflake';
   opportunity,
   customer,
   userQuickSearch,
-  loading,
+  loading: loading
 }))
 class OpportunityComponent extends PureComponent{
 
@@ -63,14 +63,11 @@ class OpportunityComponent extends PureComponent{
     rowKey: 'key',
     bordered: true,
     size: 'small',
-    // expandedRowRender,
     showHeader: true,
-    // footer,
-    // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 2440,
-      y: 450,
+      x: 2700,
+      // y: 450,
     },
   }
 
@@ -93,30 +90,75 @@ class OpportunityComponent extends PureComponent{
       dataIndex: 'name',
       width: 300,
       fixed: 'left',
+      sorter: true,
+      render: (cell, record, index) => {
+        return (
+          <Ellipsis lines={1} tooltip>{cell}</Ellipsis>
+        );
+      }
     },{
       title: '预计金额',
       dataIndex: 'amount',
       width: 100,
+      sorter: true,
     },{
       title: '销售代表',
       dataIndex: 'sales',
       width: 100,
       render: (cell, record, index) => {
-        return cell.name;
+        return (
+          <Tooltip title={
+            cell ? 
+            // 'Title:' + (cell.title ?? '无') + '; Email: ' + (cell.emailAddress ?? '无') + '; Phone: ' + (cell.phone ?? '无')
+            (cell.emailAddress ?? '') + ' ' + (cell.phone ?? '') + ' ' + (cell.title ?? '')
+            :''}
+          >{cell?cell.name:''}</Tooltip>
+        );
       }
     },{
-      title: '激活',
+      title: '状态',
+      dataIndex: 'status',
+      width: 100,
+      render: (cell, record, index) => {
+        return (
+          <Tag>{cell}</Tag>
+        );
+      }
+    },{
+      title: '是否公开',
       dataIndex: 'isActive',
       width: 80,
       render: (cell, record, index) => {
         if(cell){
           return (
-            <Tag color="green">已激活</Tag>
+            <Tag color="green">公开</Tag>
           );
         } else {
           return (
-            <Tag color="red">未激活</Tag>
+            <Tag color="red">隐藏</Tag>
           );
+        }
+      }
+    },{
+      title: '交货日期',
+      dataIndex: 'deliveryDate',
+      width: 120,
+      sorter: true,
+      render: (cell, raw, index) => {
+        if(cell){
+          const v = moment(cell).fromNow();
+          return v;
+        }
+      }
+    },{
+      title: '投标日期',
+      dataIndex: 'bidDeadline',
+      width: 120,
+      sorter: true,
+      render: (cell, raw, index) => {
+        if(cell){
+          const v = moment(cell).fromNow();
+          return v;
         }
       }
     },{
@@ -125,7 +167,7 @@ class OpportunityComponent extends PureComponent{
       width: 200,
       render: (cell, record, index) => {
         return (
-          <Tag>{cell ? cell.name : '未分类'}</Tag>
+          <Tooltip title={cell?cell.fullPath:''}>{cell?cell.name:''}</Tooltip>
         );
       }
     },{
@@ -134,7 +176,7 @@ class OpportunityComponent extends PureComponent{
       width: 100,
       render: (cell, record, index) => {
         return (
-          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
+          <Ellipsis lines={1} tooltip>{cell ? cell.name: ''}</Ellipsis>
         );
       }
     },{
@@ -143,7 +185,7 @@ class OpportunityComponent extends PureComponent{
       width: 100,
       render: (cell, record, index) => {
         return (
-          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
+          <Ellipsis lines={1} tooltip>{cell ? cell.name: ''}</Ellipsis>
         );
       }
     },{
@@ -152,17 +194,31 @@ class OpportunityComponent extends PureComponent{
       width: 100,
       render: (cell, record, index) => {
         return (
-          <Tooltip title={cell?cell.name:''}>{cell?cell.shortName:''}</Tooltip>
+          <Ellipsis lines={1} tooltip>{cell ? cell.name: ''}</Ellipsis>
         );
       }
+    },{
+      title: '区域',
+      dataIndex: 'region',
+      width: 100,
+    },{
+      title: '省份',
+      dataIndex: 'province',
+      width: 100,
+    },{
+      title: '城市',
+      dataIndex: 'city',
+      width: 100,
     },{
       title: 'ERP#',
       dataIndex: 'erpId',
       width: 200,
+      sorter: true,
     },{
       title: '更新时间',
       dataIndex: 'lastModificationTime',
       width: 120,
+      sorter: true,
       render: (cell, raw, index) => {
         if(cell){
           const v = moment(cell).fromNow();
@@ -180,6 +236,7 @@ class OpportunityComponent extends PureComponent{
       title: '创建时间',
       dataIndex: 'creationTime',
       width: 120,
+      sorter: true,
       render: (cell, raw, index) => {
         if(cell){
           const v = moment(cell).fromNow();
@@ -196,7 +253,8 @@ class OpportunityComponent extends PureComponent{
     },{
       title: '系统编号',
       dataIndex: 'key',
-      width: 280,
+      // width: 280,
+      sorter: true,
     }    
   ]
 
@@ -210,7 +268,10 @@ class OpportunityComponent extends PureComponent{
       data: [],                         // table datasource.
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
       editorVisible: false,             // edit dialog visible switch.
-    }
+      pagination: this.CON_TABLE_PAGINATION_OPTION,
+      filters: null,
+      sorter: '',
+    };
   }
 
 
@@ -269,22 +330,31 @@ class OpportunityComponent extends PureComponent{
 
   handleDeleteConfirmOk = () =>{
     const { dispatch } = this.props;
-    const customerIds = this.state.selectedRowKeys;
-    customerIds.map((element, index)=>{
-      const customerId = element;
-      console.log(customerId);
+    const selectedIds = this.state.selectedRowKeys;
+    selectedIds.map((element, index)=>{
+      const id = element;
       dispatch({
-        type: this.SERVICE_NAMESPACE + '/delete',
-        payload: customerId,
+        type: this.SERVICE_NAMESPACE + '/remove',
+        payload: {id: id},
       });          
     });
     this.setState({
       selectedRowKeys: []
     });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-    setTimeout(() => this.componentDidMount(), 500);
+    const { pagination, filters, sorter } = this.state;
+    const payload = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+    }
+    // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+    setTimeout(() => dispatch({
+      type: this.SERVICE_NAMESPACE + '/query',
+      payload: payload,
+    }), 500);
   }
-
+  
 
   /**
    * @description The event on selected some item in the table.
@@ -305,7 +375,7 @@ class OpportunityComponent extends PureComponent{
     const hasSelected = selectedRowKeys.length > 0;
     return (
       <Row>
-        <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+        <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/query']}>查询</Button>
         <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
         <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
         <Button icon="upload" disabled>导入</Button>
@@ -413,14 +483,45 @@ class OpportunityComponent extends PureComponent{
   }
 
 
+  /**
+   * @description Handle table on change.
+   * @author Eric-Zhong Xu
+   * @copyright Tigoole
+   * @date 2019-04-08
+   * @memberof CustomerIndexComponent
+   */
+  handleTableOnChange = (pagination, filters, sorter, extra) => {
+    const { dispatch } = this.props;
+    this.setState({
+      pagination: pagination
+    });
+    const params = {
+      current: pagination.current, 
+      pageSize: pagination.pageSize,
+      sorter: sorter,
+      filters: filters,
+    };    
+    dispatch({
+      type: this.SERVICE_NAMESPACE + '/query',
+      payload: params
+    })
+  }
 
 
   componentDidMount = () => {
-    const { dispatch } = this.props;
+    const { dispatch } = this.props;  // Get dispatch from parent component.
+    const { pagination, filters, sorter } = this.state;
+    const payload = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+    }
+    // load data
     dispatch({
-      type: this.SERVICE_NAMESPACE + '/getAll',
-      payload: this.CON_TABLE_PAGINATION_OPTION,
-    });
+      type: this.SERVICE_NAMESPACE + "/query",
+      payload: payload,
+    })
   }
 
 
@@ -446,14 +547,15 @@ class OpportunityComponent extends PureComponent{
       customer,
       user: {
         currentUser
-      }
+      },
+      loading,
     } = this.props;
 
     const dataSource = opportunity.data;
     const totalCount = opportunity.total;
 
     const paginationOption = {
-      ...this.CON_TABLE_PAGINATION_OPTION,
+      ...this.state.pagination,
       total: totalCount,
     }
 
@@ -470,6 +572,8 @@ class OpportunityComponent extends PureComponent{
             dataSource={dataSource}
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
+            onChange={this.handleTableOnChange}
+            // loading={loading.models.opportunity}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
           >
           </Table>
