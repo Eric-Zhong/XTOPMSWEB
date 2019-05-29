@@ -1,7 +1,7 @@
 
  /* Demo
 
-<CustomerEditorDialog
+<UserEditorDialog
   onCreated={this.handleCustomerCreationDialogOnCreated}
   {...this.props}
   data={this.state.editEntity}
@@ -10,7 +10,7 @@
   onDoCreate={this.handleDoCreate}
   onDoUpdate={this.handleDoUpdate}
   onCancel={this.handleOnCloseEditorDialog}
-></CustomerEditorDialog>
+></UserEditorDialog>
 
 */
 
@@ -33,7 +33,7 @@ connect(({user, loading})=>({
   loading: loading.opportunity.model
 }));
 @Form.create()
-class T01_DialogComponent extends PureComponent{
+class UserEditorDialog extends PureComponent{
 
   constructor(props){
     super(props);
@@ -47,7 +47,7 @@ class T01_DialogComponent extends PureComponent{
    * @description render html component
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-11
-   * @memberof T01_DialogComponent
+   * @memberof UserEditorDialog
    */
   render(){
 
@@ -166,4 +166,4 @@ class T01_DialogComponent extends PureComponent{
 }
 
 
-export default T01_DialogComponent;
+export default UserEditorDialog;

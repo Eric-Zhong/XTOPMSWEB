@@ -3,34 +3,6 @@ export default [
   // site default path to "/"
   // { path: '/', redirect: '/dashboard/analysis' },
   // XTOPMS User Management
-  {
-    path: '/system',
-    name: 'Organization',
-    icon: 'user',
-    authority: ['admin'], // 在这里控制访问权限
-    routes: [
-      {
-        path: '/system/ou',
-        name: 'OU',
-        component: './System/OrganizationUnit',
-      },
-      {
-        path: '/system/organizations',
-        name: 'Organization',
-        component: './System/OrganizationCenter',
-      },
-      // {
-      //   path: '/system/users/',
-      //   name: 'User1',
-      //   component: './System/UserList',
-      // },
-      {
-        path: '/system/usercenter/',
-        name: 'User',
-        component: './System/UserCenter',
-      },
-    ]
-  },
   // dashboard
   {
     path: '/dashboard',

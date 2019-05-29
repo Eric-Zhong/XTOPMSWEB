@@ -129,8 +129,8 @@ class OpportunityEditorDialog extends PureComponent{
 
     const okText = (data._model === 'create'? '创建': '修改');
     const doOk = (data._model === 'create'? onDoCreate: onDoUpdate);
-
-    const onOk = () => {
+    const title = data._model === 'create'? '新建': '编辑 - ' + data.name;
+    const handleOnOk = () => {
       const {form} = this.props;
       if(doOk) doOk(form);
     };
@@ -162,12 +162,12 @@ class OpportunityEditorDialog extends PureComponent{
 
     return (
       <Modal
-      title="新建机会"
+      title={title}
       destroyOnClose
       visible={visible}
       okText={okText}
       onCancel={onCancel}
-      onOk={onOk}
+      onOk={handleOnOk}
       width={800}
       >
         <DescriptionList col="2" size="small" title="" style={{ marginBottom: 32 }}>
@@ -460,10 +460,10 @@ class OpportunityEditorDialog extends PureComponent{
                     onSelectChange={this._handleSelectChange}
                     // onScroll={this.handleScroll}
                     render={item => item.title}
-                    ></Transfer>
-                    <p>启动后，流程配置将不可再进行修改，请慎重处理。如因特殊原因必须回滚业务流程时，只能通过重置进行处理，重置后，已处理的业务及流程将全部丢失。</p>
-                    <Button type="danger">重置</Button>
-                    <Button type="primary">启动</Button>
+                  ></Transfer>
+                  <p>启动后，流程配置将不可再进行修改，请慎重处理。如因特殊原因必须回滚业务流程时，只能通过重置进行处理，重置后，已处理的业务及流程将全部丢失。</p>
+                  <Button type="danger">重置</Button>
+                  <Button type="primary">启动</Button>
                 </Col>
               </Row>
             </TabPanel>

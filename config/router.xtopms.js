@@ -51,7 +51,7 @@ export default [
     authority: ['admin', 'user'], // 在这里控制访问权限
     routes: [
       // site default path to "/"
-      { path: '/', redirect: '/dashboard/analysis' },
+      { path: '/', redirect: '/eai/alibabacallbackhome' },
       {
         path: '/my',
         name: '个人中心',
@@ -498,7 +498,40 @@ export default [
           },
         ]
       },
-      ...ant_router,
+      {
+        path: '/system',
+        name: 'Organization',
+        icon: 'user',
+        authority: ['admin'], // 在这里控制访问权限
+        routes: [
+          // {
+          //   path: '/system/ou',
+          //   name: 'OU',
+          //   component: './System/OrganizationUnit',
+          // },
+          {
+            path: '/system/organizations',
+            name: 'Organization',
+            component: './System/OrganizationCenter',
+          },
+          // {
+          //   path: '/system/users/',
+          //   name: 'User1',
+          //   component: './System/UserList',
+          // },
+          // {
+          //   path: '/system/usercenter/',
+          //   name: 'User',
+          //   component: './System/UserCenter',
+          // },
+          {
+            path: '/system/center',
+            name: 'User',
+            component: './System/UserManagement',
+          },
+        ]
+      },
+      // ...ant_router,
       // component (XZ: 因为没有指定 path，所以，所有path没找到的，都会跳到 404 中)
       {
         component: '404',

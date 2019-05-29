@@ -91,7 +91,7 @@ const parseQuery = (obj) => {
  */
 export default function request(url, option) {
 
-  // url = 'http://xtoapi.biztalkgroup.com' + url;
+  url = 'http://xtoapi.biztalkgroup.com' + url;
   // debugger;
 
   /* 执行 ajax 调用 */
