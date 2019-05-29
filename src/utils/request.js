@@ -91,7 +91,7 @@ const parseQuery = (obj) => {
  */
 export default function request(url, option) {
 
-  url = 'http://xtoapi.biztalkgroup.com' + url;
+  // url = 'http://xtoapi.biztalkgroup.com' + url;
   // debugger;
 
   /* 执行 ajax 调用 */
@@ -143,6 +143,12 @@ export default function request(url, option) {
     // 因为是GET请求，将Body中的Key-Value对象，映射到URL上。
     const queryString = parseQuery(newOptions.body);
     url = url + '?' + queryString;
+
+    // 2019-05-29 Eric
+    // 经过客户测试发现有时Ajax时会报下面这个错误：
+    // Failed to execute 'fetch' on 'Window': Request with GET/HEAD method cannot have body.
+    // 经分析和验证，Get/Head时需要将Ajax中的Body内容清空才行。
+    newOptions.body = null;
   }
 
   // 在 XTOPMS 中，需要用到 Token
