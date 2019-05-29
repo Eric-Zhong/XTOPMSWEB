@@ -61,9 +61,7 @@ export default {
     },
 
     *getAll({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      // TODO: 这里的 state.xxxxxxxxxx 需要修改
-      const state = yield select(state=>state.customer);
+      const state = yield select(state=>state[ServiceName]);
       const {current, pageSize, sorter, filters} = payload ? payload : state.query;
       const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
@@ -100,7 +98,7 @@ export default {
       }
     },
 
-    *update({payload}, {call, put}){
+    *update({payload}, {select, call, put, take}){
       const response = yield call(Update, payload);
       if(response && response.success){
         const payload = response.result;
@@ -149,10 +147,7 @@ export default {
     },
 
     *query({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      debugger; 
-      // TODO: 这里的 state.xxxxxxxxxx 需要修改
-      const state = yield select(state=>state.customer);
+      const state = yield select(state=>state[ServiceName]);
       const {current, pageSize, sorter, filters} = payload ? payload : state.query;
       const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {

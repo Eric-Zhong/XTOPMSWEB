@@ -24,7 +24,6 @@
 
 import request from '@/utils/request';
 
-// TODO: modify the api name.
 const CON_API_NAME = 'user';
 const CON_API_URI = '/api/services/app/' + CON_API_NAME + '/';
 

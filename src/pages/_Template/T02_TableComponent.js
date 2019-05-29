@@ -436,6 +436,7 @@ class T02_TableComponent extends PureComponent{
             rowSelection={rowSelectionOption}
             onChange={this.handleTableOnChange}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
+            loading={loading.models[ServiceName]}
           >
           </Table>
           <EditorDialog

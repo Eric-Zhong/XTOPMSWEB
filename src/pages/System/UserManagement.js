@@ -59,7 +59,7 @@ class UserManagement extends PureComponent{
     showHeader: true,
     hasData: false,
     scroll: {
-      x: 2500,
+      x: 2600,
       y: 450,
     },
   };
@@ -99,21 +99,17 @@ class UserManagement extends PureComponent{
         }
       }
     },{
-      title: 'Email',
-      dataIndex: 'emailAddress',
-      width: 200,
-    },{
       title: 'Name',
       dataIndex: 'name',
-      width: 200,
+      width: 100,
     },{
       title: 'Surname',
       dataIndex: 'surname',
-      width: 200,
+      width: 100,
     },{
       title: 'Title',
       dataIndex: 'title',
-      width: 200,
+      width: 100,
     },{
       title: 'User Name',
       dataIndex: 'userName',
@@ -122,6 +118,10 @@ class UserManagement extends PureComponent{
       title: 'Employee Number',
       dataIndex: 'employeeNumber',
       width: 200,
+    },{
+      title: 'Email',
+      dataIndex: 'emailAddress',
+      width: 300,
     },{
       title: 'Phone',
       dataIndex: 'phone',
@@ -188,7 +188,7 @@ class UserManagement extends PureComponent{
       selectedRowKeys: [],              // selected row in the table.
       data: [],                         // table datasource.
       editEntity: {},                   // generate this entity when select a row. It's well send to edit dialog.
-      editorVisible: false,             // edit dialog visible switch.
+      // editorVisible: false,             // edit dialog visible switch.
       pagination: this.CON_TABLE_PAGINATION_OPTION,
     };
   }
@@ -224,6 +224,14 @@ class UserManagement extends PureComponent{
     });
   }
 
+  changeEditorVisible(isShow){
+    const { dispatch } = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/editorVisible",
+      payload: isShow,
+    });
+  }
+
   handleOnSearch = () =>{
     this.componentDidMount();
   }
@@ -244,10 +252,12 @@ class UserManagement extends PureComponent{
       name: moment().format('YYYYMMDDHHMMSS.') + currentUser.name + ".创建的",
     };
     
-    this.setState({
-      editEntity: entity,
-      editorVisible: true,
-    });
+    // this.setState({
+    //   editEntity: entity,
+    //   editorVisible: true,
+    // });
+
+    this.changeEditorVisible(true);
   }
 
   handleOnEdit = (record) => {
@@ -256,18 +266,34 @@ class UserManagement extends PureComponent{
         _model: 'edit', 
         ...record
       },
-      editorVisible: true,
+      // editorVisible: true,
     });
+
+    this.changeEditorVisible(true);
   }
 
   handleEditorCancel = () =>{
-    this.setState({
-      editorVisible: false,
-    });
+    // this.setState({
+    //   editorVisible: false,
+    // });
+
+    this.changeEditorVisible(false);
   }
 
   handleDoUpdate = (form) => {
-    const {dispatch} = this.props;
+    const { dispatch } = this.props;  // Get dispatch from parent component.
+
+    // 为更新后刷新界面做准备
+    const { pagination, filters, sorter } = this.state;
+    const queryOption = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+      _next: 'editorVisible',
+      _next_param: false,
+    }
+
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       var formData = {
@@ -277,14 +303,18 @@ class UserManagement extends PureComponent{
       console.log(formData);
       dispatch({
         type: this.SERVICE_NAMESPACE + "/update",
-        payload: formData,
+        payload: {
+          ...formData,
+          _next: 'query',        // 调用自身Model的Query方法更新数据
+          _next_param: queryOption,
+        }
       });
 
-      this.setState({
-        editorVisible: false,
-      });
+      // this.setState({
+      //   editorVisible: false,
+      // });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      setTimeout(() => this.componentDidMount(), 1000);
+      // setTimeout(() => this.componentDidMount(), 1000);
     });
   }
 
@@ -304,11 +334,11 @@ class UserManagement extends PureComponent{
         payload: entityData,
       });
 
-      this.setState({
-        editorVisible: false,
-      });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      setTimeout(() => this.componentDidMount(), 1000);
+      // this.setState({
+      //   editorVisible: false,
+      // });
+      // // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      // setTimeout(() => this.componentDidMount(), 1000);
     });
   }
 
@@ -362,7 +392,7 @@ class UserManagement extends PureComponent{
     return (
       <Row gutter={24}>
         <Col>
-          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/query']}>查询</Button>
           <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
           <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
           <Button icon="upload" disabled>导入</Button>
@@ -408,19 +438,18 @@ class UserManagement extends PureComponent{
    */
   render(){
 
-    const selectedRowKeys = this.state.selectedRowKeys;
-    const editorVisible = this.state.editorVisible;
-
-    // ! 这里要用自己的代码替换
-    // const dataSrouce = myModel.data;
     const {
       customer,       // Model 2
       user,
       loading,
     } = this.props;
-    const {currentUser} = user;
 
+    const {currentUser} = user;
     const model = user;
+
+    const selectedRowKeys = this.state.selectedRowKeys;
+    // const editorVisible = this.state.editorVisible;
+    const editorVisible = model.editorVisible;
 
     const dataSource = model.data;
     const totalCount = model.total;
@@ -452,6 +481,7 @@ class UserManagement extends PureComponent{
             rowSelection={rowSelectionOption}
             onChange={this.handleTableOnChange}
             onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
+            loading={loading.models[ServiceName]}
           >
           </Table>
           <UserEditorDialog

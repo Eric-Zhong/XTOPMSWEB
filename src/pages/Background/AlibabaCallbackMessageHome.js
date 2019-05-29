@@ -47,8 +47,8 @@ import moment from 'moment';
 }))
 class AlibabaCallbackMessageHome extends PureComponent{
   SERVICE_NAMESPACE = ServiceName;   // Service 中定义的 reducer & effector
-  CON_PAGE_TITLE = "数据回传";
-  CON_PAGE_CONTENT = "系统接收到外系统所使入的业务数据管理中心，监控数据处理状态，异常处理管理中心。";
+  CON_PAGE_TITLE = "订单回传";
+  CON_PAGE_CONTENT = "从阿里巴巴接收到订单数据发生变化的通知后，我方对通知信息进行处理，获取订单详细信息后，按定义的规则将订单数据推送到Salesforce系统。";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,
@@ -59,7 +59,7 @@ class AlibabaCallbackMessageHome extends PureComponent{
     // scroll: undefined,
     hasData: false,
     scroll: {
-      x: 2300,
+      x: 2950,
       // y: 550,
     },
   };
@@ -82,14 +82,23 @@ class AlibabaCallbackMessageHome extends PureComponent{
       title: '数据类型',
       dataIndex: 'type',
       width: 200,
-      filters: [{value: 'ORDER_PAY', text: 'ORDER_PAY'}],
+      filters: [
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+      ],
       filterMultiple: false,
       sorter: true,
       fixed: 'left',
     },{
       title: '创建时间',
       dataIndex: 'creationTime',
-      width: 240,
+      width: 260,
       sorter: true,
       render: (cell, raw, index) => {
         const data = moment(cell);
@@ -99,7 +108,7 @@ class AlibabaCallbackMessageHome extends PureComponent{
     },{
       title: '更新时间',
       dataIndex: 'lastModificationTime',
-      width: 240,
+      width: 260,
       sorter: true,
       render: (cell, raw, index) => {
         if(cell){
@@ -181,51 +190,10 @@ class AlibabaCallbackMessageHome extends PureComponent{
         }
       }
     },{
-    //   title: '处理结果',
-    //   dataIndex: 'comment',
-    //   width: 300,
-    //   render: (cell, record, index) => {
-    //     if(cell && cell != "" && cell.substring(0,1)==='{'){
-    //       const data = JSON.parse(cell);
-    //       // TODO: 这里应该用更好的自动匹配方式来显示数据，目前暂时写死。
-    //       switch(record.type){
-    //         case 'ORDER_PAY':
-    //           const orderNumber = data.OrderNumber;
-    //           const source = data.Source;
-    //           const name = data.Name;
-    //           const address = data.Address;
-    //           const productDetails = data.ProductDetails.map((item, index)=>{
-    //             return item.IDH + ', ' + item.ProductName + ', ' + item.Quantity + ', ' + item.OrderValue;
-    //           });
-
-    //           return (
-    //             <span>
-    //             {
-    //             ''
-    //             + orderNumber + ', '
-    //             + source + ', '
-    //             + name + ', '
-    //             + address + ', '
-    //             + productDetails.toString()}
-    //             </span>
-    //             );
-    //           break;
-    //         default:
-    //           return '';
-    //           break;
-    //       }
-    //     } else {
-    //       return cell;
-    //     }
-    // }
-    // },{
-    //   title: '中间数据',
-    //   dataIndex: 'extensionData',
-    //   width: 300,
-    //   render: (cell, record, index) => {
-    //     return cell;
-    //   }
-    // },{
+      title: '订单编号',
+      dataIndex: 'erpId',
+      width: 250,
+    },{
       title: '系统编号',
       dataIndex: 'key',
       width: 100,

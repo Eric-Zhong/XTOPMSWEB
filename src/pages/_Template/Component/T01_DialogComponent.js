@@ -117,12 +117,13 @@ class T01_DialogComponent extends PureComponent{
             <TabPanel tab="基本信息" key="tabBasic">
               <Row>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="创建人" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="名称" help="">
                     { 
                       getFieldDecorator(
-                        'createUserName',
+                        'name',
                         {
-                          initialValue: user.name
+                          initialValue: user.name,
+                          rules: [{required: true, max: 10, min: 2, type: 'string',}],
                         }
                       )(<Input readOnly></Input>) 
                     }

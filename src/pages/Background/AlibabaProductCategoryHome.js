@@ -44,7 +44,7 @@ import AlibabaProductCategoryEditorDialog from './Components/AlibabaProductCateg
 class AlibabaProductCategoryHome extends PureComponent{
   SERVICE_NAMESPACE = ServiceName;   // Service 中定义的 reducer & effector
   CON_PAGE_TITLE = "商品货号";
-  CON_PAGE_CONTENT = "配置商品货号，如果该商品货号设置成激活状态，那么收到含此商品的订单将推送给Salesforce。";
+  CON_PAGE_CONTENT = "配置商品货号，如果该商品货号设置成激活状态，那么收到含此商品的订单将推送给Salesforce。如果所有商品货号都没有激活，那么接收到的订单数据将全部推送给Salesforce。";
   CON_TABLE_OPTION = {
     rowKey: 'key',
     bordered: true,

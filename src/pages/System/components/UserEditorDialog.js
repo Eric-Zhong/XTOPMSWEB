@@ -1,21 +1,30 @@
+/*
+* Apache License, Version 2.0
+*
+* Copyright (c) 2019 Tigoole
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at:
+*     http://www.apache.org/licenses/LICENSE-2.0
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+ */
+/*
+*
+* Copyright (c) 2019 Tigoole
+*
+* Author: Eric-Zhong Xu
+*
+* Creation: 2019-05-29 13:01:14
+ */
 
- /* Demo
-
-<UserEditorDialog
-  onCreated={this.handleCustomerCreationDialogOnCreated}
-  {...this.props}
-  data={this.state.editEntity}
-  user={currentUser}
-  visible={editorVisible}
-  onDoCreate={this.handleDoCreate}
-  onDoUpdate={this.handleDoUpdate}
-  onCancel={this.handleOnCloseEditorDialog}
-></UserEditorDialog>
-
-*/
 
 import { PureComponent } from "react";
-import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete} from "antd";
+import { Form, Modal, Tabs, Input, Row, Col, Cascader, Select, AutoComplete, Button, Switch, Icon} from "antd";
 import { connect } from "dva";
 import moment from "moment";
 
@@ -42,7 +51,6 @@ class UserEditorDialog extends PureComponent{
     };
   }
 
-  
   /**
    * @description render html component
    * @author Eric-Zhong Xu (Tigoole)
@@ -62,10 +70,9 @@ class UserEditorDialog extends PureComponent{
       onDoCreate,
       onDoUpdate,
       onCancel,
+      loading,
     } = this.props;
-
-    // 从 state 中获取数据
-
+  
     // 定义Form样式
     const formItemLayout = {
       labelCol: {
@@ -93,6 +100,12 @@ class UserEditorDialog extends PureComponent{
       if(doOk) doOk(form);
     };
 
+    // Modal's footer option
+    const footer = [
+      <Button key="back" onClick={onCancel}>取消</Button>,
+      <Button key="submit" type="primary" onClick={handleOnOk} loading={loading.models.user}>{okText}</Button>
+    ]
+    
     const salesData = [];
     const customerData = [];
 
@@ -105,6 +118,7 @@ class UserEditorDialog extends PureComponent{
       onCancel={onCancel}
       onOk={handleOnOk}
       width={800}
+      footer={footer}
       >
         <DescriptionList col="2" size="small" title="" style={{ marginBottom: 32 }}>
           <Description term="创建人">{data.creatorUser ? data.creatorUser.name: ''}</Description>
@@ -117,23 +131,23 @@ class UserEditorDialog extends PureComponent{
             <TabPanel tab="基本信息" key="tabBasic">
               <Row>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="创建人" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="登记帐号" help="">
                     { 
                       getFieldDecorator(
-                        'createUserName',
+                        'userName',
                         {
-                          initialValue: user.name
+                          initialValue: data.userName
                         }
                       )(<Input readOnly></Input>) 
                     }
                   </FormItem>
                 </Col>
                 <Col span={8}>
-                  <FormItem {...formItemLayoutHorizontal} label="创建时间" help="">
+                  <FormItem {...formItemLayoutHorizontal} label="全称" help="内容：名称 别名">
                     { 
                       getFieldDecorator(
-                        'creationTime', {
-                          initialValue: moment().format('YYYY-MM-DD hh:mm')
+                        'fullName', {
+                          initialValue: data.fullName
                         }
                       )(<Input readOnly></Input>) 
                     }
@@ -151,9 +165,116 @@ class UserEditorDialog extends PureComponent{
                   </FormItem>
                 </Col>
               </Row>
+              <Row>
+                <Col span={8}>
+                  <FormItem {...formItemLayoutHorizontal} label="名称" help="">
+                    { 
+                      getFieldDecorator(
+                        'name',
+                        {
+                          initialValue: data.name,
+                          rules: [{required: true, max: 20, min: 1, type: 'string',}],
+                        }
+                      )(<Input></Input>) 
+                    }
+                  </FormItem>
+                </Col>
+                <Col span={8}>
+                  <FormItem {...formItemLayoutHorizontal} label="别名" help="">
+                    { 
+                      getFieldDecorator(
+                        'surname',
+                        {
+                          initialValue: data.surname,
+                          rules: [{required: true, max: 20, min: 1, type: 'string',}],
+                        }
+                      )(<Input></Input>) 
+                    }
+                  </FormItem>
+                </Col>
+                <Col span={8}>
+                  <FormItem {...formItemLayoutHorizontal} label="名头" help="">
+                    { 
+                      getFieldDecorator(
+                        'title', {
+                          initialValue: data.title
+                        }
+                      )(<Input></Input>) 
+                    }
+                  </FormItem>
+                </Col>
+              </Row>
+              <FormItem {...formItemLayout} label="身份证号" help="">
+                { 
+                  getFieldDecorator(
+                    'idCard',{
+                      initialValue: data.idCard
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <FormItem {...formItemLayout} label="员工编号" help="">
+                { 
+                  getFieldDecorator(
+                    'employeeNumber',{
+                      initialValue: data.employeeNumber
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <FormItem {...formItemLayout} label="ERP编号" help="">
+                { 
+                  getFieldDecorator(
+                    'erpId',{
+                      initialValue: data.erpId
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <FormItem {...formItemLayout} label="激活/禁用" help="">
+                {getFieldDecorator( 'isActive',{ valuePropName: 'checked', initialValue: data.isActive })(<Switch checkedChildren={<Icon type="check" />} unCheckedChildren={<Icon type="close" />}></Switch>)}
+              </FormItem>
             </TabPanel>
-            <TabPanel tab="产品信息" key="tabProduction"></TabPanel>
-            <TabPanel tab="交付地址" key="tabAddress">
+            <TabPanel tab="联系方式" key="tabCommuncate">
+              <FormItem {...formItemLayout} label="邮箱" help="">
+                { 
+                  getFieldDecorator(
+                    'emailAddress',{
+                      initialValue: data.emailAddress
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <FormItem {...formItemLayout} label="电话" help="">
+                { 
+                  getFieldDecorator(
+                    'phone',{
+                      initialValue: data.phone
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <FormItem {...formItemLayout} label="地址" help="">
+                { 
+                  getFieldDecorator(
+                    'address',{
+                      initialValue: data.address
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+            </TabPanel>
+            <TabPanel tab="密码设置" key="tabPassword">
+              <FormItem {...formItemLayout} label="新密码" help="">
+                { 
+                  getFieldDecorator(
+                    'password',{
+                      initialValue: ''
+                    }
+                  )(<Input></Input>) 
+                }
+              </FormItem>
+              <Button>确定</Button>
             </TabPanel>
             <TabPanel tab="风险识别" key="tabRisk"></TabPanel>
             <TabPanel tab="跟踪日志" key="tabLog"></TabPanel>

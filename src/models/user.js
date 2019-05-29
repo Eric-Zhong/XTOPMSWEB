@@ -1,21 +1,10 @@
 /* 定义业务实体 Model, 使用了 dva https://dvajs.com */
 
-// 引用针对自己的 Service/Api 定义
-import { 
-  query as queryUsers
-  , queryCurrent 
-} from '@/services/user';
-
-// * 从 XTOPMS 中获取当前登录的帐号信息
-import { 
-  getCurrentUser
-  ,QuickSearch
-} from "@/services/xtouser";
-
 import { message } from 'antd';
 
 import {
   ServiceName,
+  getCurrentUser,
   Get,
   GetAll, 
   GetAllWithFullAudited,
@@ -24,10 +13,10 @@ import {
   Remove,
   Update,
   GetMyAll,
-  // QuickSearch,
+  QuickSearch,
   GetDetailV1,
   Query
-  } from '@/services/UserService'; // TODO: modify the service name.
+  } from '@/services/UserService';
 
 /*
 ! Ant Design 支持的数据格式如下
@@ -84,18 +73,19 @@ export default {
     },
     list: [],
     currentUser: {},
+    editorVisible: false,
   },
 
   // 使用 dva 的 effect 管理同步的异步调用
   effects: {
     // 定义fetch函数，用于获取所有用户
-    *fetch(_, { call, put }) {
-      const response = yield call(queryUsers);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
+    // *fetch(_, { call, put }) {
+    //   const response = yield call(queryUsers);
+    //   yield put({
+    //     type: 'save',
+    //     payload: response,
+    //   });
+    // },
     *fetchCurrent(_, { call, put }) {
       // const response = yield call(queryCurrent);
       const response = yield call(getCurrentUser);
@@ -123,6 +113,7 @@ export default {
         return;
       }
       else{
+        // 从后台得到了登录后的用户信息
         const user = response.result.user;
         let currentUser = {
           ...user,
@@ -130,7 +121,7 @@ export default {
           userid: user.id,
           email: user.emailAddress,
           signature: '',
-          title: '',
+          title: user.title,
           group: '',
           tags: [{
             key: '0',
@@ -177,9 +168,7 @@ export default {
     },
 
     *getAll({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      // TODO: 这里的 state.xxxxxxxxxx 需要修改
-      const state = yield select(state=>state.customer);
+      const state = yield select(state=>state[ServiceName]);
       const {current, pageSize, sorter, filters} = payload ? payload : state.query;
       const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
@@ -202,9 +191,7 @@ export default {
     },
 
     *getAllWithFullAudited({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      // TODO: 这里的 state.xxxxxxxxxx 需要修改
-      const state = yield select(state=>state.customer);
+      const state = yield select(state=>state[ServiceName]);
       const {current, pageSize, sorter, filters} = payload ? payload : state.query;
       const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
@@ -241,16 +228,27 @@ export default {
       }
     },
 
-    *update({payload}, {call, put}){
+    *update({payload}, {select, call, put, take}){
+      const state = yield select(state=>state[ServiceName]);
       const response = yield call(Update, payload);
       if(response && response.success){
-        const payload = response.result;
-        yield put({
-          type: 'createOrUpdateReducer',
-          payload: payload,
-        });
+        const result = response.result;
+        if(payload._next){ // 如果前面调用设置了执行完后要执行其它event时
+          yield put({
+            type: payload._next,
+            payload: payload._next_param,
+          });
+        }
+        else{
+          yield put({
+            type: 'createOrUpdateReducer',
+            payload: result,
+          });
+          message.success('操作成功');
+        }
       }
       else {
+        message.error('操作失败');
         console.log(response);
       }
     },
@@ -290,9 +288,14 @@ export default {
     },
 
     *query({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const state = yield select(state=>state.user);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
+
+      const state = yield select(state=>state[ServiceName]);
+      const {
+        current, 
+        pageSize, 
+        sorter, 
+        filters
+      } = (payload ? payload : state.query);
       const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
       var params = {
         skipCount: (current - 1) * pageSize,
@@ -306,14 +309,35 @@ export default {
           type: 'getAllReducer',
           payload: {
             ...response,
-            query: payload
+            query: payload    // 在此Modle的State中保存上次查询的条件
           },
         });
+
+        if(payload._next){
+          yield put({
+            type: payload._next,
+            payload: payload._next_param,
+          });
+        }
+
       } else {
         message.error(response.message);
       }
     },
 
+    /**
+     * @description Change entity editor dialog status
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-05-29
+     * @param {*} {payload}
+     * @param {*} {call, put, select, take}
+     */
+    *editorVisible({payload}, {call, put, select, take}){
+      yield put({
+        type: 'changeEditorVisible',
+        payload: payload,
+      });
+    }
 
   },
 
@@ -399,6 +423,13 @@ export default {
         ...state,
         current: created
       };
+    },
+
+    changeEditorVisible(state, action){
+      return {
+        ...state,
+        editorVisible: action.payload,
+      }
     },
   },
 };
