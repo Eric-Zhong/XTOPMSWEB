@@ -1,7 +1,7 @@
 import {
   ServiceName,
   Get,
-  GetAll, 
+  GetAll,
   Create,
   Delete,
   Remove,
@@ -10,45 +10,43 @@ import {
   QuickSearch,
   Query,
   InitializeAccessToken
-  } from '@/services/AccessTokenService';
+} from "@/services/AccessTokenService";
 
-import {message, Modal} from 'antd';
+import { message, Modal } from "antd";
 
 export default {
-
   namespace: ServiceName,
 
-  /** 
+  /**
    * @property state
    */
   state: {
-    data: [],           // storage the list after getall
-    total: 0,           // total count
-    search: [],         // quick search result
-    query: {            // query payload
+    data: [], // storage the list after getall
+    total: 0, // total count
+    search: [], // quick search result
+    query: {
+      // query payload
       current: 1,
       pageSize: 10,
-      sorting: '',
-      filters: null,
-    },
+      sorting: "",
+      filters: null
+    }
   },
 
   /**
    * @method effects
    */
   effects: {
-
-    *create({payload}, {call, put}){
+    *create({ payload }, { call, put }) {
       console.log(payload);
       const response = yield call(Create, payload);
-      if(response && response.success){
+      if (response && response.success) {
         const payload = response.result;
         yield put({
-          type: 'createReducer',
-          payload: payload,
+          type: "createReducer",
+          payload: payload
         });
-      }
-      else {
+      } else {
         console.log(response);
       }
     },
@@ -60,32 +58,34 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *getAll({payload}, {call, put, select, take}){
+    *getAll({ payload }, { call, put, select, take }) {
       // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const state = yield select(state=>state.accesstoken);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+      const state = yield select(state => state.accesstoken);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting,
+        sorting: sorting
       };
       const response = yield call(GetAll, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
             query: payload
-          },
+          }
         });
       } else {
         message.error(response.message);
       }
     },
-
-
-
 
     /**
      * @description Delete customer
@@ -94,29 +94,25 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *delete({payload}, {call, put}){
+    *delete({ payload }, { call, put }) {
       const body = payload;
       const response = yield call(Delete, body);
-      if(response.success){
-
+      if (response.success) {
       } else {
         message.error(response.error);
       }
     },
 
-    *remove({payload}, {call, put}){
+    *remove({ payload }, { call, put }) {
       const body = payload;
       const response = yield call(Remove, body);
-      if(response.success){
-        const msg = body.id + ' was deleted.'
+      if (response.success) {
+        const msg = body.id + " was deleted.";
         message.success(msg);
       } else {
         message.error(response.error);
       }
     },
-
-
-
 
     /**
      * @description Get an customer data
@@ -125,20 +121,18 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *get({payload}, {call, put}){
+    *get({ payload }, { call, put }) {
       const customerId = payload;
       const response = yield call(Get, customerId);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getReducer',
-          payload: response,
+          type: "getReducer",
+          payload: response
         });
-        } else {
+      } else {
         message.error(response.error);
-
       }
     },
-
 
     /**
      * @description Quick search user by key.
@@ -147,11 +141,11 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *quickSearch({payload}, {call, put}){
+    *quickSearch({ payload }, { call, put }) {
       const response = yield call(QuickSearch, payload);
       yield put({
-        type: 'quickSearchReducer',
-        payload: response,
+        type: "quickSearchReducer",
+        payload: response
       });
     },
 
@@ -162,45 +156,50 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *update({payload}, {call, put}){
+    *update({ payload }, { call, put }) {
       const response = yield call(Update, payload);
 
       // 增加异常处理
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'updateReducer',
-          payload: response,
+          type: "updateReducer",
+          payload: response
         });
       } else {
-        if(response.error){
-          if(response.error.details) {
+        if (response.error) {
+          if (response.error.details) {
             console.log(response.error.details);
           }
-          if(response.error.message) {
+          if (response.error.message) {
             message.error(response.error.message);
           }
         }
       }
     },
 
-    *query({payload}, {call, put, select, take}){
-      const state = yield select(state=>state.accesstoken);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+    *query({ payload }, { call, put, select, take }) {
+      const state = yield select(state => state.accesstoken);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
         sorting: sorting,
-        filters,
+        filters
       };
       const response = yield call(Query, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
             query: payload
-          },
+          }
         });
       } else {
         message.error(response.message);
@@ -214,16 +213,16 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put}
      */
-    *initializeAccessToken({payload}, {call, put}){
+    *initializeAccessToken({ payload }, { call, put }) {
       const response = yield call(InitializeAccessToken, payload);
-      if(response.success){
+      if (response.success) {
         Modal.success({
-          title: 'successed',
-          content: 'New token generated: ' + response.result.access_Token + ' .',
+          title: "successed",
+          content: "New token generated: " + response.result.access_Token + " ."
         });
         yield put({
-          type: 'initializeAccessTokenReducer',
-          payload: response.result,
+          type: "initializeAccessTokenReducer",
+          payload: response.result
         });
       } else {
         Modal.error({
@@ -238,26 +237,25 @@ export default {
    * @method reducers
    */
   reducers: {
-
-
     /**
      * @description Clear current model's state
      * @author Eric-Zhong Xu (Tigoole)
      * @date 2019-04-28
      * @returns null
      */
-    clear(){
+    clear() {
       return {
-        data: [],           // storage the list after getall
-        total: 0,           // total count
-        search: [],         // quick search result
-        query: {            // query payload
+        data: [], // storage the list after getall
+        total: 0, // total count
+        search: [], // quick search result
+        query: {
+          // query payload
           current: 1,
           pageSize: 10,
-          sorting: '',
-          filters: null,
-        },
-      }
+          sorting: "",
+          filters: null
+        }
+      };
     },
 
     /**
@@ -268,7 +266,7 @@ export default {
      * @param {*} action
      * @returns NULL
      */
-    getReducer(state, action){
+    getReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
@@ -276,7 +274,7 @@ export default {
         currentCreated: created
       };
     },
-  
+
     /**
      * @description Update state when customer created.
      * @author Eric-Zhong Xu (Tigoole)
@@ -285,11 +283,10 @@ export default {
      * @param {*} action
      * @returns null
      */
-    createReducer(state, action){
+    createReducer(state, action) {
       const payload = action.payload;
       return state;
     },
-
 
     /**
      * @description get customers data and refresh table view
@@ -298,31 +295,27 @@ export default {
      * @param {*} state
      * @param {*} action
      */
-    getAllReducer(state, action){
+    getAllReducer(state, action) {
       // XTOPMS api > XTOPMS UI
       const {
-        result:{
-          totalCount, 
-          items
-        }, 
+        result: { totalCount, items },
         success,
-        query,
+        query
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
-        query: query,
+        query: query
       };
     },
 
-    updateReducer(state, action){
+    updateReducer(state, action) {
       return {
         current: action.payload
-      }
+      };
     },
-
 
     /**
      * @description Update state after customer searched.
@@ -331,15 +324,14 @@ export default {
      * @param {*} state
      * @param {*} action
      */
-    quickSearchReducer(state, action){
+    quickSearchReducer(state, action) {
       const payload = action.payload;
       const data = payload ? payload.result : [];
       return {
         ...state,
-        quickSearchResult: data,
+        quickSearchResult: data
       };
     },
-
 
     /**
      * @description 拿到 Init Token 后的 Reducer
@@ -348,13 +340,13 @@ export default {
      * @param {*} state
      * @param {*} action
      */
-    initializeAccessTokenReducer(state, action){
+    initializeAccessTokenReducer(state, action) {
       console.log(action);
       const payload = action.payload;
       return {
         ...state,
         current: payload
       };
-    },
+    }
   }
-}
+};

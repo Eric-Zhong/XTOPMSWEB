@@ -81,7 +81,7 @@ class UserManagement extends PureComponent{
     {
       title: 'Full Name',
       dataIndex: 'fullName',
-      width: 150,
+      width: 200,
       fixed: 'left',
     },{
       title: 'Active?',
@@ -101,7 +101,7 @@ class UserManagement extends PureComponent{
     },{
       title: 'Name',
       dataIndex: 'name',
-      width: 100,
+      // width: 100,
     },{
       title: 'Surname',
       dataIndex: 'surname',
@@ -431,6 +431,24 @@ class UserManagement extends PureComponent{
   }
   
   /**
+   * @description change this user's password
+   * @memberof UserEditorDialog
+   */
+  handleOnChangePassword = (form) =>{
+    const {dispatch} = this.props;
+    const password = form.getFieldValue('newPassword');
+    const userId = form.getFieldValue('id');
+    dispatch({
+      type: ServiceName + '/changeUserPassword',
+      payload:{
+        currentPassword: password,
+        newPassword: password,
+        userId: userId,
+      }
+    });
+  }
+
+  /**
    * @description Render the html
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
@@ -492,6 +510,7 @@ class UserManagement extends PureComponent{
             onDoCreate={this.handleDoCreate}
             onDoUpdate={this.handleDoUpdate}
             onCancel={this.handleEditorCancel}
+            onChangePassword={this.handleOnChangePassword}
           ></UserEditorDialog>
         </Card>
       </PageHeaderWrapper>

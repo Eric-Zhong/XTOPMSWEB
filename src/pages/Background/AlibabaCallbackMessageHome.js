@@ -84,13 +84,8 @@ class AlibabaCallbackMessageHome extends PureComponent{
       width: 200,
       filters: [
         {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
-        {value: 'ORDER_PAY', text: 'ORDER_PAY'},
+        {value: 'ORDER_ORDER_STEP_PAY', text: 'ORDER_ORDER_STEP_PAY'},
+        {value: 'ORDER_BUYER_MAKE', text: 'ORDER_BUYER_MAKE'},
       ],
       filterMultiple: false,
       sorter: true,
@@ -129,6 +124,10 @@ class AlibabaCallbackMessageHome extends PureComponent{
           <CallbackMessageStatus value={cell} data={record}></CallbackMessageStatus>
         );
       }
+    },{
+      title: 'SF返回值',
+      dataIndex: 'code',
+      width: 80,
     },{
       title: '处理次数',
       dataIndex: 'retryCount',

@@ -21,7 +21,6 @@
 * Copyright (c) 2019 Tigoole
  */
 
-
 /*
 * Description: Common model template
 * Author: Eric-Zhong Xu
@@ -32,7 +31,7 @@
 import {
   ServiceName,
   Get,
-  GetAll, 
+  GetAll,
   GetAllWithFullAudited,
   Create,
   Delete,
@@ -42,184 +41,191 @@ import {
   QuickSearch,
   GetDetailV1,
   Query
-  } from '@/services/CustomerService'; // TODO: modify the service name.
+} from "@/services/CustomerService"; // TODO: modify the service name.
 
-import {message} from 'antd';
+import { message } from "antd";
 
 export default {
-
   namespace: ServiceName, // the service api's name.
 
-  /** 
+  /**
    * @property state
    */
   state: {
-    data: [],           // storage the list after getall
-    total: 0,           // total count
-    search: [],         // quick search result
-    query: {            // query payload
+    data: [], // storage the list after getall
+    total: 0, // total count
+    search: [], // quick search result
+    query: {
+      // query payload
       current: 1,
       pageSize: 10,
-      sorting: '',
-      filters: null,
-    },
+      sorting: "",
+      filters: null
+    }
   },
 
   /**
    * @method effects
    */
   effects: {
-
-    *get({payload}, {call, put}){
+    *get({ payload }, { call, put }) {
       const customerId = payload;
       const response = yield call(Get, customerId);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getReducer',
-          payload: response,
-        });
-        } else {
-        message.error(response.message);
-
-      }
-    },
-
-    *getAll({payload}, {call, put, select, take}){
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const state = yield select(state=>state[ServiceName]);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
-      var params = {
-        skipCount: (current - 1) * pageSize,
-        maxResultCount: pageSize,
-        sorting: sorting,
-        filters,
-      };
-      const response = yield call(GetAll, params);
-      if(response.success){
-        yield put({
-          type: 'getAllReducer',
-          payload: {
-            ...response,
-            query: payload
-          },
+          type: "getReducer",
+          payload: response
         });
       } else {
         message.error(response.message);
       }
     },
 
-    *create({payload}, {call, put}){
+    *getAll({ payload }, { call, put, select, take }) {
+      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
+      const state = yield select(state => state[ServiceName]);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
+      var params = {
+        skipCount: (current - 1) * pageSize,
+        maxResultCount: pageSize,
+        sorting: sorting,
+        filters
+      };
+      const response = yield call(GetAll, params);
+      if (response.success) {
+        yield put({
+          type: "getAllReducer",
+          payload: {
+            ...response,
+            query: payload
+          }
+        });
+      } else {
+        message.error(response.message);
+      }
+    },
+
+    *create({ payload }, { call, put }) {
       const response = yield call(Create, payload);
-      if(response && response.success){
+      if (response && response.success) {
         const payload = response.result;
         yield put({
-          type: 'createOrUpdateReducer',
-          payload: payload,
+          type: "createOrUpdateReducer",
+          payload: payload
         });
-      }
-      else {
+      } else {
         console.log(response);
       }
     },
 
-    *update({payload}, {select, call, put, take}){
+    *update({ payload }, { select, call, put, take }) {
       const response = yield call(Update, payload);
-      if(response && response.success){
+      if (response && response.success) {
         const payload = response.result;
-        const state = yield select(state=>state.customer);
+        const state = yield select(state => state.customer);
         const query = state.query;
         yield put({
-          type: 'getAll', 
+          type: "getAll",
           payload: query
-        })
-        yield take('getAll/@@end');
-        message.success('操作成功');
-      }
-      else {
-        message.error('操作失败');
+        });
+        yield take("getAll/@@end");
+        message.success("操作成功");
+      } else {
+        message.error("操作失败");
       }
     },
 
-    *delete({payload}, {call, put}){
+    *delete({ payload }, { call, put }) {
       const customerId = payload;
       const response = yield call(Delete, customerId);
-      if(response && response.success){
-        message.success('删除成功');
+      if (response && response.success) {
+        message.success("删除成功");
       } else {
         message.error(response.error);
       }
     },
 
-    *remove({payload}, {call, put}){
+    *remove({ payload }, { call, put }) {
       const body = payload;
       const response = yield call(Remove, body);
-      if(response.success){
-        const msg = body.id + ' 删除成功。'
+      if (response.success) {
+        const msg = body.id + " 删除成功。";
         message.success(msg);
       } else {
-        const msg = body.id + ' 删除失败。\n' + response.message;
+        const msg = body.id + " 删除失败。\n" + response.message;
         message.error(msg);
       }
     },
 
-    *quickSearch({payload}, {call, put}){
+    *quickSearch({ payload }, { call, put }) {
       // init the request value.
       const params = {
-        value: payload.value? payload.value: '',
-        count: payload.count? payload.count: 20,
+        value: payload.value ? payload.value : "",
+        count: payload.count ? payload.count : 20
       };
       const response = yield call(QuickSearch, params);
       yield put({
-        type: 'quickSearchReducer',
-        payload: response,
+        type: "quickSearchReducer",
+        payload: response
       });
     },
 
-    *query({payload}, {call, put, select, take}){
-      const state = yield select(state=>state[ServiceName]);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter && sorter.field ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+    *query({ payload }, { call, put, select, take }) {
+      const state = yield select(state => state[ServiceName]);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
         sorting: sorting,
-        filters,
+        filters
       };
       const response = yield call(Query, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
             query: payload
-          },
+          }
         });
       } else {
         message.error(response.message);
       }
-    },
+    }
   },
 
   /**
    * @method reducers
    */
   reducers: {
-    clear(){
+    clear() {
       return {
-        data: [],           // storage the list after getall
-        total: 0,           // total count
-        search: [],         // quick search result
-        query: {            // query payload
+        data: [], // storage the list after getall
+        total: 0, // total count
+        search: [], // quick search result
+        query: {
+          // query payload
           current: 1,
           pageSize: 10,
-          sorting: '',
-          filters: null,
-        },
-      }
+          sorting: "",
+          filters: null
+        }
+      };
     },
 
-    getReducer(state, action){
+    getReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
@@ -228,26 +234,23 @@ export default {
       };
     },
 
-    getAllReducer(state, action){
+    getAllReducer(state, action) {
       // XTOPMS api > XTOPMS UI
       const {
-        result:{
-          totalCount, 
-          items
-        }, 
+        result: { totalCount, items },
         success,
-        query,
+        query
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
-        query: query,
+        query: query
       };
     },
 
-    quickSearchReducer(state, action){
+    quickSearchReducer(state, action) {
       const payload = action.payload;
       const data = payload ? payload.result : [];
       return {
@@ -256,14 +259,13 @@ export default {
       };
     },
 
-    createOrUpdateReducer(state, action){
+    createOrUpdateReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
         ...state,
         current: created
       };
-    },
-
+    }
   }
-}
+};

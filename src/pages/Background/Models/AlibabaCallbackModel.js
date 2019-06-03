@@ -19,28 +19,25 @@
 *
 * Author: Eric-Zhong Xu
 *
-* Creation: 2019-05-17 11:06:43
+* Creation: 2019-06-02 22:09:20
  */
+
+import { message } from "antd";
 
 import {
   ServiceName,
   Get,
   GetAll,
-  GetAllWithFullAudited,
   Create,
   Delete,
   Remove,
   Update,
-  GetMyAll,
-  QuickSearch,
-  GetDetailV1,
-  Retry,
-  Query
-} from "@/services/AlibabaCallbackMessageService"; // TODO: modify the service name.
+  Query,
+  Resend
+} from "@/services/AlibabaCallbackService";
 
-import { message } from "antd";
-export const ModelName = ServiceName;
 export default {
+  // namespace: 'user',
   namespace: ServiceName, // the service api's name.
 
   /**
@@ -56,11 +53,13 @@ export default {
       pageSize: 10,
       sorting: "",
       filters: null
-    }
+    },
+    list: [],
+    currentUser: {},
+    editorVisible: false
   },
-  /**
-   * @method effects
-   */
+
+  // 使用 dva 的 effect 管理同步的异步调用
   effects: {
     *get({ payload }, { call, put }) {
       const customerId = payload;
@@ -69,36 +68,6 @@ export default {
         yield put({
           type: "getReducer",
           payload: response
-        });
-      } else {
-        message.error(response.message);
-      }
-    },
-
-    *getAll({ payload }, { call, put, select, take }) {
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const state = yield select(state => state.alibabamessage);
-      const { current, pageSize, sorter, filters } = payload
-        ? payload
-        : state.query;
-      const sorting =
-        sorter && sorter.field
-          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
-          : "";
-      var params = {
-        skipCount: (current - 1) * pageSize,
-        maxResultCount: pageSize,
-        sorting: sorting,
-        filters: filters ?? {}
-      };
-      const response = yield call(GetAll, params);
-      if (response.success) {
-        yield put({
-          type: "getAllReducer",
-          payload: {
-            ...response,
-            query: payload
-          }
         });
       } else {
         message.error(response.message);
@@ -118,15 +87,26 @@ export default {
       }
     },
 
-    *update({ payload }, { call, put }) {
+    *update({ payload }, { select, call, put, take }) {
+      const state = yield select(state => state[ServiceName]);
       const response = yield call(Update, payload);
       if (response && response.success) {
-        const payload = response.result;
-        yield put({
-          type: "createOrUpdateReducer",
-          payload: payload
-        });
+        const result = response.result;
+        if (payload._next) {
+          // 如果前面调用设置了执行完后要执行其它event时
+          yield put({
+            type: payload._next,
+            payload: payload._next_param
+          });
+        } else {
+          yield put({
+            type: "createOrUpdateReducer",
+            payload: result
+          });
+          message.success("操作成功");
+        }
       } else {
+        message.error("操作失败");
         console.log(response);
       }
     },
@@ -151,24 +131,11 @@ export default {
       }
     },
 
-    *quickSearch({ payload }, { call, put }) {
-      // init the request value.
-      const params = {
-        value: payload.value ? payload.value : "",
-        count: payload.count ? payload.count : 20
-      };
-      const response = yield call(QuickSearch, params);
-      yield put({
-        type: "quickSearchReducer",
-        payload: response
-      });
-    },
-
-    *retry({ payload }, { call, put }) {
+    *resend({ payload }, { call, put }) {
       const body = payload;
-      const response = yield call(Retry, body);
+      const response = yield call(Resend, body);
       if (response.success) {
-        const msg = "订单成功重置，稍后将重新进行推送。";
+        const msg = "数据重发成功";
         message.success(msg);
       } else {
         message.error(response.message);
@@ -176,8 +143,7 @@ export default {
     },
 
     *query({ payload }, { call, put, select, take }) {
-      // 如果没有从前端传入分页信息，就使用当前Model中默认的分页参数
-      const state = yield select(state => state.alibabamessage);
+      const state = yield select(state => state[ServiceName]);
       const { current, pageSize, sorter, filters } = payload
         ? payload
         : state.query;
@@ -197,19 +163,44 @@ export default {
           type: "getAllReducer",
           payload: {
             ...response,
-            query: payload
+            query: payload // 在此Modle的State中保存上次查询的条件
           }
         });
+
+        if (payload._next) {
+          yield put({
+            type: payload._next,
+            payload: payload._next_param
+          });
+        }
       } else {
         message.error(response.message);
       }
+    },
+
+    /**
+     * @description Change entity editor dialog status
+     * @author Eric-Zhong Xu (Tigoole)
+     * @date 2019-05-29
+     * @param {*} {payload}
+     * @param {*} {call, put, select, take}
+     */
+    *editorVisible({ payload }, { call, put, select, take }) {
+      yield put({
+        type: "changeEditorVisible",
+        payload: payload
+      });
     }
   },
 
-  /**
-   * @method reducers
-   */
   reducers: {
+    save(state, action) {
+      return {
+        ...state,
+        list: action.payload
+      };
+    },
+
     clear() {
       return {
         data: [], // storage the list after getall
@@ -250,21 +241,19 @@ export default {
       };
     },
 
-    quickSearchReducer(state, action) {
-      const payload = action.payload;
-      const data = payload ? payload.result : [];
-      return {
-        ...state,
-        search: data
-      };
-    },
-
     createOrUpdateReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
         ...state,
         current: created
+      };
+    },
+
+    changeEditorVisible(state, action) {
+      return {
+        ...state,
+        editorVisible: action.payload
       };
     }
   }

@@ -81,6 +81,11 @@ class AlibabaProductCategoryHome extends PureComponent{
       title: '状态',
       dataIndex: 'isActive',
       width: 80,
+      filterMultiple: false,
+      filters: [
+        {text: '已激活', value: true},
+        {text: '未激活', value: false},
+      ],
       render: (cell, record, index) => {
         if(cell){
           return (
@@ -158,21 +163,26 @@ class AlibabaProductCategoryHome extends PureComponent{
    */
   componentDidMount(){
     const { dispatch } = this.props;  // Get dispatch from parent component.
-
-    this.setState({
-      pagination: this.CON_TABLE_PAGINATION_OPTION
-    });
-
+    const { pagination, filters, sorter } = this.state;
     const payload = {
-      current: this.CON_TABLE_PAGINATION_OPTION.current,
-      pageSize: this.CON_TABLE_PAGINATION_OPTION.pageSize,
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
     }
-
     // load data
     dispatch({
-      type: this.SERVICE_NAMESPACE + "/getAll",
+      type: this.SERVICE_NAMESPACE + "/query",
       payload: payload,
     })
+  }
+
+  componentWillUnmount(){
+    const { dispatch } = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/clear",
+      payload: null,
+    });
   }
 
 
@@ -300,7 +310,7 @@ class AlibabaProductCategoryHome extends PureComponent{
     return (
       <Row gutter={24}>
         <Col>
-          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/getAll']}>查询</Button>
+          <Button onClick={this.handleOnSearch} type="default" icon="search" loading={loading.effects[this.SERVICE_NAMESPACE + '/query']}>查询</Button>
           <Button onClick={this.handleOnCreate} type="default" icon="file-add" loading={loading.effects[this.SERVICE_NAMESPACE + '/create']} disabled={loading.global}>新建</Button>
           <Button onClick={this.handleOnDelete} type="danger" icon="delete" loading={loading.effects[this.SERVICE_NAMESPACE + '/remove']} disabled={!hasSelected || loading.global}>删除</Button>
           <Button icon="upload" disabled>导入</Button>
@@ -316,7 +326,6 @@ class AlibabaProductCategoryHome extends PureComponent{
 
   handleTableOnChange = (pagination, filters, sorter, extra) => {
     const { dispatch } = this.props;
-    // Set new pagination to state.
     this.setState({
       pagination: pagination
     });
@@ -324,7 +333,7 @@ class AlibabaProductCategoryHome extends PureComponent{
       current: pagination.current, 
       pageSize: pagination.pageSize,
       sorter: sorter,
-      filters: filters
+      filters: filters,
     };    
     dispatch({
       type: this.SERVICE_NAMESPACE + '/query',

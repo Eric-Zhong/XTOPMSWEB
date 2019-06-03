@@ -76,3 +76,10 @@ src/pages/.umi/router.js
 .vscode/chrome/*
 src/pages/.umi/*
 src/pages/.umi/router.js
+src/pages/.umi/initDva.js
+src/pages/.umi/initDva.js
+src/pages/.umi/LocaleWrapper.jsx
+src/pages/.umi/polyfills.js
+src/pages/.umi/router.js
+src/pages/.umi/umi.js
+src/pages/.umi/initDva.js

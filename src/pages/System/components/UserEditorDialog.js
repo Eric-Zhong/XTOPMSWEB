@@ -71,6 +71,7 @@ class UserEditorDialog extends PureComponent{
       onDoUpdate,
       onCancel,
       loading,
+      onChangePassword,
     } = this.props;
   
     // 定义Form样式
@@ -98,6 +99,10 @@ class UserEditorDialog extends PureComponent{
     const handleOnOk = () => {
       const {form} = this.props;
       if(doOk) doOk(form);
+    };
+    const handleOnChangePassword = () => {
+      const {form} = this.props;
+      if(onChangePassword) onChangePassword(form);
     };
 
     // Modal's footer option
@@ -268,17 +273,16 @@ class UserEditorDialog extends PureComponent{
               <FormItem {...formItemLayout} label="新密码" help="">
                 { 
                   getFieldDecorator(
-                    'password',{
-                      initialValue: ''
+                    'newPassword',{
+                      initialValue: '',
+                      rules: [{required: false, max: 20, min: 6, type: 'string',}],
                     }
-                  )(<Input></Input>) 
+                  )(<Input placeholder="新密码"></Input>) 
                 }
               </FormItem>
-              <Button>确定</Button>
+              <Button onClick={handleOnChangePassword}>修改密码</Button>
             </TabPanel>
-            <TabPanel tab="风险识别" key="tabRisk"></TabPanel>
-            <TabPanel tab="跟踪日志" key="tabLog"></TabPanel>
-            <TabPanel tab="启动流程" key="tabWorkflow"></TabPanel>
+            <TabPanel tab="登录日志" key="tabLogin">敬请期待</TabPanel>
           </Tabs>
         </Form>
       </Modal>

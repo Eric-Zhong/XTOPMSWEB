@@ -19,40 +19,33 @@
 *
 * Author: Eric-Zhong Xu
 *
-* Creation: 2019-04-22 14:54:17
+* Creation: 2019-06-02 22:01:13
  */
-
-/*
-
-T02_TableComponent: 换成真实 Page 的名称
-
-*/
 
 import React, { PureComponent } from "react";
 import PageHeaderWrapper from "@/components/PageHeaderWrapper";
-import { Row, Col, Button, Card, Table, Tag } from "antd";
+import { Row, Col, Button, Card, Table, Tag, Modal } from "antd";
 import { snowflakeId } from "@/utils/snowflake";
 import { connect } from "dva";
 import moment from "moment";
 
+const confirm = Modal.confirm;
+
 // TODO: 替换这里的Service名称
-import { ServiceName } from "@/services/_TemplateService";
-import EditorDialog from "./Component/T01_DialogComponent";
+import { ServiceName } from "@/services/AlibabaCallbackService";
+import UserEditorDialog from "./components/UserEditorDialog";
 // TODO: 使用最终需要用到的model名称来远的这里
 @connect(({ // Model
-  user, access_token, userQuickSearch, customer, opportunity, loading }) => ({
-  // Mapping to properties
-  user,
-  access_token,
-  userQuickSearch,
-  customer,
-  opportunity,
+  user, AlibabaCallbackMessage, loading }) => ({
+  user, // Mapping to properties
+  AlibabaCallbackMessage,
   loading: loading
 }))
-class T02_TableComponent extends PureComponent {
+class AlibabaCallbackHome extends PureComponent {
   SERVICE_NAMESPACE = ServiceName; // Service 中定义的 reducer & effector
-  CON_PAGE_TITLE = "页面名称";
-  CON_PAGE_CONTENT = "页面描述";
+  CON_PAGE_TITLE = "回传数据";
+  CON_PAGE_CONTENT =
+    "接收到阿里巴巴发来的数据，显示处理状态，可以进行消息重发。";
   CON_TABLE_OPTION = {
     rowKey: "key",
     bordered: true,
@@ -60,8 +53,8 @@ class T02_TableComponent extends PureComponent {
     showHeader: true,
     hasData: false,
     scroll: {
-      x: 2500,
-      y: 450
+      // x: 1800,
+      // y: 450,
     }
   };
 
@@ -80,55 +73,9 @@ class T02_TableComponent extends PureComponent {
 
   CON_COLUMNS_OPTION = [
     {
-      title: "Name",
-      dataIndex: "name",
-      width: 150,
-      fixed: "left"
-    },
-    {
-      title: "Id",
-      dataIndex: "id",
-      width: 100
-    },
-    {
-      title: "Code",
-      dataIndex: "code",
-      width: 100,
-      render: (cell, record, index) => {
-        return <Tag>{cell}</Tag>;
-      }
-    },
-    {
-      title: "Active?",
-      dataIndex: "isActive",
-      width: 80,
-      render: (cell, record, index) => {
-        if (cell) {
-          return <Tag color="green">已激活</Tag>;
-        } else {
-          return <Tag color="red">未激活</Tag>;
-        }
-      }
-    },
-    {
-      title: "ERP#",
-      dataIndex: "erpId",
-      width: 200
-    },
-    {
-      title: "更新时间",
-      dataIndex: "lastModificationTime",
-      width: 120,
-      render: (cell, raw, index) => {
-        if (cell) {
-          const v = moment(cell).fromNow();
-          return v;
-        }
-      }
-    },
-    {
-      title: "创建时间",
+      title: "接收时间",
       dataIndex: "creationTime",
+      // fixed: 'left',
       width: 120,
       render: (cell, raw, index) => {
         const v = moment(cell).fromNow();
@@ -136,9 +83,21 @@ class T02_TableComponent extends PureComponent {
       }
     },
     {
-      title: "系统编号",
-      dataIndex: "key",
-      width: 280
+      title: "处理状态",
+      dataIndex: "status",
+      width: 100,
+      render: (cell, record, index) => {
+        return <Tag>{cell}</Tag>;
+      }
+    },
+    {
+      title: "数据内容",
+      dataIndex: "body"
+    },
+    {
+      title: "ID",
+      dataIndex: "id",
+      width: 60
     }
   ];
 
@@ -146,8 +105,8 @@ class T02_TableComponent extends PureComponent {
    * @description The event on selected some item in the table.
    * @memberof CustomerIndexComponent
    */
-  onSelectChange = selectedRowKeys => {
-    this.setState({ selectedRowKeys });
+  onSelectChange = (selectedRowKeys, selectedRows) => {
+    this.setState({ selectedRowKeys, selectedRows });
   };
 
   /**
@@ -155,7 +114,7 @@ class T02_TableComponent extends PureComponent {
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
    * @param {*} props
-   * @memberof T02_TableComponent
+   * @memberof AlibabaCallbackHome
    */
   constructor(props) {
     super(props);
@@ -163,9 +122,10 @@ class T02_TableComponent extends PureComponent {
     this.state = {
       rowSelection: {}, // current selected row in the table.
       selectedRowKeys: [], // selected row in the table.
+      selectedRows: [],
       data: [], // table datasource.
       editEntity: {}, // generate this entity when select a row. It's well send to edit dialog.
-      editorVisible: false, // edit dialog visible switch.
+      // editorVisible: false,             // edit dialog visible switch.
       pagination: this.CON_TABLE_PAGINATION_OPTION
     };
   }
@@ -174,7 +134,7 @@ class T02_TableComponent extends PureComponent {
    * @description When components created, react will execute this function.
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof T02_TableComponent
+   * @memberof AlibabaCallbackHome
    */
   componentDidMount() {
     const { dispatch } = this.props; // Get dispatch from parent component.
@@ -200,6 +160,14 @@ class T02_TableComponent extends PureComponent {
     });
   }
 
+  changeEditorVisible(isShow) {
+    const { dispatch } = this.props;
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/editorVisible",
+      payload: isShow
+    });
+  }
+
   handleOnSearch = () => {
     this.componentDidMount();
   };
@@ -219,10 +187,12 @@ class T02_TableComponent extends PureComponent {
       name: moment().format("YYYYMMDDHHMMSS.") + currentUser.name + ".创建的"
     };
 
-    this.setState({
-      editEntity: entity,
-      editorVisible: true
-    });
+    // this.setState({
+    //   editEntity: entity,
+    //   editorVisible: true,
+    // });
+
+    this.changeEditorVisible(true);
   };
 
   handleOnEdit = record => {
@@ -230,19 +200,35 @@ class T02_TableComponent extends PureComponent {
       editEntity: {
         _model: "edit",
         ...record
-      },
-      editorVisible: true
+      }
+      // editorVisible: true,
     });
+
+    this.changeEditorVisible(true);
   };
 
   handleEditorCancel = () => {
-    this.setState({
-      editorVisible: false
-    });
+    // this.setState({
+    //   editorVisible: false,
+    // });
+
+    this.changeEditorVisible(false);
   };
 
   handleDoUpdate = form => {
-    const { dispatch } = this.props;
+    const { dispatch } = this.props; // Get dispatch from parent component.
+
+    // 为更新后刷新界面做准备
+    const { pagination, filters, sorter } = this.state;
+    const queryOption = {
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+      filters: filters,
+      sorter: sorter,
+      _next: "editorVisible",
+      _next_param: false
+    };
+
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       var formData = {
@@ -252,14 +238,18 @@ class T02_TableComponent extends PureComponent {
       console.log(formData);
       dispatch({
         type: this.SERVICE_NAMESPACE + "/update",
-        payload: formData
+        payload: {
+          ...formData,
+          _next: "query", // 调用自身Model的Query方法更新数据
+          _next_param: queryOption
+        }
       });
 
-      this.setState({
-        editorVisible: false
-      });
+      // this.setState({
+      //   editorVisible: false,
+      // });
       // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      setTimeout(() => this.componentDidMount(), 1000);
+      // setTimeout(() => this.componentDidMount(), 1000);
     });
   };
 
@@ -276,11 +266,11 @@ class T02_TableComponent extends PureComponent {
         payload: entityData
       });
 
-      this.setState({
-        editorVisible: false
-      });
-      // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-      setTimeout(() => this.componentDidMount(), 1000);
+      // this.setState({
+      //   editorVisible: false,
+      // });
+      // // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
+      // setTimeout(() => this.componentDidMount(), 1000);
     });
   };
 
@@ -289,8 +279,8 @@ class T02_TableComponent extends PureComponent {
     const customerIds = this.state.selectedRowKeys;
     const onOk = this.handleDeleteConfirmOk;
     confirm({
-      title: "请确认是否删除",
-      content: "请确认真的要删除吗？",
+      title: "请确认是否重新发送",
+      content: "请确认真的要重发吗？",
       onOk,
       onCancel() {}
     });
@@ -298,34 +288,17 @@ class T02_TableComponent extends PureComponent {
 
   handleDeleteConfirmOk = () => {
     const { dispatch } = this.props;
-    const selectedIds = this.state.selectedRowKeys;
-    selectedIds.map((element, index) => {
-      const customerId = element;
-      console.log(customerId);
-      dispatch({
-        type: this.SERVICE_NAMESPACE + "/remove",
-        payload: { id: id }
-      });
+    const selectedIds = this.state.selectedRows.map((item, index) => {
+      return item.id;
+    });
+    console.log(selectedIds);
+    dispatch({
+      type: this.SERVICE_NAMESPACE + "/resend",
+      payload: selectedIds
     });
     this.setState({
       selectedRowKeys: []
     });
-    const { pagination, filters, sorter } = this.state;
-    const payload = {
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      filters: filters,
-      sorter: sorter
-    };
-    // ! 这里发现如果创建成功后，马上去获取最新数据会发现数据没有被加载上，这里增加1秒延时
-    setTimeout(
-      () =>
-        dispatch({
-          type: this.SERVICE_NAMESPACE + "/query",
-          payload: payload
-        }),
-      500
-    );
   };
 
   tableTitleOption = () => {
@@ -344,28 +317,13 @@ class T02_TableComponent extends PureComponent {
             查询
           </Button>
           <Button
-            onClick={this.handleOnCreate}
-            type="default"
-            icon="file-add"
-            loading={loading.effects[this.SERVICE_NAMESPACE + "/create"]}
-            disabled={loading.global}
-          >
-            新建
-          </Button>
-          <Button
             onClick={this.handleOnDelete}
             type="danger"
             icon="delete"
-            loading={loading.effects[this.SERVICE_NAMESPACE + "/remove"]}
+            loading={loading.effects[this.SERVICE_NAMESPACE + "/resend"]}
             disabled={!hasSelected || loading.global}
           >
-            删除
-          </Button>
-          <Button icon="upload" disabled>
-            导入
-          </Button>
-          <Button icon="download" disabled>
-            导出
+            重发
           </Button>
           <span style={{ marginLeft: 8 }}>
             {hasSelected ? `已选择 ${selectedRowKeys.length} 条记录` : ""}
@@ -400,24 +358,38 @@ class T02_TableComponent extends PureComponent {
   };
 
   /**
+   * @description change this user's password
+   * @memberof UserEditorDialog
+   */
+  handleOnChangePassword = form => {
+    const { dispatch } = this.props;
+    const password = form.getFieldValue("newPassword");
+    const userId = form.getFieldValue("id");
+    dispatch({
+      type: ServiceName + "/changeUserPassword",
+      payload: {
+        currentPassword: password,
+        newPassword: password,
+        userId: userId
+      }
+    });
+  };
+
+  /**
    * @description Render the html
    * @author Eric-Zhong Xu (Tigoole)
    * @date 2019-04-22
-   * @memberof T02_TableComponent
+   * @memberof AlibabaCallbackHome
    */
   render() {
+    const { user, loading } = this.props;
+
+    const { currentUser } = user;
+    const model = this.props[ServiceName];
+
     const selectedRowKeys = this.state.selectedRowKeys;
-    const editorVisible = this.state.editorVisible;
-
-    // ! 这里要用自己的代码替换
-    // const dataSrouce = myModel.data;
-    const {
-      customer, // Model 2
-      user: { currentUser },
-      loading
-    } = this.props;
-
-    const model = opportunity;
+    // const editorVisible = this.state.editorVisible;
+    const editorVisible = model.editorVisible;
 
     const dataSource = model.data;
     const totalCount = model.total;
@@ -442,27 +414,25 @@ class T02_TableComponent extends PureComponent {
         <Card>
           <Table
             {...this.CON_TABLE_OPTION}
+            rowKey="id"
             columns={this.CON_COLUMNS_OPTION}
             title={this.tableTitleOption}
             dataSource={dataSource}
             pagination={paginationOption}
             rowSelection={rowSelectionOption}
             onChange={this.handleTableOnChange}
-            onRow={record => {
-              return {
-                onClick: event => {
-                  this.handleOnEdit(record);
-                }
-              };
-            }}
+            // onRow={(record)=>{return {onClick: (event)=>{this.handleOnEdit(record);}}}}
             loading={loading.models[ServiceName]}
           />
-          <EditorDialog
-            visible={this.state.editorVisible}
-            onCancel={this.handleEditorCancel}
-            onDoUpdate={this.handleDoUpdate}
-            onCreate={this.handleDoCreate}
+          <UserEditorDialog
+            {...this.props}
             data={this.state.editEntity}
+            user={currentUser}
+            visible={editorVisible}
+            onDoCreate={this.handleDoCreate}
+            onDoUpdate={this.handleDoUpdate}
+            onCancel={this.handleEditorCancel}
+            onChangePassword={this.handleOnChangePassword}
           />
         </Card>
       </PageHeaderWrapper>
@@ -470,4 +440,4 @@ class T02_TableComponent extends PureComponent {
   }
 }
 
-export default T02_TableComponent;
+export default AlibabaCallbackHome;

@@ -1,12 +1,12 @@
 /* 定义业务实体 Model, 使用了 dva https://dvajs.com */
 
-import { message } from 'antd';
+import { message } from "antd";
 
 import {
   ServiceName,
   getCurrentUser,
   Get,
-  GetAll, 
+  GetAll,
   GetAllWithFullAudited,
   Create,
   Delete,
@@ -15,8 +15,10 @@ import {
   GetMyAll,
   QuickSearch,
   GetDetailV1,
-  Query
-  } from '@/services/UserService';
+  Query,
+  ChangePassword,
+  ChangeUserPassword
+} from "@/services/UserService";
 
 /*
 ! Ant Design 支持的数据格式如下
@@ -54,26 +56,26 @@ import {
 
 /* 定义 User Model */
 export default {
-
   // namespace: 'user',
   namespace: ServiceName, // the service api's name.
 
-  /** 
+  /**
    * @property state
    */
   state: {
-    data: [],           // storage the list after getall
-    total: 0,           // total count
-    search: [],         // quick search result
-    query: {            // query payload
+    data: [], // storage the list after getall
+    total: 0, // total count
+    search: [], // quick search result
+    query: {
+      // query payload
       current: 1,
       pageSize: 10,
-      sorting: '',
-      filters: null,
+      sorting: "",
+      filters: null
     },
     list: [],
     currentUser: {},
-    editorVisible: false,
+    editorVisible: false
   },
 
   // 使用 dva 的 effect 管理同步的异步调用
@@ -94,11 +96,11 @@ export default {
 
       // 如果没拿到用户信息，需要通知用户得新登录系统。
       // 2019-04-02 Eric, 修复了此问题
-      if(
+      if (
         !response ||
-        response === null || 
+        response === null ||
         !response.result ||
-        !response.result.user || 
+        !response.result.user ||
         // Ant 设计的 dispatch 功能，暂时不清楚是干什么用的，后面应该如何判断。
         /*
         !response.dispatch ||
@@ -106,220 +108,226 @@ export default {
         user === null
         */
         false
-        ){
+      ) {
         window.g_app._store.dispatch({
-          type: 'login/logout',
+          type: "login/logout"
         });
         return;
-      }
-      else{
+      } else {
         // 从后台得到了登录后的用户信息
         const user = response.result.user;
         let currentUser = {
           ...user,
-          avatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+          avatar:
+            "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
           userid: user.id,
           email: user.emailAddress,
-          signature: '',
+          signature: "",
           title: user.title,
-          group: '',
-          tags: [{
-            key: '0',
-            label: '管理员'
-          }, {
-            key: '1',
-            label: 'Admin'
-          }],
+          group: "",
+          tags: [
+            {
+              key: "0",
+              label: "管理员"
+            },
+            {
+              key: "1",
+              label: "Admin"
+            }
+          ],
           notifyCount: 1,
-          country: 'China',
+          country: "China",
           geographic: {
             province: {
-              label: '浙江省',
-              key: '330000'
+              label: "浙江省",
+              key: "330000"
             },
             city: {
-              label: '杭州市',
-              key: '330100'
+              label: "杭州市",
+              key: "330100"
             }
           },
-          address: '',
-          phone: '18611178188'
+          address: "",
+          phone: "18611178188"
         };
-  
+
         yield put({
-          type: 'saveCurrentUser',
-          payload: currentUser,
+          type: "saveCurrentUser",
+          payload: currentUser
         });
       }
     },
 
-    *get({payload}, {call, put}){
+    *get({ payload }, { call, put }) {
       const customerId = payload;
       const response = yield call(Get, customerId);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getReducer',
-          payload: response,
+          type: "getReducer",
+          payload: response
         });
-        } else {
+      } else {
         message.error(response.message);
-
       }
     },
 
-    *getAll({payload}, {call, put, select, take}){
-      const state = yield select(state=>state[ServiceName]);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+    *getAll({ payload }, { call, put, select, take }) {
+      const state = yield select(state => state[ServiceName]);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting,
+        sorting: sorting
       };
       const response = yield call(GetAll, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
             query: payload
-          },
+          }
         });
       } else {
         message.error(response.message);
       }
     },
 
-    *getAllWithFullAudited({payload}, {call, put, select, take}){
-      const state = yield select(state=>state[ServiceName]);
-      const {current, pageSize, sorter, filters} = payload ? payload : state.query;
-      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+    *getAllWithFullAudited({ payload }, { call, put, select, take }) {
+      const state = yield select(state => state[ServiceName]);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
-        sorting: sorting,
+        sorting: sorting
       };
       const response = yield call(GetAllWithFullAudited, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
             query: payload
-          },
+          }
         });
       } else {
         message.error(response.message);
       }
     },
 
-
-    *create({payload}, {call, put}){
+    *create({ payload }, { call, put }) {
       const response = yield call(Create, payload);
-      if(response && response.success){
+      if (response && response.success) {
         const payload = response.result;
         yield put({
-          type: 'createOrUpdateReducer',
-          payload: payload,
+          type: "createOrUpdateReducer",
+          payload: payload
         });
-      }
-      else {
+      } else {
         console.log(response);
       }
     },
 
-    *update({payload}, {select, call, put, take}){
-      const state = yield select(state=>state[ServiceName]);
+    *update({ payload }, { select, call, put, take }) {
+      const state = yield select(state => state[ServiceName]);
       const response = yield call(Update, payload);
-      if(response && response.success){
+      if (response && response.success) {
         const result = response.result;
-        if(payload._next){ // 如果前面调用设置了执行完后要执行其它event时
+        if (payload._next) {
+          // 如果前面调用设置了执行完后要执行其它event时
           yield put({
             type: payload._next,
-            payload: payload._next_param,
+            payload: payload._next_param
           });
-        }
-        else{
+        } else {
           yield put({
-            type: 'createOrUpdateReducer',
-            payload: result,
+            type: "createOrUpdateReducer",
+            payload: result
           });
-          message.success('操作成功');
+          message.success("操作成功");
         }
-      }
-      else {
-        message.error('操作失败');
+      } else {
+        message.error("操作失败");
         console.log(response);
       }
     },
 
-    *delete({payload}, {call, put}){
+    *delete({ payload }, { call, put }) {
       const customerId = payload;
       const response = yield call(Delete, customerId);
-      if(response.success){
-
+      if (response.success) {
       } else {
         message.error(response.message);
       }
     },
 
-    *remove({payload}, {call, put}){
+    *remove({ payload }, { call, put }) {
       const body = payload;
       const response = yield call(Remove, body);
-      if(response.success){
-        const msg = body.id + ' was deleted.'
+      if (response.success) {
+        const msg = body.id + " was deleted.";
         message.success(msg);
       } else {
         message.error(response.message);
       }
     },
 
-    *quickSearch({payload}, {call, put}){
+    *quickSearch({ payload }, { call, put }) {
       // init the request value.
       const params = {
-        value: payload.value? payload.value: '',
-        count: payload.count? payload.count: 20,
+        value: payload.value ? payload.value : "",
+        count: payload.count ? payload.count : 20
       };
       const response = yield call(QuickSearch, params);
       yield put({
-        type: 'quickSearchReducer',
-        payload: response,
+        type: "quickSearchReducer",
+        payload: response
       });
     },
 
-    *query({payload}, {call, put, select, take}){
-
-      const state = yield select(state=>state[ServiceName]);
-      const {
-        current, 
-        pageSize, 
-        sorter, 
-        filters
-      } = (payload ? payload : state.query);
-      const sorting = sorter ? ( sorter.field + ' ' + (sorter.order === 'descend' ? 'desc' : 'asc')) : '';
+    *query({ payload }, { call, put, select, take }) {
+      const state = yield select(state => state[ServiceName]);
+      const { current, pageSize, sorter, filters } = payload
+        ? payload
+        : state.query;
+      const sorting =
+        sorter && sorter.field
+          ? sorter.field + " " + (sorter.order === "descend" ? "desc" : "asc")
+          : "";
       var params = {
         skipCount: (current - 1) * pageSize,
         maxResultCount: pageSize,
         sorting: sorting,
-        filters,
+        filters
       };
       const response = yield call(Query, params);
-      if(response.success){
+      if (response.success) {
         yield put({
-          type: 'getAllReducer',
+          type: "getAllReducer",
           payload: {
             ...response,
-            query: payload    // 在此Modle的State中保存上次查询的条件
-          },
+            query: payload // 在此Modle的State中保存上次查询的条件
+          }
         });
 
-        if(payload._next){
+        if (payload._next) {
           yield put({
             type: payload._next,
-            payload: payload._next_param,
+            payload: payload._next_param
           });
         }
-
       } else {
         message.error(response.message);
       }
@@ -332,26 +340,34 @@ export default {
      * @param {*} {payload}
      * @param {*} {call, put, select, take}
      */
-    *editorVisible({payload}, {call, put, select, take}){
+    *editorVisible({ payload }, { call, put, select, take }) {
       yield put({
-        type: 'changeEditorVisible',
-        payload: payload,
+        type: "changeEditorVisible",
+        payload: payload
       });
-    }
+    },
 
+    *changeUserPassword({ payload }, { select, call, put, take }) {
+      const response = yield call(ChangeUserPassword, payload);
+      if (response && response.success) {
+        message.success("密码更新成功");
+      } else {
+        message.error("密码更新失败");
+      }
+    }
   },
 
-  reducers: { 
+  reducers: {
     save(state, action) {
       return {
         ...state,
-        list: action.payload,
+        list: action.payload
       };
     },
     saveCurrentUser(state, action) {
       return {
         ...state,
-        currentUser: action.payload || {},
+        currentUser: action.payload || {}
       };
     },
     changeNotifyCount(state, action) {
@@ -359,27 +375,27 @@ export default {
         ...state,
         currentUser: {
           ...state.currentUser,
-          notifyCount: action.payload,
-        },
+          notifyCount: action.payload
+        }
       };
     },
 
-
-    clear(){
+    clear() {
       return {
-        data: [],           // storage the list after getall
-        total: 0,           // total count
-        search: [],         // quick search result
-        query: {            // query payload
+        data: [], // storage the list after getall
+        total: 0, // total count
+        search: [], // quick search result
+        query: {
+          // query payload
           current: 1,
           pageSize: 10,
-          sorting: '',
-          filters: null,
-        },
-      }
+          sorting: "",
+          filters: null
+        }
+      };
     },
 
-    getReducer(state, action){
+    getReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
@@ -388,26 +404,23 @@ export default {
       };
     },
 
-    getAllReducer(state, action){
+    getAllReducer(state, action) {
       // XTOPMS api > XTOPMS UI
       const {
-        result:{
-          totalCount, 
-          items
-        }, 
+        result: { totalCount, items },
         success,
-        query,
+        query
       } = action.payload;
 
       return {
         ...state,
         data: items,
         total: totalCount,
-        query: query,
+        query: query
       };
     },
 
-    quickSearchReducer(state, action){
+    quickSearchReducer(state, action) {
       const payload = action.payload;
       const data = payload ? payload.result : [];
       return {
@@ -416,7 +429,7 @@ export default {
       };
     },
 
-    createOrUpdateReducer(state, action){
+    createOrUpdateReducer(state, action) {
       const payload = action.payload;
       const created = payload ? payload.result : null;
       return {
@@ -425,11 +438,11 @@ export default {
       };
     },
 
-    changeEditorVisible(state, action){
+    changeEditorVisible(state, action) {
       return {
         ...state,
-        editorVisible: action.payload,
-      }
-    },
-  },
+        editorVisible: action.payload
+      };
+    }
+  }
 };

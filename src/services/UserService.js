@@ -96,6 +96,18 @@ export async function Query(params) {
   return request(CON_API_URI + 'query', option);
 }
 
+export async function ChangePassword(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'ChangePassword', option);
+}
+
+export async function ChangeUserPassword(params) {
+  const restParams = params;   // 如果没有特殊要求，不用进行二次加工。
+  const option = {method: "POST", body: restParams, }
+  return request(CON_API_URI + 'ChangeUserPassword', option);
+}
+
 /*
 * 猎取当前登录用户信息
 */
